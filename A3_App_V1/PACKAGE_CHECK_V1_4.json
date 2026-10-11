@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-09",
+  "archive": "AirAssist_A3_V1_4.zip",
+  "artifact_type": "Runnable source ZIP, locally packaged after reviewed OpenCode edits",
+  "native_opencode_export": "evidence/OPENCODE_CASE_SESSION.json",
+  "source_files": 63,
+  "entries": 64,
+  "bytes": 232431,
+  "sha256": "5a191abdbb189ef1c640c5d7f2eabaee74af3d77d9182445b19ec4536910808d",
+  "checks": {
+    "zip_crc_valid": true,
+    "no_private_files": true,
+    "actual_personal_key_absent": true,
+    "classroom_identity_absent": true,
+    "safe_relative_paths": true,
+    "source_manifest_exact": true,
+    "source_manifest_hashes_match": true,
+    "source_matches_current_project": true,
+    "required_evidence_present": true,
+    "all_json_valid": true
+  },
+  "passed": true
+}

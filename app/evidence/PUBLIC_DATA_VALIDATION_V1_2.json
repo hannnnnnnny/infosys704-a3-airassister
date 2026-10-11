@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-08",
+  "scope": "Public-source design validation. Runtime sandbox tests are recorded separately in SAP_LIVE_CASE_REFERENCE_V1_2.json. No real passenger, ticket or payment data is used.",
+  "sources": [
+    {
+      "title": "Air New Zealand: Manage your flight bookings",
+      "url": "https://www.airnewzealand.com/manage-bookings",
+      "verified": "2026-10-08",
+      "findings": [
+        "Bookings made through a travel agent or another airline are directed to that booking provider.",
+        "Fare type and route affect cancellation and refund conditions.",
+        "Air New Zealand booking references have six alphanumeric characters and end in H."
+      ],
+      "app_implication": "Keep the travel-agent branch, six-character synthetic references ending in H, and human review of rules. These public statements do not establish a particular passenger's refund entitlement."
+    },
+    {
+      "title": "Air New Zealand: Credits and refunds",
+      "url": "https://www.airnewzealand.com/en-nz/book/credits-and-refunds",
+      "verified": "2026-10-08",
+      "findings": [
+        "Direct and travel-partner bookings have different credit-management channels.",
+        "Credit availability depends on circumstances and applicable booking conditions."
+      ],
+      "app_implication": "Do not automatically equate a disruption, a credit memo request, a travel credit or a payment refund."
+    },
+    {
+      "title": "SAP Business Accelerator Hub: Credit Memo Request (A2X)",
+      "url": "https://api.sap.com/api/sap-s4-CE_CREDITMEMOREQUEST_0001-v1/overview",
+      "verified": "Earlier personal-account API inspection and recorded sandbox GET evidence",
+      "app_implication": "Use only the actual read-only OData v4 response as a generic financial reference. Preserve raw status codes and currency; do not infer airline booking linkage, verified payment, refundable amount, approval or completed payment."
+    },
+    {
+      "title": "OpenCode CLI: Export",
+      "url": "https://opencode.ai/docs/cli/#export",
+      "verified": "2026-10-08",
+      "findings": ["The documented CLI export operation exports a session as JSON."],
+      "app_implication": "Retain real native OpenCode session exports and a separately checked runnable source ZIP. Do not describe locally packaged source as a verified native App ZIP export operation."
+    }
+  ],
+  "test_data_classification": {
+    "journeys_and_cases": "Synthetic local fixtures and test-only example.com contacts",
+    "financial_record": "SAP public sandbox sample 60000002, fetched with the authorized personal API Hub key on the server",
+    "negative_lookup": "Unknown numeric sandbox document 9999999999; failure must not create a snapshot or case event",
+    "excluded": "Production passenger records, real payment evidence, classroom account configuration, SAP write operations and model transmission of secrets"
+  },
+  "limitations": [
+    "Public policy guidance is context, not a live eligibility engine or a substitute for authoritative ticket and payment records.",
+    "The generic SAP USD net amount is not reconciled to the synthetic NZD journey fare.",
+    "The selected API partially fits the A2 refund-case preparation proposal; actual airline reconciliation remains outside the prototype."
+  ]
+}

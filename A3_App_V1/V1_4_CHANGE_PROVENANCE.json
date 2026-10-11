@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-09",
+  "revision": "V1.4",
+  "changes": {
+    "public/index.html": "Simplified service page hierarchy and labels.",
+    "public/styles.css": "Restrained white/divider layout, unified fonts, responsive spacing and visibly disabled actions.",
+    "public/app.js": "Reduced nested review cards and natural action wording; backend contract retained.",
+    "README.txt": "Current artifacts, confirmed member usernames and 25% contributions."
+  },
+  "backendIdenticalToV1_3": true,
+  "nativeOpenCodeExportsUnchanged": true,
+  "v1_4_contributor": "Local Codex-assisted refinements; genuine historical OpenCode core contributions retained.",
+  "sourceHashes": {
+    "server.py": "b526509be8e73db7bc07c4257e14a06b7690a13618ce76bc0fdd42d84afba5f5",
+    "public/index.html": "9da5307d3103bae6c66cd5a10929bbae75b63a261a5fc24efa36fa63894f7d0c",
+    "public/app.js": "79ce6b656ebb7582d2d1bf962045e72efeac51364176b131028a797304d61451",
+    "public/styles.css": "cbe02793954653c089bc6993582a3a68700c0f820884e799cc607d1abce7f312",
+    "tests/frontend-state.cjs": "41df97aaeffadc727ff12fde30415884bf9ff01df28f6344a945eecd6b01b5bb",
+    "README.txt": "06c05daeca6d40781bb5f3fb50c79e66d231f49bc2c388f8981266135119a44c"
+  },
+  "noUpstreamWrite": true,
+  "noDeployment": true,
+  "verification": [
+    "TEST_RESULTS_V1_4.txt",
+    "FRONTEND_TEST_RESULTS_V1_4.txt",
+    "V1_4_BROWSER_ACCEPTANCE.json"
+  ],
+  "scope": "Local case preparation and standard/specialist queue handoff; read-only SAP sample reference. No ticket cancellation, refund approval or payment.",
+  "screenshotBaseline": "Final incomplete button screenshot uses separate synthetic v0 case AF-A5B5BA84B950. Main flow evidence uses AF-CC7A93DA2007 v6/7 events."
+}

@@ -1,0 +1,14 @@
+# Personal credentials and local application data must not be committed/exported.
+.env
+.env.*
+!.env.example
+.data/
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+
+# Python cache and temporary test data.
+__pycache__/
+*.py[cod]
+tests/runtime-*/
+.DS_Store

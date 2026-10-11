@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode/big-pickle",
+  "share": "disabled",
+  "permission": {
+    "read": "allow",
+    "edit": "allow",
+    "bash": { "*": "ask", "dir": "allow", "ls": "allow", "dir /s /b | head -60": "allow", "find . -type f | head -50 && ls": "allow", "Get-ChildItem -Recurse -File . | Select-Object FullName": "allow" },
+    "external_directory": "deny",
+    "webfetch": "deny",
+    "websearch": "deny"
+  }
+}

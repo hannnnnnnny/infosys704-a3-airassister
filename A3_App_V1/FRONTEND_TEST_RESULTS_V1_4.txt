@@ -1,0 +1,29 @@
+PASS booking out-of-order response never replaces newer booking; inputs lock
+PASS tracking captures the correct owner and disables saved-request shortcut
+PASS financial query rejects delayed old errors after a newer success
+PASS navigation cancels pending reads without rendering old results
+PASS editing query input clears stale data and error feedback
+PASS review note/check/reference draft survives VM reload without a POST
+PASS review drafts cannot cross owner or case reference
+PASS older-version recovered draft blocks save and handoff until explicitly reviewed
+PASS keeping an old draft adopts current version but still requires a fresh save before handoff
+PASS discard draft restores server checks and does not write to the backend
+PASS successful explicit save removes session draft and records server version
+PASS saved-review handoff is an independent button using the saved note and current version
+PASS saved-review handoff stays blocked by a new unsaved note or evidence edit
+PASS server conflict refresh retains old version and requires explicit review; no automatic retry
+PASS SAP capture is blocked by unsaved review draft
+PASS successful SAP capture retains true source and does not check review evidence
+PASS SAP error creates no fallback snapshot and retains capture input
+PASS new case lookup clears the prior case financial note/error even after input cleared selection
+PASS same-case lookup retry keeps the intentional capture note and document input
+PASS late review mutation cannot overwrite a different selected case or draft
+PASS late capture mutation cannot overwrite a different selected case or capture note
+PASS mutation can complete after navigation without forcing focus or routing back
+PASS missing financial amount or currency is never rendered as zero
+PASS optional SAP context is collapsed until requested, but a failure reveals recovery and retains the boundary
+PASS panel choices survive same-case refresh and cannot leak into a different case
+PASS native disclosure toggle records the users choice without any case write
+PASS review action rail submits the named review form and queued cases expose only reopening
+PASS editing a review updates visible action status while the saved routing remains authoritative
+28 frontend regression checks passed.

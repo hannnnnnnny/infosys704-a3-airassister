@@ -1,0 +1,422 @@
+{
+  "schema_version": "1.0",
+  "snapshot_date": "2026-10-08",
+  "total_max_marks": 200,
+  "awarded_marks": null,
+  "evidence_root": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/work/a3-app-v1/evidence",
+  "criteria": [
+    {
+      "id": "R1",
+      "name": "App rationale",
+      "max_marks": 10,
+      "weight_percent": 5,
+      "source_locator": "A3 V3 table 1 row 2",
+      "basis": "One approved A2 case preparation/routing package; justify using Effort Impact Matrix",
+      "evidence": [
+        "A2 V8 paragraphs 7 and 67-69; Figures 3 and 5",
+        "COURSEWORK_BASIS.txt"
+      ],
+      "status": "Business preparation rationale/qualitative matrix/roles/pilot definitions documented; impact unmeasured"
+    },
+    {
+      "id": "R2",
+      "name": "App design",
+      "max_marks": 30,
+      "weight_percent": 15,
+      "source_locator": "A3 V3 table 1 row 3",
+      "basis": "Five stages of Design Thinking; client fit; visual appeal; Option 2 changes",
+      "evidence": [
+        "DESIGN_FEEDBACK_LEDGER.txt",
+        "A1D2 retained TO-BE",
+        "Corrected V2 Journey and Refund Request screenshots",
+        "RUNTIME_ACCEPTANCE.txt"
+      ],
+      "status": "Five stages/genuine iteration/client context/Option2 gap documented; no participant study"
+    },
+    {
+      "id": "R3",
+      "name": "App functionality",
+      "max_marks": 60,
+      "weight_percent": 30,
+      "source_locator": "A3 V3 table 1 row 4",
+      "basis": "Appropriate features; at least one working feature; lab guidelines; OpenCode and SAP requirements",
+      "test_ids": [
+        "T01",
+        "T02",
+        "T03",
+        "T04",
+        "T05",
+        "T06",
+        "T07",
+        "T08",
+        "T10",
+        "T11",
+        "T12",
+        "T13",
+        "T14",
+        "T15",
+        "T16",
+        "T17",
+        "T18",
+        "T19",
+        "T20",
+        "T21",
+        "T22"
+      ],
+      "evidence": [
+        "RUNTIME_ACCEPTANCE.txt",
+        "runtime_acceptance.json",
+        "SAP_LIVE_QUERY.json",
+        "OPENCODE_SESSION.json",
+        "OPENCODE_CASE_SESSION.json",
+        "TEST_RESULTS.txt",
+        "TEST_RESULTS_V1_2.txt",
+        "FRONTEND_TEST_RESULTS_V1_2.txt",
+        "SAP_LIVE_CASE_REFERENCE_V1_2.json"
+      ],
+      "status": "49backend23state+actualboundedCUA working loop verified"
+    },
+    {
+      "id": "R4",
+      "name": "App usability and ease of use",
+      "max_marks": 50,
+      "weight_percent": 25,
+      "source_locator": "A3 V3 table 1 row 5",
+      "basis": "Logical workflow, smooth transitions, user friendly, usability heuristics",
+      "test_ids": [
+        "T02",
+        "T03",
+        "T04",
+        "T09",
+        "T16",
+        "T17",
+        "T20",
+        "T21",
+        "T22"
+      ],
+      "evidence": [
+        "Limited expert V2 desktop visual/source review",
+        "Main task developer browser acceptance"
+      ],
+      "status": "Current draft/conflict/snapshot/recovery/mobileTab verified within scope",
+      "participant_study": "not_conducted"
+    },
+    {
+      "id": "R5",
+      "name": "App presentation",
+      "max_marks": 50,
+      "weight_percent": 25,
+      "source_locator": "A3 V3 table 1 row 6; paragraph 13",
+      "basis": "Five-minute Lab 12 pitch, professional voice, SCR, verified demo and final groupwork disclaimer",
+      "status": "planned_later_outside_current_build_output"
+    }
+  ],
+  "tests": [
+    {
+      "id": "T01",
+      "purpose": "Create and retrieve same persisted synthetic request after reload/restart",
+      "status": "passed_browser_reload_restart_tracking_and_automated_store_reopen",
+      "actual_result": "POST201 AF-937FC600C098; confirmation reload same record; after integrated main server restart tracking retrieved original with matching synthetic email; backend persistence test passed",
+      "evidence": [
+        "runtime_acceptance.json"
+      ],
+      "limitation": "Verified reported restart/tracking scenario only, not every workflow after restart"
+    },
+    {
+      "id": "T02",
+      "purpose": "Reject missing/invalid input and recover without creating bad records",
+      "status": "passed_automated_validation_and_browser_acknowledgment",
+      "actual_result": "Unchecked acknowledgement kept Submit disabled; checking enabled valid POST; reported suite covers invalid inputs; browser travel-agent sample changes CTA and direct refund route exposes no form",
+      "evidence": [
+        "runtime_acceptance.json"
+      ]
+    },
+    {
+      "id": "T03",
+      "purpose": "Unknown reference/wrong email exposes no unrelated record",
+      "status": "passed_browser_and_automated",
+      "actual_result": "Wrong email showed generic not found and removed stale result; wrong owner/missing reference backend test passed; BAD999 browser lookup removes stale ticket and retains input",
+      "evidence": [
+        "runtime_acceptance.json"
+      ]
+    },
+    {
+      "id": "T04",
+      "purpose": "Back/edit/review/confirmation/tracking retain and show the same data; document duplicate behavior",
+      "status": "passed_reported_continuity_and_mobile_duplicate",
+      "actual_result": "Edited email/details carried to review; confirmation reload and tracking returned original submitted data; changed duplicate returns unchanged original explicitly in tested backend response and reviewed UI source; mobile changed duplicate visibly returned original AF-937FC600C098 Flight cancelled/details unchanged",
+      "evidence": [
+        "runtime_acceptance.json"
+      ],
+      "limitation": "Not every possible navigation route is separately recorded"
+    },
+    {
+      "id": "T05",
+      "purpose": "Personal-account SAP GET shows actual HTTP result, provenance, currency and document semantics",
+      "status": "passed_actual_personal_sap_get_and_staff_browser",
+      "actual_result": "GET 60000002 HTTP 200: USD1000 net amount, reference60000001, categoryH/processC, blank approval, created2016-09-21; staff Live response observed; no payment inference",
+      "evidence": [
+        "SAP_LIVE_QUERY.json",
+        "RUNTIME_ACCEPTANCE.txt",
+        "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/sap-live-query.jpg"
+      ],
+      "limitation": "Generic financial document only; no airline link, SAP write, eligibility, refund approval or payment proved"
+    },
+    {
+      "id": "T06",
+      "purpose": "Missing SAP configuration, unavailable service, timeout and empty/bad reference show honest states",
+      "status": "unconfigured_browser_mock_checks_and_actual_live_not_found_passed",
+      "actual_result": "Earlier unconfigured browser HTTP503/no example plus actual authenticated unknown document9999999999 upstream HTTP404/SAP_NOT_FOUND without substitute record; other errors and absent financial values covered by mocked tests; staff browser actual404 showed generic No SAP matches and removed stale record",
+      "evidence": [
+        "runtime_acceptance.json",
+        "SAP_LIVE_QUERY.json",
+        "outputs/A3_App_V1/screenshots/sap-query-not-found.jpg"
+      ],
+      "limitation": "Live timeout and other upstream failures not separately tested; missing-money cases still mocked"
+    },
+    {
+      "id": "T07",
+      "purpose": "No credentials in public assets; no SAP write, airline change, automatic approval or payment",
+      "status": "source_automated_and_candidate_private_exclusion_checks_verified",
+      "actual_result": "Reviewed server-only key handling and public-only static serving; reported tests cover private paths, SAP POST rejection and Host/Origin guards; main task candidate28sourcefiles+manifest29entries checked: actual key absent and no env/data/db/cache/log/classroomidentity, required evidence present and manifest matched",
+      "evidence": [
+        "runtime_acceptance.json"
+      ],
+      "limitation": "Candidate content check is verified; main task records rebuilt final CRC/JSON/hash externally"
+    },
+    {
+      "id": "T08",
+      "purpose": "Actual OpenCode development/session evidence, app verification and required project export",
+      "status": "source_session_export_backend20test_ui_receipt_and_local_candidate_zip_contents_verified",
+      "actual_result": "Authorized real session ses_eea1d9afeffeG8mqaDzCCaGq7n completed receipt/test source edits; native sanitized session JSON metadata verified26643bytes/11messages/hash; receipt backend integrated main20PASS4.679s/independent stage20PASS4.628s; actual browser682byteJSON receipt download and root field validation passed after restart; local candidate source ZIP28files+manifest29entries contents checked by main task",
+      "evidence": [
+        "runtime_acceptance.json",
+        "OPENCODE_SESSION.json",
+        "outputs/A3_App_V1/screenshots/desktop-receipt.jpg",
+        "OPENCODE_BUILD.txt",
+        "OPENCODE_BUILD.json",
+        "OPENCODE_STAGE_CONFIG.json"
+      ],
+      "limitation": "CLI export is native session JSON; App source ZIP locally packaged after real edits; no dedicated course-UI App ZIP export or classroom submission asserted; final repack validation external",
+      "client_scope": "Official local CLI source-only free-provider run; personal OpenCode cloud login not established",
+      "current_actor_note": "Historical OpenCode contributions retained; V1.2 local refinements; current package external/course export unconfirmed"
+    },
+    {
+      "id": "T09",
+      "purpose": "Keyboard, labels, focus, mobile 360/390px, desktop overflow and main action prominence",
+      "status": "checked_layout_and_keyboard_segments_including_final_post_focus_passed",
+      "actual_result": "Mobile clientWidth375/scrollWidth375 and desktop clientWidth1265/scrollWidth1265; Refund focuses MAIN; asynchronous Track focuses DIV result matching saved record; Tab from reference to email INPUT to Find request BUTTON; second POST201 AF-6B04B05AB68F after confirmation async GET/rerender focused H2 Request saved successfully.; subsequent receipt mobile390x844 layout client/scroll375 and button143.28x48",
+      "evidence": [
+        "runtime_acceptance.json",
+        "outputs/A3_App_V1/screenshots/mobile-application.jpg",
+        "outputs/A3_App_V1/screenshots/mobile-receipt.jpg"
+      ],
+      "limitation": "Pass applies to recorded scenarios only; full page initial BODY focus is intentional, not a failure; not comprehensive keyboard/accessibility coverage",
+      "v11_evidence": "Actual390x844client375scroll375/Reopen297x48px/noteTabtoReopen; boundedscenariosonly",
+      "v12_evidence": "CUA390x844375=375;Find46/capture48/reopen48/secondaryfinal44;ref-email-FindTab;notall48"
+    },
+    {
+      "id": "T10",
+      "purpose": "Owner reference/email required; unknown pair and unrestricted list rejected",
+      "status": "passed_backend_and_actual_owner_error_restore_browser",
+      "actual_result": "Actual successful owner/no-list cases in test_cases and original owner protection tests",
+      "evidence": [
+        "TEST_RESULTS.txt",
+        "tests/test_case_workflow.py",
+        "tests/test_cases.py"
+      ],
+      "limitation": "Isolated backend behavior; new browser workflow not yet verified",
+      "current_evidence": "49backend/actualboundedV1.2CUA;actualtwo-tabstaleversion and isolatedconcurrenttest distinguished"
+    },
+    {
+      "id": "T11",
+      "purpose": "Missing required evidence yields targeted local information-needed state and blocks handoff",
+      "status": "passed_backend_and_reported_core_browser",
+      "actual_result": "Actual missing-check and incomplete-handoff tests pass with unchanged version/events on rejected handoff",
+      "evidence": [
+        "TEST_RESULTS.txt",
+        "tests/test_case_workflow.py",
+        "tests/test_cases.py"
+      ],
+      "limitation": "Isolated backend behavior; new browser workflow not yet verified",
+      "current_evidence": "49backend/actualboundedV1.2CUA;actualtwo-tabstaleversion and isolatedconcurrenttest distinguished"
+    },
+    {
+      "id": "T12",
+      "purpose": "Explained prototype-v1 standard and specialist route/queue/owner assignment",
+      "status": "passed_backend_and_reported_standard_specialist_browser",
+      "actual_result": "Actual complete-review,other-reason and specialist-flag tests pass; local route is not eligibility/approval/payment",
+      "evidence": [
+        "TEST_RESULTS.txt",
+        "tests/test_case_workflow.py",
+        "tests/test_cases.py"
+      ],
+      "limitation": "Isolated backend behavior; new browser workflow not yet verified",
+      "current_evidence": "49backend/actualboundedV1.2CUA;actualtwo-tabstaleversion and isolatedconcurrenttest distinguished"
+    },
+    {
+      "id": "T13",
+      "purpose": "Save/handoff/reopen and restart preserve same case/track/receipt state and events",
+      "status": "passed_backend_and_actual_save_handoff_reopen_reload_track_current_receipt",
+      "actual_result": "Actual persistence/reopen/receipt tests pass,including old-schema migration and original application/key continuity",
+      "evidence": [
+        "TEST_RESULTS.txt",
+        "tests/test_case_workflow.py",
+        "tests/test_cases.py"
+      ],
+      "limitation": "Isolated backend behavior; new browser workflow not yet verified",
+      "current_evidence": "49backend/actualboundedV1.2CUA;actualtwo-tabstaleversion and isolatedconcurrenttest distinguished"
+    },
+    {
+      "id": "T14",
+      "purpose": "Stale and concurrent version writes preserve atomic single event/update",
+      "status": "passed_integrated_backend_bounded_browser_as_described",
+      "actual_result": "Actual stale-version tests and two-writer200/409 independent test pass",
+      "evidence": [
+        "TEST_RESULTS.txt",
+        "tests/test_case_workflow.py",
+        "tests/test_cases.py"
+      ],
+      "limitation": "Isolated backend behavior; new browser workflow not yet verified",
+      "current_evidence": "49backend/actualboundedV1.2CUA;actualtwo-tabstaleversion and isolatedconcurrenttest distinguished"
+    },
+    {
+      "id": "T15",
+      "purpose": "Strict review payloads,invalid transitions and no SAP calls on case updates",
+      "status": "passed_integrated_backend_bounded_browser_as_described",
+      "actual_result": "Actual malformed/invalid/rejectedapprove_refund/control-character checks pass; local case SAP calls forbidden",
+      "evidence": [
+        "TEST_RESULTS.txt",
+        "tests/test_case_workflow.py",
+        "tests/test_cases.py"
+      ],
+      "limitation": "Isolated backend behavior; new browser workflow not yet verified",
+      "current_evidence": "49backend/actualboundedV1.2CUA;actualtwo-tabstaleversion and isolatedconcurrenttest distinguished"
+    },
+    {
+      "id": "T16",
+      "purpose": "Latest query/navigation guards",
+      "status": "Verified with explicit scope",
+      "scope": "23VM;CUApendinglocks/navcancel;timednativeraceunreported",
+      "evidence": [
+        "TEST_RESULTS_V1_2.txt",
+        "FRONTEND_TEST_RESULTS_V1_2.txt",
+        "RUNTIME_ACCEPTANCE.txt"
+      ]
+    },
+    {
+      "id": "T17",
+      "purpose": "Owner/version draft recovery",
+      "status": "Verified with explicit scope",
+      "scope": "23VM+actualreload/two-tabv1-v2conflict/manualreview",
+      "evidence": [
+        "TEST_RESULTS_V1_2.txt",
+        "FRONTEND_TEST_RESULTS_V1_2.txt",
+        "RUNTIME_ACCEPTANCE.txt"
+      ]
+    },
+    {
+      "id": "T18",
+      "purpose": "Server documentary capture/source/transaction guards",
+      "status": "Verified with explicit scope",
+      "scope": "49backend+actualv1 keptchecks/readiness unchanged",
+      "evidence": [
+        "TEST_RESULTS_V1_2.txt",
+        "FRONTEND_TEST_RESULTS_V1_2.txt",
+        "RUNTIME_ACCEPTANCE.txt"
+      ]
+    },
+    {
+      "id": "T19",
+      "purpose": "Failed lookup no mutation",
+      "status": "Verified with explicit scope",
+      "scope": "49backend+actual9999999999/v1/twoeventsunchanged",
+      "evidence": [
+        "TEST_RESULTS_V1_2.txt",
+        "FRONTEND_TEST_RESULTS_V1_2.txt",
+        "RUNTIME_ACCEPTANCE.txt"
+      ]
+    },
+    {
+      "id": "T20",
+      "purpose": "Currentcase/snapshot/track/receipt consistency",
+      "status": "Verified with explicit scope",
+      "scope": "InspectedactualAPIproofv1/v7 and5042byteUIreceiptrootcomparison",
+      "evidence": [
+        "TEST_RESULTS_V1_2.txt",
+        "FRONTEND_TEST_RESULTS_V1_2.txt",
+        "RUNTIME_ACCEPTANCE.txt"
+      ]
+    },
+    {
+      "id": "T21",
+      "purpose": "Independent saved-review handoff",
+      "status": "Verified with explicit scope",
+      "scope": "Actualnativebug/fix/normalclickv4/v7+VM",
+      "evidence": [
+        "TEST_RESULTS_V1_2.txt",
+        "FRONTEND_TEST_RESULTS_V1_2.txt",
+        "RUNTIME_ACCEPTANCE.txt"
+      ]
+    },
+    {
+      "id": "T22",
+      "purpose": "Capturefields keyed owner/case",
+      "status": "Verified with explicit scope",
+      "scope": "23VM; separate native cross-case capture-form test unreported",
+      "evidence": [
+        "TEST_RESULTS_V1_2.txt",
+        "FRONTEND_TEST_RESULTS_V1_2.txt",
+        "RUNTIME_ACCEPTANCE.txt"
+      ]
+    }
+  ],
+  "update_rule": "Attach actual evidence before moving a pending test to passed; preserve limitations and source provenance. Do not infer tests passed from screenshots or code alone.",
+  "deadlines": [
+    {
+      "deliverable": "Prototype ZIP exported from OpenCode.ai",
+      "local_datetime": "2026-10-19T11:59:00",
+      "before_noon": true,
+      "status": "Formal Canvas delivery unperformed; current package result external"
+    },
+    {
+      "deliverable": "Pitch slides with final groupwork disclaimer",
+      "local_datetime": "2026-10-20T11:59:00",
+      "before_noon": true,
+      "status": "pending"
+    }
+  ],
+  "latest_backend_result": {
+    "passed_count": 49,
+    "elapsed_seconds": 22.327,
+    "scope": "IsolatedHTTP/SQLite/mockedSAP;actualstdoutinspected",
+    "record": "TEST_RESULTS_V1_2.txt"
+  },
+  "personal_sap_live_read": {
+    "verified": true,
+    "evidence": "SAP_LIVE_QUERY.json",
+    "scope": "Authenticated GET 200/404 only"
+  },
+  "authorization": {
+    "source_transmission": "explicitly approved",
+    "private_personal_key_save": "explicitly approved and saved as main task reports"
+  },
+  "candidate_package_verification": {
+    "current_version": "V1.2",
+    "authority": "External PACKAGE_CHECK_V1_2.json /PACKAGE_SMOKE_V1_2.json after frozen writes",
+    "zip_self_hash_embedded": false
+  },
+  "current_version_status": "V1.2 scoped loop/snapshot/draft49backend23state+boundedCUA verified; current package authority external",
+  "non_presentation_max_marks": 150,
+  "latest_frontend_result": {
+    "passed_count": 23,
+    "scope": "ActualsourceNodeVM, distinct from nativebrowser",
+    "record": "FRONTEND_TEST_RESULTS_V1_2.txt"
+  },
+  "remaining_boundaries": [
+    "Participant/nativeMac/comprehensiveaccessibility/businesspilotunproved",
+    "FormalCanvas/courseAppZIPexport/unrecordedlaterLabguidance",
+    "Presentation outside current user phase"
+  ],
+  "formal_deliverable_submission_complete": false
+}

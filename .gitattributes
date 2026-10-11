@@ -1,0 +1,18 @@
+# Show ordinary source and Markdown changes as text.
+* text=auto
+*.md text eol=lf
+
+# Office documents and accepted deliverables are binary; edit them in sequence.
+*.pptx binary
+*.pdf binary
+*.zip binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+
+# Preserve original evidence bytes and hashes across operating systems.
+/app/** -text
+/A3_App_V1/** -text
+/A3_Presentation/** -text
+/REVIEW_MANIFEST.json -text
+/START_HERE.txt -text

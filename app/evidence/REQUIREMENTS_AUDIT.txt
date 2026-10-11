@@ -1,0 +1,111 @@
+INFOSYS 704 A3 requirements audit — V1.2
+
+CURRENT V1.2 RECORD
+Updated 2026-10-08. V1.2 verifies the scoped case-preparation loop, documentary SAP snapshot, draft/version recovery and bounded browser workflow. Final captured results: 49 backend tests and 23 frontend state regressions passed. This is a local synthetic airline prototype using a real personal-account SAP public-sandbox GET. Authoritative current ZIP results are external PACKAGE_CHECK_V1_2.json and PACKAGE_SMOKE_V1_2.json after source/evidence writes stop. No awarded score, production authorization, participant study or achieved business benefit is claimed.
+
+Current Option2 and tool/data fit
+Retain the original direct-booking refund problem and A1D2 TO-BE. The SAP snapshot now supplies a persisted contextual financial reference, strengthening partial fit beyond a detached query page. It still does not retrieve/reconcile authorized airline booking/ticket/payment/disruption records. Synthetic journeys, manual attestations, local routing/queues/events and generic sandbox fields must be explicitly distinguished. Standard route is not eligibility/approval. Significant replacement of the business problem would require revisiting Option3/model obligations.
+PUBLIC_DATA_VALIDATION_V1_2.json provides root's primary public Air NZ channel/conditions/reference-format and official CLI checks. Public policy is context, not individual entitlement or client approval. Classroom account remains tutorial-only; project configuration/API work is personal. No credential/private database was accessed by this evidence agent.
+
+Actual root-owned TEST_RESULTS_V1_2.txt and FRONTEND_TEST_RESULTS_V1_2.txt were inspected. Final backend run: 49 PASS in 22.327s, exit 0, comprising 38 prior tests plus 11 financial-reference tests. Isolated HTTP/SQLite fixtures and mocked upstream SAP cover append-only captures, pre-GET and transactional post-GET owner/version guards, queued lock, failure/no mutation, malformed and boolean values, missing versus zero, preserved checks/route/currency and persisted request/receipt consistency. They do not test live authentication or existing private databases. Final frontend run: 23 PASS, exit 0, using tests/frontend-state.cjs against actual public source. Node VM coverage includes latest-response guards, navigation cancellation, owner/version-keyed drafts, conflict/keep/discard, independent saved-review handoff, dirty-capture blocking and case-keyed capture fields. Node VM is distinct from native browser/accessibility evidence. This evidence agent inspected stdout but did not rerun either suite.
+
+The captured reference is a server-fetched SAP public-sandbox read-only GET: fetchedAt 2026-10-07T12:18:31Z (8 October NZ), USD 1000 net amount, preceding 60000001, raw category H/process C, blank approval, created 2016-09-21. Note/source/fetch/capturedAt/version/event remain traceable. context=demonstration_only, bookingMatch=not_verified, paymentVerification=not_performed and refundEligibility=not_assessed. Capture leaves checks/readiness/routing unchanged. It does not reconcile authorized airline records, determine entitlement, create a SAP application, approve or pay. Queue/roles are selected-case local ownership, not authenticated airline staff or an unrestricted backlog. Event counts/timestamp differences do not measure handling touches or net working minutes.
+
+The genuine V1.1 OpenCode core contribution remains historical provenance: official local CLI 1.18.35 / opencode/fledge-alpha-free, session ses_ee9f0a481ffeU4025PaxyUCkoa, 62584 bytes, 22 messages, SHA-256 dee56a199b28f92b1e83b651ec5926d20f582b5b28ebec73a9ee594ca80c74d7. Historical receipt session ses_eea1d9afeffeG8mqaDzCCaGq7n is 26643 bytes/11 messages, SHA-256 8e3abc87e0d029a8c450cd87e41e7f175914428ef6966db023d2831a9400d8d8. Metadata was inspected; both native exports are retained unchanged and distinct from the runnable source ZIP. V1.2 refinements are local team work, not newly model-generated code. Historical source hashes are not claims that every current file matches the generated stage. No personal OpenCode cloud login is asserted.
+
+Current artifact: AirAssist_A3_V1_2.zip, locally packaged from the reviewed project. Current package facts belong to outputs/A3_App_V1/PACKAGE_CHECK_V1_2.json and PACKAGE_SMOKE_V1_2.json, produced after these evidence files are frozen. Those external reports are authoritative for CRC, manifest/current-source/JSON/private-exclusion and fresh extracted-project checks. No current ZIP self-hash or package-complete flag is embedded here. Historical V1/V1.1 archive evidence is separate. Canvas upload and a dedicated course-UI App-ZIP export operation are not asserted.
+
+Not performed/proved: passenger/refund-staff participant study, comprehensive keyboard/screen-reader/accessibility coverage, native Mac launch, production identity/authorization/operations, real airline reconciliation/eligibility/approval/payment or measured pilot benefit. Course-specific App-ZIP export procedure, unrecorded later/oral lab guidance, deadline timezone and Canvas delivery remain qualified or future obligations. Current user instruction excludes PPT; this is not all-A3 completion.
+
+HISTORICAL V1/V1.1 SUPPORTING RECORD
+The following retained text records earlier evidence/status at those stages. Earlier38/20/14 tests, v6/seven-event case, 38px/other prior target measurements and prior ZIP observations do not override the current record above. Formal source clauses remain applicable. Current package verification is external.
+
+Supporting assessment notes; not an additional mandatory report.
+
+Authority and source order
+The A3 V3 specification is the formal assessment source. New teacher announcements supplied by the user explain the move to OpenCode.ai and the option rules. Earlier lab and SAP product slides are context; they must not silently override the current specification or announcement. A user account restriction is binding for this project even where a course demonstration uses a classroom account.
+
+S1 Formal specification
+D:/Downloads/704_A3_2026 Build App_Specificatication and Marking Criteria_V3.docx
+References below use python-docx body paragraph positions and table row positions, not unverified printed page numbers.
+
+Paragraph 4: "WEIGHTING: 20%".
+Paragraph 6 connects this implementation with the solutions presented in A2 D1 and A2 D2 and asks for a functional app prototype.
+Paragraph 7: "OpenCode.ai and SAP APIs will be used to achieve this objective".
+Paragraph 9: "This assignment is a Group Assignment. There are two deliverables to this assignment".
+Paragraph 11: one group member must submit a "Zip File of the functional App prototype, exported from OpenCode.ai" on Canvas by "Monday, 19th October, 11:59 AM (Before Noon)". It also says "not to delete any content from OpenCode.ai until marking is complete".
+Paragraph 13: "five-minute functional app pitch during Lab 12 at your assigned time slot". One member uploads slides by "Tuesday, October 20th, 11:59 AM (Before Noon)". The "groupwork management disclaimer slide is added at the end of the presentation".
+These dates are 19 and 20 October 2026 in this 2026 course document. Do not confuse 11:59 AM with midnight. V3 does not state a timezone; verify Canvas's display in the course timezone before submission.
+Paragraphs 16-17 require checking design/interface and paying attention to functionality/usability. Paragraph 18 requires access to OpenCode.ai. Paragraph 19 frames the professional presentation as being to the client CEO.
+
+Table 1 row 2: Rationale, 10 marks / 5%. Specify one approved solution and justify implementation; hint: Effort Impact Matrix.
+Table 1 row 3: Design, 30 marks / 15%. Apply Design Thinking, address the client's business need, tailor the app to the client, and make it visually appealing; hint: five stages of Design Thinking.
+Option 1: SAP API fits the original solution; no additional details required.
+Option 2: SAP API partially fits; slightly modify the wrapper and/or solution and "provide details on what changed".
+Option 3: API does not fit; significant changes require details "including the new AS-IS and TO-BE models".
+Table 1 row 4: Functionality, 60 marks / 30%. Select appropriate features, "at least one working feature", and "Follow the Development Guidelines given in the Labs"; hint: Strategic Approach.
+Table 1 row 5: Usability, 50 marks / 25%. Logical, convincing workflow, smooth start-to-end transitions and ease of use; hint: ten usability heuristics.
+Table 1 row 6: Presentation, 50 marks / 25%. Clear/effective presentation, clear audible confident voice, appropriate pacing/emphasis and SCR (Situation-Complication-Resolution).
+Table 1 row 7: total 200 marks / 100%. Canvas's displayed total is a separate administrative scale; do not invent a different rubric or an unverified conversion rule.
+
+S2 Teacher announcement supplied in the conversation
+No standalone file of the announcement was available to this audit. This is user-supplied course clarification, not a quotation from S1.
+OpenCode.ai + SAP APIs replace the earlier SAP Build Code workflow. Options 1/2 may retain one member's existing TO-BE and explain the improvement; a wholly new Option 3 requires new AS-IS and TO-BE models. The course provides an Integration Suite / MCP connection route to S/4HANA Cloud. Availability of that route alone does not establish that every prototype must use it rather than another authorized SAP API connection. Do not claim a mandatory MCP architecture without a specific classroom instruction that says so.
+
+S3 Earlier lab slides
+E:/courses/INFOSYS 704/slides/INFOSYS_704_2026_S2_Lab 7_Content_V1.pptx, slide 10
+E:/courses/INFOSYS 704/slides/INFOSYS_704_2026_S2_Lab 8_Content_V1.pptx, slide 8
+They list group solution selection, Week 8 SAP introduction / AppGyver environment, Week 9 Design Thinking, Weeks 10-11 build/support, and Week 12 five-minute presentations. They contain old environment names. The extracted visible text and notes contain no Python ban, prescribed backend language, SQLite ban, compulsory hosting location, or detailed OpenCode export procedure. Absence of a ban is not affirmative teacher approval of a language.
+Lab 7 slide 11 and Lab 8 slide 9 identify A4 complete project documentation as individual work. This must not be confused with A3's group deliverables.
+
+S4 SAP labs introduction
+E:/courses/INFOSYS 704/slides/INFOSYS704 Labs 01 2026.pdf
+Page 2: four sessions, introduction, technical enablement, effective pitching/drop-in, final presentation.
+Page 47: MCP Gateway / SAP Integration Suite product introduction. This is not a complete app development mandate or proof that this project has configured MCP.
+The inspected document does not supply a backend-language restriction or deployment requirement.
+
+S5 SAP product presentation
+D:/Downloads/SAP UOA 26.pptx, slides 73, 75-78
+Describes SAP Build Code, Java/JavaScript, Joule, sample data, tests and integrations as product capabilities. It is earlier product context, not evidence that the current OpenCode assignment forbids a Python service. No credentials were used or copied into these supporting files.
+
+S6 API pool
+E:/courses/INFOSYS 704/slides/SAP API Pool v3.xlsx, Sheet1
+Cell A1: select SAP S/4HANA Cloud Public Edition in api.sap.com.
+Cell A2: search by technical name.
+Cell A3: "Click Try Out → run a GET request with $top=5 to limit results".
+Cell A4: use $select, $filter and $expand to shape the response.
+Row 13 names API_SALES_ORDER_SRV; row 22 names OP_API_SERVICE_REQUEST_SRV_0001. Credit Memo Request CE_CREDITMEMOREQUEST_0001 is not listed in this workbook. Its selection relies on the user's clarification that the teacher permits choosing an API from api.sap.com; do not describe it as a listed pool API.
+GET exercise instructions do not require a write to SAP. A successful read is not evidence of a create/write permission.
+
+Excluded source
+D:/Downloads/Lab 8.pdf is a COMPSCI 111 HTML5 assignment with a different deadline. Its requirements do not apply to INFOSYS 704 A3.
+
+Current architecture and verified scope
+Python standard-library HTTP service, SQLite and native HTML/CSS/JavaScript implement the local prototype. Inspected course files neither prescribe nor expressly approve that backend language. The current OpenCode/SAP requirements still apply. V3 does not explicitly mandate public hosting. Local operation is a demonstrable prototype, not a waiver of required tool/API evidence.
+
+Actual integrated backend result: 38 tests PASS in 15.649 seconds, exit 0, comprising 20 existing tests, 11 OpenCode case tests and 7 independent case tests. The evidence agent inspected captured full stdout in TEST_RESULTS.txt, but did not rerun tests or read the private application database. Isolated HTTP/SQLite tests verify old-schema/submission-key preservation, exact owner-pair access, no unrestricted case list, missing-check handoff rejection without mutation, explained standard/specialist routes, save/handoff/reopen persistence, tracking/receipt consistency, stale/concurrent version conflicts, strict inputs and zero SAP calls from case mutation. QA corrections reject malformed action types/control characters in paymentReference and use consistent read transactions.
+
+Actual main-task browser acceptance, 2026-10-08: AF-937FC600C098 with synthetic slow.speaker@example.com began at v0 with three missing reviewer checks and disabled Handoff. Saving incomplete information produced v1 information-needed. Completing checks/reference/note and saving produced v2 standard, ready for proposed queue. Handoff produced v3 queued standard with edits locked. Reopen with a note produced v4 prepared. Saving a manual specialist flag/note produced v5 complex, with the manual-flag reason and Refund specialist ownership. Handoff produced v6 assigned specialist. Staff reload fetched persisted v6. Passenger tracking showed the complex queued state/role and seven chronological events. Approval, amount and payment remained undetermined; no SAP document was created. Screenshot: C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/v1-1-queued-track.jpg. This agent records the main task report rather than claiming independent browser operation.
+
+Manual payment/rule/detail checks are local reviewer attestations against prototype data, not verified authorized airline record reconciliation. prototype-v1 proposes a review pathway; standard is not eligible, approved or paid. Queue/ownership describes the selected local case, not an unrestricted production backlog or authenticated staff system. Local chronological events are not a certified tamper-proof audit. SAP Credit Memo Request is a separate generic financial reference; there is no booking/application linkage and case actions make no SAP calls.
+
+OpenCode development provenance
+The main task reports explicit user authorization for the three source files and scoped requirements to the named OpenCode provider after approval-review rejections. Official local CLI 1.18.35 / opencode/fledge-alpha-free generated the case-workflow core and test_case_workflow.py. The evidence agent checked only sanitized native export metadata: OPENCODE_CASE_SESSION.json, session ses_ee9f0a481ffeU4025PaxyUCkoa, valid UTF-8 JSON, 62584 bytes, 22 messages, SHA-256 dee56a199b28f92b1e83b651ec5926d20f582b5b28ebec73a9ee594ca80c74d7. The earlier 11-message OPENCODE_SESSION.json is the historical V1 receipt contribution. Independent backend review integrated the new core with narrow validation/snapshot corrections; the original stage was retained. Frontend work and independent tests are separate contributions. No personal OpenCode cloud login is asserted. Native CLI session JSON is distinct from locally packaged App source ZIP.
+
+Personal-account rule and data boundary
+The user restricted the classroom temporary account to tutorials/learning practice at https://trials.cfapps.eu10-004.hana.ondemand.com. Actual SAP project/configuration/API/deployment work uses the user's personal account. The main task reported reverified personal profile, authorized private .env key save and actual authenticated read HTTP 200/404. This agent did not read .env/key/private databases. No classroom identity/credential is reproduced. Source-only OpenCode stages exclude private configuration.
+The historical verified SAP GET for 60000002 returned USD 1000 net amount, reference 60000001, category H, process C, blank approval and creation 2016-09-21. Unknown 9999999999 returned genuine upstream 404. SAP_LIVE_QUERY.json is the sanitized record. These are financial fields, not paid fare/refund eligibility/approval/settlement. V1.1 Financial UI retention was subsequently verified as recorded below.
+
+Option 2 and deliverable boundary
+The selected direct-booking ticket-refund problem and existing A1D2 TO-BE are retained. V1.1 now implements local case preparation, unresolved reviewer checks, standard/specialist review routing, explicit queue ownership and event history; authorized airline-record reconciliation and payment remain outside demonstrated scope. This is a partial API/data/implementation adaptation with explicit changes, not a wholly new Option 3 solution.
+At least one working feature is evidenced; V3 does not mandate a named login/SAP POST/AI classifier/refund-payment feature. No presentation deck is produced in this phase, but the later five-minute pitch, uploaded slides and final disclaimer remain required. No formal A3 report/video/interview-count/word/page-limit/public-deployment requirement was found. A4 individual documentation is separate.
+
+Packaging status
+Current V1.1 ZIP inspection is pending. The prior 28-source-file plus manifest/29-entry checked ZIP was historical V1 evidence and cannot verify changing V1.1 source. Root will record current-source/manifest/CRC/JSON/private-content checks outside the final ZIP after evidence writes. Do not embed a ZIP self-hash here. Classroom submission and a special course-UI App ZIP export are not asserted.
+
+
+Final V1.1 retained-feature browser acceptance, 2026-10-08
+Actual additional main-task acceptance, 2026-10-08: Download receipt completed C:/Users/Administrator/Downloads/airassist-receipt-AF-937FC600C098 (1).json. Root parsed 3248-byte valid JSON, format airassist-application-receipt, matching publicReference, queued_for_review status, review version6/complex/Refund specialist and seven events, source.mode local, null sapCreditMemoRequestId and no requestKey. The evidence agent did not independently read/download that file. Wrong-owner staff lookup using wrong.owner@example.com showed No application matches and removed the old case; restoring the correct contact retrieved persisted v6. Requested mobile390x844 measured clientWidth375/scrollWidth375 with no horizontal overflow; Reopen measured297x48px. After resetting the viewport, actual Tab moved from review note to Reopen button. These are bounded layout/keyboard observations, not comprehensive accessibility. Separate Financial UI actual personal-account GET60000002 showed Live response, USD1000 net amount/reference60000001/processC/approval Not supplied; GET9999999999 showed No SAP matches and removed the old result. There were no additional app-source changes from these checks. Screenshots: C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/v1-1-mobile-case.jpg and v1-1-sap-live.jpg.
+
+Current closing boundary
+All reported V1.1 developer acceptance scenarios passed. This does not establish every possible interaction, comprehensive keyboard/accessibility, production staff authentication, a participant study or achieved business gains. Current-source ZIP inspection is root-owned after these evidence writes and recorded outside the ZIP; no package self-hash or classroom submission completion is asserted here. Presentation deck/rehearsal/final disclaimer/Canvas delivery remain later coursework work.

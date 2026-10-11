@@ -1,0 +1,30 @@
+AirAssist V1.3 targeted staff usability review
+Date: 2026-10-08 Pacific/Auckland
+Scope: public/app.js, public/styles.css and tests/frontend-state.cjs.
+No backend, private configuration/database, SAP credentials, presentation or packaging edits.
+
+Problem addressed
+The prior staff workspace placed a full application overview, evidence list, SAP capture form and event history alongside a long review form. The current state and save/handoff work required too much scanning. This matters to A3 App Usability and App Design as well as a concise live demonstration.
+
+Implemented changes
+1. Compact case summary keeps traveller, email, reason, route, flight, booking/channel and synthetic-data boundary immediately visible. Original submission time, ticket value and details remain in a native Application details disclosure.
+2. A saved-routing summary shows the authoritative route, queue/owner, reasons and local-rules limitation above the review work. Unsaved checkbox/note changes never masquerade as a saved route.
+3. Review work is grouped into Evidence checks, Review route and Review note. Existing control names, IDs, required payment-reference/note rules and event contracts are preserved.
+4. A single sticky local action rail groups current saved/unsaved/conflict state, Save local review and the independent queue handoff. Submit buttons explicitly target the review form; handoff stays a separate type=button action using the saved note/current version. Queued cases expose reopening instead of a second handoff.
+5. Saved checklist, SAP reference/capture and event history use keyboard-operable native details/summary. SAP errors and pending captures reveal the financial panel automatically. User open/closed choices survive a same-case refresh, reset on a different case owner, and do not cause any write.
+6. The generic SAP sample limitation is visible even when the financial panel is collapsed. Captured fields/source/time, raw codes, booking/payment unknowns and every existing recovery control remain available when opened. SAP capture still does not tick evidence checks, establish eligibility or pay a refund.
+7. Responsive rules preserve the approved service palette/typeface. On small screens the active review comes before optional saved context; controls use readable mobile type and adequate tap height. The sticky rail is offset above bottom navigation. Reduced-motion and keyboard summary-focus states are included.
+
+Verification completed by this agent
+JavaScript syntax check: PASS.
+Actual-source Node VM frontend suite: 28/28 PASS, exit 0.
+Retained all 23 V1.2 regressions, including stale-response cancellation, owner/version draft recovery, dirty capture guards, independent saved-review handoff, failed SAP capture retention and late mutation isolation.
+Added 5 focused checks: collapsed SAP context/reveal-on-error with always-visible limitation; disclosure retention/reset by case identity; native toggle without writes; external review-form submit association and queued reopening-only actions; visible unsaved/conflict action status while saved routing remains authoritative.
+Test output: evidence/FRONTEND_TEST_RESULTS_V1_3.txt.
+These VM checks are developer regression evidence, not native-browser visual or participant-usability validation.
+
+Visual acceptance
+Root agent is conducting actual browser checks at local server 8789 against a fresh synthetic case, plus mobile layout and local handoff/tracking. This report does not claim browser acceptance before that evidence is recorded by the root agent.
+
+Rubric boundaries
+A3 is authoritative. This refinement improves the existing scoped preparation-and-local-handoff prototype; it does not add production airline processing or a new customer-research requirement. The account policy is unchanged: personal SAP for project work, temporary classroom account for tutorial viewing only.

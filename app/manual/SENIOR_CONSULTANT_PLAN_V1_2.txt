@@ -1,0 +1,91 @@
+AirAssist V1.2 — senior IT / AI consultant implementation and verification plan
+规划日期：2026-10-08。目标产物：AirAssist_A3_V1_2.zip。
+此文件是获准改进的实施计划，不是已完成验收、生产方案、客户批准或满分保证。本阶段不制作 PPT。新增功能只有在实际后端测试和浏览器结果出现后才更新为完成。
+
+1. 业务判断与优先顺序
+继续采用 A2 的直订机票退款准备与分流方案。V1.1 已有真实本地申请、资料不足、标准/专家路由、队列归属、重开、版本保护和事件历史；38 项后端测试及真实浏览器验收有证据。本次不扩大到退款决定、真实航空订票或支付。
+首要业务成果是一条完整、可解释的案件准备闭环：提交→识别未完成证据→人工检查→有理由的标准/专家交接→乘客查询与回执一致。查询/草稿控制是确保这条闭环可靠的支撑；SAP财务参考则补充有说明、来源和时间的上下文，不是新增装饰性模块或未经验证的AI资格判断。优先完成已有范围，不以复杂度代替方案质量。
+非 PPT 评分关注合计150分：理由10、设计30、功能60、易用50；并非剩余150分已经获得，也不免除正式A3的后续交付要求。改进是否增加分数仍由评分者判断。
+
+2. 案件准备闭环、责任和可测成功条件
+本次闭环的终点是“证据状态清楚、有理由地交给负责角色，并让查看者取到同一份已存记录”，而不是“已退款”。更大的业务退款闭环还包括资格/金额决定、授权、付款指令核对及银行到账；这些不在本原型能力内。需要在Option2中分别说明已实施机制、合成替代和真实接入缺口。
+
+阶段                    本地可交付能力                         责任与退出条件
+提交                    保存唯一申请/原始内容/编号             合成旅客提供联系与原因；成功后可重取同一申请
+资料不足                明示missing checks/原因                 Case coordinator负责未解决证据；不可带缺项交接
+人工准备                检查、示例reference、备注/版本          Local reviewer记录prototype attestations；不自动核准资格
+标准分流                supported reason/无complexity flag      Refund reviewer作为拟定责任角色；显示rule/reason/queue
+专家分流                Other/manual specialist flag等理由      Refund specialist作为拟定角色；显式异常理由和归属
+交接与重开              queued锁定、带备注reopen/事件            修改需恢复准备状态；旧版本不得覆盖新版本
+跟踪与记录              当前状态/角色/history/receipt一致        旅客获取同一已存版本；不出现approved/paid替代结论
+
+上述角色是本地原型中的流程归属，没有真实航空员工身份认证、岗位授权或客户端确认。真实pilot需由客户process owner批准范围和规则；standard/specialist reviewers实际核查；finance/payment owner仅在授权后负责付款核对；IT/data owner负责访问权限、数据质量和运行。小组当前负责原型实现、验收和如实交付，不可代替这些未来生产责任人。
+
+验收必须说明这个闭环“正确在哪里”，而不仅列test数量：相同owner始终重取原申请；缺项时handoff不可成功且无假事件；standard/specialist理由与输入/checks一致；queued需要reopen；保存后reviewer/Track/receipt版本、route、owner和事件一致；泛化财务reference与资格/付款保持分离；错误owner和失败查询不显露旧结果。实际每条操作的成功/未测/失败及版本值需有来源记录。
+
+受控pilot测量提案（未开展，不能写成结果）
+M1 First-handle readiness：首次实际处理时满足已批准必需证据且无未解决冲突的案件数/被处理案件数。由process owner定义必需项，独立抽样复核，不能只数checkbox勾选率。
+M2 Net handling minutes/touches：观察实际处理开始/暂停/结束，记录有效处理分钟及必要人工接触次数。local事件数或两个时间戳之差不能冒充员工触点、净处理时间或效率改善。
+M3 Avoidable rework：因已定义可避免缺项而返回/重新核查的案件数/完成交接案件数；注明原因和同一案件口径。不可把合成案例的成功路径当实测返工减少。
+M4 Routing quality：专家复核认可的标准/专家路径比例、误路由返回及复杂队列等待；按原因、复杂程度、渠道和case mix分层，避免仅转移工作到专家队列就声称提效。
+M5 Release safeguards：实际资格/金额/付款核对正确性由授权人工和财务记录验证，作为生产释放条件；本原型只证明没有声称自动审批/付款。
+比较计划：限定同一获准pilot范围，收集可比baseline和pilot窗口，记录case mix与规则版本，包含批准/拒绝结果；先验证H2（准备机制是否减少重复调查）再判断收益。A2原定百分比是待验证目标，没有本次测得的改善或cash saving。收集真实记录/观察需要客户授权，本次不新增或模拟这些数据。
+
+3. P0 — 查询竞态与审核草稿保护
+交付目的：迟到查询不能覆盖后来的案件或错误状态，切换视图不能无声丢掉正在编辑的审核内容。
+查询应绑定明确的查询意图、视图和 owner reference/email。用户发起新的查询、清空或切换案件时，旧请求的成功/失败回调都应失效；可使用取消机制，但取消本身不能替代响应归属检查。Save/Handoff/Reopen 的响应也应只更新对应的当前案件。
+审核草稿以案件和版本为边界保存最少必要的原型字段。采用明确的未保存提示、继续编辑/放弃入口或安全的临时恢复方式。草稿不是已提交审核，不得提前改变乘客进度、队列或事件。不同案件/联系邮箱不得共享草稿；不把 SAP key、真实个人资料或服务配置放入浏览器草稿。
+收到版本冲突时，保留用户本次编辑，展示新版本和冲突原因，要求人工复核后重试；不得自动重放旧修改覆盖新结果。Queued 状态仍须带备注 Reopen 后再修改，Handoff 不得绕过尚未保存的检查变化。
+
+P0 验收
+A01：连续查 A→B，让 A 后返回，结果仍为 B；旧失败也不覆盖新的成功。
+A02：正确 owner→错误 owner，迟到的正确结果不会重新显露旧案件；恢复正确 owner 后可重新查询。
+A03：编辑检查/reference/note 后切换页面/案件，按设计明确保留或请求放弃；恢复的是对应案件的未保存草稿，并清楚标注。
+A04：未保存草稿不写数据库、不追加事件、不改变乘客状态；保存成功后草稿转为对应已存版本。
+A05：两次保存使用同一旧版本，只有一次可成功；另一次冲突不丢草稿、不自动覆盖。实际多浏览器/异步验证与隔离测试分别记录，不能用后端测试假称全部UI已验收。
+A06：使用键盘可到达查询、草稿操作、保存/重开等关键控件；只记录实际检查的路径。
+
+4. P1 — 案件上下文中的只读 SAP 财务快照
+交付目的：从“独立查到一个泛化财务文档”提升到“这个本地案件为何引用该财务记录、引用的是什么版本/时间/来源”的可追溯参考。
+使用已获准的个人 SAP API Hub sandbox 只读 GET。客户端提交文档ID及人工引用说明；服务端通过已有 SAP adapter 获取、验证、规范化真实返回，不能接受浏览器自称 Live 的金额/状态对象作为财务证据。
+保存快照至少包括 documentID、服务端返回的财务字段、币种、原始流程/审批字段、referenceDocument、createdAt（如提供）、来源模式/标签、fetchedAt、案件版本、引用说明和本地事件。未知字段保持未知。快照是某次读取结果；再次读取应明确是新获取时间或新快照，不能让历史记录悄悄变成最新值。
+引用说明表达人工选择该记录的理由，不是系统验证过的机票/付款匹配。可使用明确的 synthetic demonstration 说明，不制造真实客户关联。不要把通用 SAP 文档 net amount 填进机票 paid fare、申请 approved amount 或 refunded amount。原始process C、category H或空审批值不得映射为真实付款/批准结论。
+添加快照是本地案件修改，应使用当前 owner pair 和版本控制，并遵守 queued→reopen 的已有编辑边界。成功保存才能追加事件；失败、404、超时或版本冲突不能留下假记录、假事件或不一致版本。读取/添加快照不改变 deterministic route、eligibility、approval、amount或payment。
+无凭据的交付包应显示未配置/无法读取，不以固定 SAP 样例冒充 Live。此前个人 sandbox HTTP200证明接口可读，不证明任意文档可读、POST权限、个人S/4HANA生产租户或实际航空业务数据。
+
+P1 验收
+A07：实际个人 GET 已知文档返回真实字段，保存后 reload/restart、reviewer、Track/receipt（若展示）均返回同一已存快照、说明、版本和事件；源模式/时间保持可见。
+A08：不存在/未配置/上游失败/缺字段时展示真实状态；无假金额、无例子替代Live、无新增成功事件。上游故障的mock测试和实际接口结果必须分开。
+A09：客户端伪造 financial fields/source/fetch time 被拒绝或不被作为服务端证据采用；错误 owner、不合法payload、旧版本不能保存。
+A10：queued案件不可直接改变快照，按模型先重开；两个旧版本并发更新不产生丢失写入或两个成功事件。
+A11：加入快照后，本地queue/route仍为原规则结果；refund eligibility/amount/approval/payment仍未确定，sapCreditMemoRequestId不得因此伪装为本地申请已在SAP创建。
+A12：actual SAP key不在HTML/JS、快照、事件、下载、OpenCode输入或ZIP中；课堂临时身份不用于项目接入。
+
+5. P1 的业务适配结论：加强Option2，但有明确剩余边界
+A2 V8 ¶7/67/69/79-81要求授权内部记录、未解决信息、标准/复杂路由、责任归属和人工决定。持久化财务参考及说明会加强“可见案件上下文和财务参考追溯”的部分适配，避免SAP成为完全旁置的演示页。
+它仍不能替代授权航空公司 booking/ticket/payment/disruption 的检索与对账。手动引用的generic SAP sandbox document不是自动验证的booking match。不能把新增快照说成原A2三部分全部实现；Option2的改动说明必须继续列出synthetic数据、manual prototype checks、local queues/events和read-only金融参考。若评分者认为API与原方案完全不适配，Option3边界仍需按正式规则判断，不能靠修改文件措辞消除这个实质差距。
+
+6. P2 — 保持可解释的prototype路由，完善150分范围的论证
+继续采用 deterministic prototype-v1 route 和明示理由，不增加无法验证的AI自动审批。输入/checks、supported reason、specialist flag和缺项决定本地准备/分流，人的eligibility/amount/approval/payment责任不变。规则是可演示的原型规则，不是Air New Zealand政策。
+理由文件解释 why prepared case 优于单加表单，并明确 effort/impact只是定性假设：学习版本增加状态/事件/竞态控制具有中等实施工作，真实内部集成另有更高权限/对账/治理依赖。没有实测分钟、触点、返工、成本或满意度改善。
+五阶段使用真实现有A1/A2背景、合成人物、V1拒绝/V2批准、这次实际迭代和验收。十heuristics映射实际query state、draft control、consistent snapshot、error prevention、visible context、recovery和help。没有访谈或participant usability study就直接写未开展，不创造评价和指标。
+
+7. P0 — 实施后复核和安全可运行交付
+新增行为需有有意义的隔离HTTP/SQLite测试，覆盖原功能回归、snapshot边界、版本和竞态相关逻辑。实际浏览器查验按A01-A12记录通过/未测/失败，不拿代码存在或截图代替操作结果。恢复桌面/移动默认视图并复核状态语言。
+Root负责真实SAP读、OpenCode workflow记录和TEST_RESULTS。证据agent只在root给出实际结果后更新requirements/rubric/design ledger/COURSEWORK_BASIS/runtime/manual；不编辑代码、TEST_RESULTS、OPENCODE或SAP_LIVE文件，不读.env/私有DB。
+最终AirAssist_A3_V1_2.zip包含可运行源码、无密钥配置示例、启动说明、测试、真实工具会话和证据。排除.env、.data、DB、缓存、日志、秘密和课堂身份。保留原生OpenCode session JSON，与App source ZIP明确区分。
+停止源码/证据写入后，再核CRC、源码清单/哈希、当前源匹配、全部JSON、私有排除，以及独立解压启动/创建/审核/引用边界/Track/receipt。PACKAGE_CHECK_V1_2.json与PACKAGE_SMOKE_V1_2.json在ZIP外记录最终包结果，避免ZIP内部自哈希循环。无密钥解压smoke不声称LiveSAP已自动接通；另机要配置个人key。
+
+8. 正式A3要求和仍不可假称完成的门槛
+来源：D:/Downloads/704_A3_2026 Build App_Specificatication and Marking Criteria_V3.docx。
+¶6：承接A2批准方案；¶7/18：OpenCode.ai+SAP APIs及工具access。
+表1行2：rationale/实施理由（10分，Effort Impact Matrix为Hint）。行3：Design Thinking、客户需要/tailor-made/视觉、Option2说明改动；显著新Option3需新AS-IS/TO-BE（30分）。行4：适当features、至少一working、Lab Development Guidelines（60分）。行5：逻辑顺畅/user-friendly、10heuristics为Hint（50分）。¶15-17：以rubric指导并检查设计/功能/易用。
+¶9/11：group prototype ZIP、组员一人Canvas上传、保留OpenCode内容至评分结束；截止Monday19October2026,11:59AM BEFORENOON。V3未明示时区，应核Canvas。
+“ZIP exported from OpenCode.ai”仍须按课程导出要求核对。官方CLI export是sessionJSON，实际工具贡献+本地源码包并不证明某个课程App-ZIP UI操作。不能把这项写成已获得教师认可。
+Lab7 s10/Lab8 s8现存文字主要是开发安排，含旧AppGyver；SAP UOA s73/75-78是BuildCode产品能力，不是Python禁令。较新老师公告据用户提供改为OpenCode+SAP，并允许Option1/2保留既有TO-BE。没有证据证明未保存的口头/后续Lab全部要求已覆盖；不凭产品MCP介绍推断强制MCP或强制公共部署。
+Python/SQLite未被所读资料禁止，也没有被明确指定；保留这个架构证据边界。V3没有额外强制真实支付、SAP POST、完整production login、written report、video、访谈数量、wireframe file或公共hosting，不能擅增这些为硬性交付。
+PPT/展示本次不制作，正式A3仍另有50分presentation及后续提交义务；“本次150分范围可审查”不等于“A3全部完成”。截至本计划写入，V1.2新实施/验收/打包尚未完成，后续以真实结果更新。
+
+V1.2计划补充，2026-10-08
+Root另存PUBLIC_DATA_VALIDATION_V1_2.json，记录当日Air New Zealand公开manage-bookings/credits与官方OpenCode CLI资料核对。它可以支撑公开政策/接口工具说明，不将合成旅程、票值、路由或generic SAP financial document变成真实Air New Zealand客户数据，也不是航空公司客户批准。此证据文件由root负责，计划agent只读、不编辑。
+本次新增本地改动必须准确归属本地开发，不能沿用历史OpenCode会话哈希声称V1.2新代码由模型生成。历史真实session及原始哈希继续保留。最终独立结果文件为PACKAGE_CHECK_V1_2.json和PACKAGE_SMOKE_V1_2.json；截至本补充，尚未写为验收完成。

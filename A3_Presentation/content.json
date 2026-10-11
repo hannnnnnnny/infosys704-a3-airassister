@@ -1,0 +1,173 @@
+{
+  "title": "AirAssist: Refund case preparation",
+  "group": "SAP BUILD 19",
+  "durationSeconds": 300,
+  "slides": [
+    {
+      "n": 1,
+      "title": "AirAssist",
+      "section": "Situation",
+      "start": 0,
+      "end": 17,
+      "script": "Good morning. [pause] AirAssist prepares refund cases for Air New Zealand. I will show one request reaching its review team.",
+      "sources": [
+        "INFOSYS 704 A3 specification V3: five-minute functional app pitch using SCR.",
+        "https://slidepeak.com/blog/presenting-techniques",
+        "Cover: existing generated aviation illustration, not an actual Air New Zealand flight."
+      ],
+      "words": 19
+    },
+    {
+      "n": 2,
+      "title": "Direct-booking refund requests",
+      "section": "Situation",
+      "start": 17,
+      "end": 34,
+      "script": "Our group idea supports passengers after flight changes. [pause] This first part handles direct-booking refunds. Travel-agent bookings follow another path.",
+      "sources": [
+        "Group XL workbook, Sheet1 row 27: Group 19 wider disruption-service theme.",
+        "https://www.airnewzealand.com/manage-bookings",
+        "Passenger image: existing generated illustration."
+      ],
+      "words": 19
+    },
+    {
+      "n": 3,
+      "title": "Refund case preparation",
+      "section": "Complication",
+      "start": 34,
+      "end": 53,
+      "script": "Existing forms have required fields. [pause] Earlier staff input describes wrong details and complex cases. Our checklist and named review route prepare the handoff.",
+      "sources": [
+        "Existing A1D2 employee material and individual A2 proposal: mandatory fields already exist, inaccurate details require follow-up, complex cases need manual handling. Employee material has indirect refund exposure. Kerrie material is an AI-prepared summary.",
+        "Evidence image: existing generated illustration."
+      ],
+      "words": 23
+    },
+    {
+      "n": 4,
+      "title": "Implementation scope",
+      "section": "Resolution",
+      "start": 53,
+      "end": 71,
+      "script": "Case preparation offers useful impact with a manageable scope. [pause] Staff retain refund decisions and approval. Actual payment needs later airline integration.",
+      "sources": [
+        "Qualitative scope comparison based on the individual A2 proposal and SENIOR_CONSULTANT_PLAN_V1_2.txt. Relative effort is a planning judgment.",
+        "https://thedigitalprojectmanager.com/productivity/impact-effort-matrix/"
+      ],
+      "words": 21
+    },
+    {
+      "n": 5,
+      "title": "Design Thinking",
+      "section": "Resolution",
+      "start": 71,
+      "end": 92,
+      "script": "We used five design stages. [pause] Earlier staff input shaped the checks. We grouped review actions, then checked handoff and draft recovery.",
+      "sources": [
+        "Earlier staff material, requester design feedback and developer review inform this iteration.",
+        "DESIGN_FEEDBACK_LEDGER.txt; V1_3_BROWSER_ACCEPTANCE.json.",
+        "https://www.interaction-design.org/literature/article/5-stages-in-the-design-thinking-process"
+      ],
+      "words": 21
+    },
+    {
+      "n": 6,
+      "title": "What changed for A3",
+      "section": "Resolution",
+      "start": 92,
+      "end": 113,
+      "script": "The SAP API partly fits. [pause] We kept the refund process, used sample journeys, and saved SAP financial references. These are our Option Two changes.",
+      "sources": [
+        "INFOSYS 704 A3 specification V3: Option 2 requires details of changes for partial SAP API fit.",
+        "Group A3 adapts one member’s individual A2 refund-preparation proposal and TO-BE model. The wider group theme includes other disruption tasks.",
+        "Journeys use synthetic fixtures. Credit Memo Request provides read-only SAP financial context. The case checklist, route and queue remain local application records."
+      ],
+      "words": 24
+    },
+    {
+      "n": 7,
+      "title": "SAP financial reference",
+      "section": "Resolution",
+      "start": 113,
+      "end": 135,
+      "script": "The app reads Credit Memo Request through a personal SAP account. [pause] Staff save its source, time, and reference note. Booking payment remains unverified.",
+      "sources": [
+        "https://api.sap.com/api/sap-s4-CE_CREDITMEMOREQUEST_0001-v1/overview",
+        "SAP public sandbox record 60000002, read using the personal API account. Generic financial context, not an airline booking, paid fare or approved refund.",
+        "Native table transcribes the actual saved response shown in outputs/A3_App_V1/screenshots/V1_4/sap-case-reference.png. Document 60000002, net USD 1,000.00, preceding 60000001, process C raw code, approval not supplied; read-only GET captured 9 Oct 2026 at 12:35 pm. Booking match not verified; payment verification not performed.",
+        "Source and capture time belong to the saved reference. Staff retain manual eligibility and amount checks."
+      ],
+      "words": 23
+    },
+    {
+      "n": 8,
+      "title": "From request to handoff",
+      "section": "Resolution",
+      "start": 135,
+      "end": 225,
+      "script": "Here is a saved request. [pause] Missing checks block handoff. [pause for demo] I add the SAP reference. The checks stay unchanged. [pause for demo] I record and save the manual review. [pause for demo] Now I send the case to its queue. [pause for demo] Tracking shows the same status. The refund decision remains pending.",
+      "sources": [
+        "Actual V1.4 browser captures on 2026-10-09. Initial-state example AF-A5B5BA84B950 v0 shows incomplete review and disabled handoff. Prepared-stage example AF-CC7A93DA2007 v2 shows saved manual review ready for the standard queue.",
+        "The main acceptance case AF-CC7A93DA2007 retained all three manual checks as false after personal SAP GET 60000002 at v1. Staff saved those checks at v2, handed off at v3, reopened with a reason at v4, saved specialist review at v5 and handed off to the specialist queue at v6. Tracking and downloadable receipt use the same persisted record.",
+        "The app records a local review queue, not a SAP refund posting or payment."
+      ],
+      "words": 43
+    },
+    {
+      "n": 9,
+      "title": "Review status and recovery",
+      "section": "Resolution",
+      "start": 225,
+      "end": 245,
+      "script": "Staff see saved status beside review actions. [pause] Draft recovery and version warnings protect work. Complex cases show their specialist and queue.",
+      "sources": [
+        "https://www.nngroup.com/articles/ten-usability-heuristics/",
+        "Implemented status visibility, real-world booking language, Back/Edit/Reopen controls, shared navigation, acknowledgement and handoff prevention, visible checklists, saved-request shortcut, focused pages, clear errors, draft recovery and field help.",
+        "The mobile capture demonstrates responsive browser layout."
+      ],
+      "words": 21
+    },
+    {
+      "n": 10,
+      "title": "Workflow verification",
+      "section": "Resolution",
+      "start": 245,
+      "end": 267,
+      "script": "OpenCode helped build the core workflow. [pause] We checked saved records, SAP errors, review recovery, and the app package.",
+      "sources": [
+        "OPENCODE_CASE_SESSION.json and OPENCODE_SESSION.json: genuine retained OpenCode core-workflow and receipt contributions. Later design and maintenance changes are recorded separately.",
+        "Current backend tests, front-end source checks, browser case acceptance and fresh-copy package launch form separate verification evidence.",
+        "https://help.sap.com/docs/build-apps/service-guide/right-way-to-sap-build-apps"
+      ],
+      "words": 18
+    },
+    {
+      "n": 11,
+      "title": "Next step: a small pilot",
+      "section": "Resolution",
+      "start": 267,
+      "end": 292,
+      "script": "A small pilot is next. [pause] The process owner agrees the checks. We measure readiness, repeated work, and handling time. Today, we seek agreement on this scope.",
+      "sources": [
+        "SENIOR_CONSULTANT_PLAN_V1_2.txt: proposed process-owner pilot and metric definitions. Benefits are prospective.",
+        "Training image: existing generated illustration."
+      ],
+      "words": 26
+    },
+    {
+      "n": 12,
+      "title": "Groupwork management disclaimer",
+      "section": "Closing",
+      "start": 292,
+      "end": 300,
+      "script": "Our group contribution is twenty-five percent each. [pause] Thank you.",
+      "sources": [
+        "Lecturer’s original Groupwork Management Slide.pptx, required at the end of the A3 pitch.",
+        "Names match Group XL workbook row 27. User supplied usernames and confirmed 25% contribution for each member on 2026-10-09. Total contribution: 100%."
+      ],
+      "words": 9
+    }
+  ],
+  "spokenWordCount": 267
+}

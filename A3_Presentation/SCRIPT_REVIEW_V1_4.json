@@ -1,0 +1,182 @@
+{
+  "pdf": "C:\\Users\\Administrator\\Documents\\Codex\\2026-09-13\\new-chat\\outputs\\A3_Presentation\\A3_Speaking_Script_V1_4.pdf",
+  "pages": 7,
+  "slowPdf": "C:\\Users\\Administrator\\Documents\\Codex\\2026-09-13\\new-chat\\outputs\\A3_Presentation\\A3_Speaking_Script_Slow_V1_4.pdf",
+  "slowPages": 5,
+  "mainSpokenWords": 267,
+  "optionalShortWords": 212,
+  "mainBlockCount": 12,
+  "totalSeconds": 300,
+  "hiddenAppendixSlides": [],
+  "lastSlide": 12,
+  "pitch": "AirAssist_A3_Client_Pitch_V1_4_Refined.pptx",
+  "existingInterviews": "Previous individual A2/A1 materials reused; no new A3 passenger or staff research required or promised",
+  "group": "A3 four-person group assignment; only A3 marking rubric governs",
+  "sha256": {
+    "A3_Speaking_Script_V1_4.pdf": "7db8b0891efc66295548e92f6947fbb0e587a2f6924280036e602f8bff05f5b7",
+    "A3_Speaking_Script_Slow_V1_4.pdf": "bf0dda42e7c32d89d4edf14bcd5a408a316189d3253282089f322b79e2f44a30"
+  },
+  "method": "ReportLab, embedded Arial/Microsoft YaHei/DejaVu Sans; render required separately",
+  "confirmedGroup": [
+    {
+      "name": "Yi Han",
+      "upi": "yhan606",
+      "contribution": "25%"
+    },
+    {
+      "name": "Xiao Lin",
+      "upi": "xlin031",
+      "contribution": "25%"
+    },
+    {
+      "name": "Zhuyi Xia",
+      "upi": "zxia461",
+      "contribution": "25%"
+    },
+    {
+      "name": "Zihang Zhang",
+      "upi": "zahz503",
+      "contribution": "25%"
+    }
+  ],
+  "outputs": [
+    {
+      "file": "A3_Speaking_Script_V1_4.pdf",
+      "pages": 7,
+      "words": 267,
+      "bytes": 382617,
+      "sha256": "7db8b0891efc66295548e92f6947fbb0e587a2f6924280036e602f8bff05f5b7"
+    },
+    {
+      "file": "A3_Speaking_Script_Slow_V1_4.pdf",
+      "pages": 5,
+      "words": 212,
+      "bytes": 314081,
+      "sha256": "bf0dda42e7c32d89d4edf14bcd5a408a316189d3253282089f322b79e2f44a30"
+    }
+  ],
+  "mainWordsVerifiedFromJson": 267,
+  "slowWordsVerifiedFromPrivateBuilder": 212,
+  "slowPacingAt60Wpm": [
+    {
+      "slide": 1,
+      "words": 12,
+      "timeWindowSeconds": 17,
+      "theoreticalSpeechSecondsAt60Wpm": 12,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 5,
+      "actualVoiceTimed": false
+    },
+    {
+      "slide": 2,
+      "words": 13,
+      "timeWindowSeconds": 17,
+      "theoreticalSpeechSecondsAt60Wpm": 13,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 4,
+      "actualVoiceTimed": false
+    },
+    {
+      "slide": 3,
+      "words": 15,
+      "timeWindowSeconds": 19,
+      "theoreticalSpeechSecondsAt60Wpm": 15,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 4,
+      "actualVoiceTimed": false
+    },
+    {
+      "slide": 4,
+      "words": 16,
+      "timeWindowSeconds": 18,
+      "theoreticalSpeechSecondsAt60Wpm": 16,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 2,
+      "actualVoiceTimed": false
+    },
+    {
+      "slide": 5,
+      "words": 17,
+      "timeWindowSeconds": 21,
+      "theoreticalSpeechSecondsAt60Wpm": 17,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 4,
+      "actualVoiceTimed": false
+    },
+    {
+      "slide": 6,
+      "words": 17,
+      "timeWindowSeconds": 21,
+      "theoreticalSpeechSecondsAt60Wpm": 17,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 4,
+      "actualVoiceTimed": false
+    },
+    {
+      "slide": 7,
+      "words": 19,
+      "timeWindowSeconds": 22,
+      "theoreticalSpeechSecondsAt60Wpm": 19,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 3,
+      "actualVoiceTimed": false
+    },
+    {
+      "slide": 8,
+      "words": 43,
+      "timeWindowSeconds": 90,
+      "theoreticalSpeechSecondsAt60Wpm": 43,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 47,
+      "actualVoiceTimed": false
+    },
+    {
+      "slide": 9,
+      "words": 16,
+      "timeWindowSeconds": 20,
+      "theoreticalSpeechSecondsAt60Wpm": 16,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 4,
+      "actualVoiceTimed": false
+    },
+    {
+      "slide": 10,
+      "words": 17,
+      "timeWindowSeconds": 22,
+      "theoreticalSpeechSecondsAt60Wpm": 17,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 5,
+      "actualVoiceTimed": false
+    },
+    {
+      "slide": 11,
+      "words": 21,
+      "timeWindowSeconds": 25,
+      "theoreticalSpeechSecondsAt60Wpm": 21,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 4,
+      "actualVoiceTimed": false
+    },
+    {
+      "slide": 12,
+      "words": 6,
+      "timeWindowSeconds": 8,
+      "theoreticalSpeechSecondsAt60Wpm": 6,
+      "oneSecondPause": 1,
+      "marginSecondsBeforePauseAndSlideChange": 2,
+      "actualVoiceTimed": false
+    }
+  ],
+  "actualVoiceOrMacValidated": false,
+  "renderTool": "Bundled Poppler pdftoppm, 110dpi",
+  "renderedPages": 12,
+  "changedRenderedPages": [
+    "full-4.png",
+    "full-7.png",
+    "slow-3.png",
+    "slow-5.png"
+  ],
+  "unchangedRenderedPagesPixelIdentical": 8,
+  "visualInspection": "All 12 pages individually inspected initially; all 4 updated pages inspected again, remaining 8 pixels identical. No clipping, overlap, missing IPA/CJK glyphs or orphaned sections.",
+  "markerInvocationsThisCreate": 1
+}

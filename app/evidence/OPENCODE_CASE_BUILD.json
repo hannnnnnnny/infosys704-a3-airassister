@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-08",
+  "sessionId": "ses_ee9f0a481ffeU4025PaxyUCkoa",
+  "tool": "OpenCode CLI",
+  "version": "1.18.35",
+  "model": "opencode/fledge-alpha-free",
+  "scope": "Actual core case workflow backend and test source generation; integration review and runtime acceptance follow separately.",
+  "stageHashes": {
+    "server.py": "b03650125cb0cead7c6fbf40e012dde26b19cb501d76689eefc0e74f3f4eb8b2",
+    "tests/test_case_workflow.py": "4ead3e5184f14345e3791a5e7a3709890dc583c7ff2d483c5cb7e698cc6b3067",
+    "API_CONTRACT.txt": "660069662e6b11e6cb4bf01a16b68f8a9e676e0bf8a3f04d8b2adc3d7e5e8fed",
+    "opencode.json": "3cb938f3a6ec00e05168a49ac97e5560d287478d71b43cb98227ea21e1443f49"
+  },
+  "integration": {
+    "status": "Reviewed and integrated; 38 tests passed in 15.649 seconds",
+    "review_fixes": [
+      "Reject non-string action values",
+      "Reject all control characters in paymentReference",
+      "Use consistent read snapshots for application/case lookups"
+    ],
+    "sourceHashes": {
+      "server.py": "6b3aa4454f38fda7f53b3dcdfacf049467c40b28c8ab83c73650ed56c3ea5458",
+      "tests/test_case_workflow.py": "4ead3e5184f14345e3791a5e7a3709890dc583c7ff2d483c5cb7e698cc6b3067",
+      "tests/test_cases.py": "f285eda43b7cb895c5baae6315bb9c9e8c8c078aa1e7a4fda3081fdb9a22f7b4"
+    },
+    "originalGeneratedStageRetained": true,
+    "frontendActor": "Local development, followed by actual browser acceptance"
+  },
+  "nativeExport": {
+    "file": "OPENCODE_CASE_SESSION.json",
+    "command": "opencode export ses_ee9f0a481ffeU4025PaxyUCkoa --sanitize",
+    "bytes": 62584,
+    "messages": 22,
+    "sha256": "dee56a199b28f92b1e83b651ec5926d20f582b5b28ebec73a9ee594ca80c74d7",
+    "type": "Native session JSON; not an App ZIP"
+  },
+  "privacy": {
+    "userAuthorizedScopedSourceTransmission": true,
+    "destination": "Official OpenCode free model opencode/fledge-alpha-free",
+    "sourceInputs": [
+      "server.py",
+      "tests/test_server.py",
+      "tests/test_receipt.py",
+      "Generic case-review functional requirements"
+    ],
+    "excluded": [
+      "SAP credentials",
+      ".env",
+      "Databases",
+      "Application records",
+      "Private course documents"
+    ],
+    "sessionPublicSharing": "Disabled"
+  },
+  "artifactBoundary": "Runnable App source ZIP packaged locally; dedicated course App-ZIP export workflow remains to be confirmed before final submission"
+}

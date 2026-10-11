@@ -1,0 +1,294 @@
+{
+  "request": {
+    "publicReference": "AF-CC7A93DA2007",
+    "bookingReference": "NZ7K2H",
+    "lastName": "Taylor",
+    "email": "v14.demo.20261009@example.com",
+    "reason": "flight_cancelled",
+    "details": "Synthetic demonstration request for layout and workflow checks.",
+    "status": "queued_for_review",
+    "statusLabel": "Queued \u00b7 local review",
+    "createdAt": "2026-10-08T23:35:08Z",
+    "updatedAt": "2026-10-08T23:39:02Z",
+    "sapCreditMemoRequestId": null,
+    "ticketValue": 248.0,
+    "currency": "NZD",
+    "source": {
+      "mode": "local",
+      "label": "Local prototype application"
+    },
+    "review": {
+      "state": "queued",
+      "version": 6,
+      "route": "complex",
+      "routeLabel": "Complex review",
+      "queue": "Specialist review",
+      "ownerRole": "Refund specialist",
+      "missingItems": [],
+      "events": [
+        {
+          "type": "submitted",
+          "at": "2026-10-08T23:35:08Z",
+          "summary": "Application received locally and awaiting review.",
+          "note": "",
+          "route": "",
+          "queue": "",
+          "version": 0
+        },
+        {
+          "type": "financial_reference_captured",
+          "at": "2026-10-08T23:35:59Z",
+          "summary": "SAP financial reference captured for demonstration; booking and payment remain unverified.",
+          "note": "Public SAP sample retained as a financial reference. Booking payment requires separate evidence.",
+          "route": "information_needed",
+          "queue": "Information follow-up",
+          "version": 1
+        },
+        {
+          "type": "review_saved",
+          "at": "2026-10-08T23:37:44Z",
+          "summary": "Local review details saved.",
+          "note": "Demonstration checks recorded using sample evidence. Airline approval and payment remain pending.",
+          "route": "standard",
+          "queue": "Standard review",
+          "version": 2
+        },
+        {
+          "type": "handoff",
+          "at": "2026-10-08T23:37:54Z",
+          "summary": "Case handed off for local review.",
+          "note": "Demonstration checks recorded using sample evidence. Airline approval and payment remain pending.",
+          "route": "standard",
+          "queue": "Standard review",
+          "version": 3
+        },
+        {
+          "type": "reopened",
+          "at": "2026-10-08T23:38:10Z",
+          "summary": "Case reopened for local review.",
+          "note": "Demonstration case reopened for specialist routing review.",
+          "route": "standard",
+          "queue": "Standard review",
+          "version": 4
+        },
+        {
+          "type": "review_saved",
+          "at": "2026-10-08T23:38:16Z",
+          "summary": "Local review details saved.",
+          "note": "Demonstration exception routed to a refund specialist. No refund decision is made.",
+          "route": "complex",
+          "queue": "Specialist review",
+          "version": 5
+        },
+        {
+          "type": "handoff",
+          "at": "2026-10-08T23:39:02Z",
+          "summary": "Case handed off for local review.",
+          "note": "Demonstration exception routed to a refund specialist. No refund decision is made.",
+          "route": "complex",
+          "queue": "Specialist review",
+          "version": 6
+        }
+      ],
+      "financialReference": {
+        "documentId": "60000002",
+        "record": {
+          "id": "60000002",
+          "totalNetAmount": 1000.0,
+          "currency": "USD",
+          "referenceDocument": "60000001",
+          "referenceDocumentCategory": "H",
+          "processStatusCode": "C",
+          "approvalStatusCode": "",
+          "createdAt": "2016-09-21"
+        },
+        "source": {
+          "mode": "live",
+          "label": "SAP public sandbox \u00b7 read-only GET",
+          "fetchedAt": "2026-10-08T23:35:59Z"
+        },
+        "capturedAt": "2026-10-08T23:35:59Z",
+        "note": "Public SAP sample retained as a financial reference. Booking payment requires separate evidence.",
+        "version": 1,
+        "context": "demonstration_only",
+        "bookingMatch": "not_verified",
+        "paymentVerification": "not_performed",
+        "refundEligibility": "not_assessed",
+        "interpretation": "Demonstration-only financial reference. Not matched to this booking; does not verify payment, refund eligibility, approval or settlement."
+      }
+    }
+  },
+  "booking": {
+    "reference": "NZ7K2H",
+    "lastName": "Taylor",
+    "traveller": "Alex Taylor",
+    "flight": "NZ423",
+    "fromCode": "AKL",
+    "fromCity": "Auckland",
+    "toCode": "WLG",
+    "toCity": "Wellington",
+    "date": "2026-10-15",
+    "departure": "10:30 AM",
+    "arrival": "11:40 AM",
+    "currency": "NZD",
+    "ticketValue": 248.0,
+    "channel": "direct",
+    "flightStatus": "cancelled",
+    "source": {
+      "mode": "synthetic",
+      "label": "Sample journey"
+    }
+  },
+  "version": 6,
+  "checks": {
+    "paymentEvidenceReviewed": true,
+    "refundRulesReviewed": true,
+    "supportingDetailsReviewed": true
+  },
+  "paymentReference": "DEMO-V14-REVIEW",
+  "specialistRequired": true,
+  "reviewNote": "Demonstration exception routed to a refund specialist. No refund decision is made.",
+  "reviewState": "queued",
+  "checklist": [
+    {
+      "id": "booking",
+      "label": "Booking details",
+      "status": "available",
+      "source": "Sample booking",
+      "required": true
+    },
+    {
+      "id": "contact",
+      "label": "Contact details",
+      "status": "available",
+      "source": "Local application",
+      "required": true
+    },
+    {
+      "id": "payment",
+      "label": "Payment evidence review",
+      "status": "recorded",
+      "source": "Manual prototype check",
+      "required": true,
+      "detail": "Local prototype review note only; it does not verify real airline payment or refund policy."
+    },
+    {
+      "id": "rules",
+      "label": "Refund rules review",
+      "status": "recorded",
+      "source": "Manual prototype check",
+      "required": true,
+      "detail": "Local prototype review note only; it does not verify real airline payment or refund policy."
+    },
+    {
+      "id": "supporting",
+      "label": "Supporting details review",
+      "status": "recorded",
+      "source": "Manual prototype check",
+      "required": true,
+      "detail": "Local prototype review note only; it does not verify real airline payment or refund policy."
+    }
+  ],
+  "triage": {
+    "route": "complex",
+    "label": "Complex review",
+    "queue": "Specialist review",
+    "ownerRole": "Refund specialist",
+    "readyForHandoff": true,
+    "ruleVersion": "prototype-v1",
+    "reasons": [
+      "A manual specialist review flag was set."
+    ]
+  },
+  "events": [
+    {
+      "type": "submitted",
+      "at": "2026-10-08T23:35:08Z",
+      "summary": "Application received locally and awaiting review.",
+      "note": "",
+      "route": "",
+      "queue": "",
+      "version": 0
+    },
+    {
+      "type": "financial_reference_captured",
+      "at": "2026-10-08T23:35:59Z",
+      "summary": "SAP financial reference captured for demonstration; booking and payment remain unverified.",
+      "note": "Public SAP sample retained as a financial reference. Booking payment requires separate evidence.",
+      "route": "information_needed",
+      "queue": "Information follow-up",
+      "version": 1
+    },
+    {
+      "type": "review_saved",
+      "at": "2026-10-08T23:37:44Z",
+      "summary": "Local review details saved.",
+      "note": "Demonstration checks recorded using sample evidence. Airline approval and payment remain pending.",
+      "route": "standard",
+      "queue": "Standard review",
+      "version": 2
+    },
+    {
+      "type": "handoff",
+      "at": "2026-10-08T23:37:54Z",
+      "summary": "Case handed off for local review.",
+      "note": "Demonstration checks recorded using sample evidence. Airline approval and payment remain pending.",
+      "route": "standard",
+      "queue": "Standard review",
+      "version": 3
+    },
+    {
+      "type": "reopened",
+      "at": "2026-10-08T23:38:10Z",
+      "summary": "Case reopened for local review.",
+      "note": "Demonstration case reopened for specialist routing review.",
+      "route": "standard",
+      "queue": "Standard review",
+      "version": 4
+    },
+    {
+      "type": "review_saved",
+      "at": "2026-10-08T23:38:16Z",
+      "summary": "Local review details saved.",
+      "note": "Demonstration exception routed to a refund specialist. No refund decision is made.",
+      "route": "complex",
+      "queue": "Specialist review",
+      "version": 5
+    },
+    {
+      "type": "handoff",
+      "at": "2026-10-08T23:39:02Z",
+      "summary": "Case handed off for local review.",
+      "note": "Demonstration exception routed to a refund specialist. No refund decision is made.",
+      "route": "complex",
+      "queue": "Specialist review",
+      "version": 6
+    }
+  ],
+  "financialReference": {
+    "documentId": "60000002",
+    "record": {
+      "id": "60000002",
+      "totalNetAmount": 1000.0,
+      "currency": "USD",
+      "referenceDocument": "60000001",
+      "referenceDocumentCategory": "H",
+      "processStatusCode": "C",
+      "approvalStatusCode": "",
+      "createdAt": "2016-09-21"
+    },
+    "source": {
+      "mode": "live",
+      "label": "SAP public sandbox \u00b7 read-only GET",
+      "fetchedAt": "2026-10-08T23:35:59Z"
+    },
+    "capturedAt": "2026-10-08T23:35:59Z",
+    "note": "Public SAP sample retained as a financial reference. Booking payment requires separate evidence.",
+    "version": 1,
+    "context": "demonstration_only",
+    "bookingMatch": "not_verified",
+    "paymentVerification": "not_performed",
+    "refundEligibility": "not_assessed",
+    "interpretation": "Demonstration-only financial reference. Not matched to this booking; does not verify payment, refund eligibility, approval or settlement."
+  }
+}

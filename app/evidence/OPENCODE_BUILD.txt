@@ -1,0 +1,53 @@
+AirAssist A3 V1 — actual OpenCode build and export evidence
+Date: 2026-10-07
+
+Tool: official OpenCode CLI 1.18.35, installed from npm.
+Model used for the completed contribution: opencode/fledge-alpha-free.
+Session: ses_eea1d9afeffeG8mqaDzCCaGq7n.
+User explicitly authorized sending the source files to OpenCode.
+
+Actual contribution
+OpenCode read server.py and tests/test_server.py in an isolated source-only
+staging directory. Its completed edit/write tool calls added:
+  1. GET /api/refund-requests/receipt?reference=...&email=...
+  2. A JSON attachment helper using the existing security/cache headers.
+  3. tests/test_receipt.py with four meaningful HTTP behavior tests.
+The endpoint reuses the existing reference/email owner lookup. A download
+records a saved local application, not SAP approval, eligibility or payment.
+The rest of the existing App was developed before this OpenCode contribution;
+this evidence does not claim OpenCode authored every file.
+
+Review and integration
+An independent code review compared staging against the main App. Only the
+receipt changes were integrated: 15 new server lines and the new receipt tests.
+The correct OData V4 document route, bounded gzip decoding, Host/Origin checks,
+private-file protections and existing SAP read behavior were preserved.
+Staging: 20 tests passed in 4.628s. Integrated main App: 20 passed in 4.679s.
+See TEST_RESULTS.txt for the actual captured main-suite output.
+The frontend download action was subsequently implemented and checked locally.
+Browser acceptance is recorded separately in RUNTIME_ACCEPTANCE.txt.
+
+Native export
+Command: opencode export ses_eea1d9afeffeG8mqaDzCCaGq7n --sanitize
+Actual exported file: evidence/OPENCODE_SESSION.json
+UTF-8 JSON, 11 messages; SHA-256:
+8e3abc87e0d029a8c450cd87e41e7f175914428ef6966db023d2831a9400d8d8
+The export retains failed intermediate commands as well as completed tools.
+Earlier restrictive-tool runs encountered a free-provider HTTP 403. Normal
+tool configuration in a source-only stage allowed the successful run. No
+authentication check or endpoint was bypassed. Session sharing was disabled.
+
+Artifact distinction
+OpenCode export produces session JSON. AirAssist_A3_V1.zip is the runnable
+project source archive, packaged locally after the reviewed OpenCode edits.
+It includes the native session export and a SHA-256 source manifest.
+Do not label the JSON as an App ZIP or claim the CLI has an App-ZIP export
+command. If the course requires a particular export UI, confirm that workflow
+before the final submission. Retain the project and OpenCode records until
+marking is complete.
+
+Account and privacy boundary
+No classroom account, personal SAP key, .env, database or saved application
+records were sent to OpenCode. Real SAP API calls use the authorized personal
+API Hub account and remain separate from this source-only build session.
+The source package intentionally excludes local credentials and databases.

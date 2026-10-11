@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-08",
+  "method": "Actual browser actions against final local app; personal API Hub key on server; upstream GET only. Current state independently read through local APIs and UI-downloaded JSON.",
+  "synthetic_case_reference": "AF-21B3A992AD5C",
+  "sample_document": {
+    "documentId": "60000002",
+    "record": {
+      "id": "60000002",
+      "totalNetAmount": 1000.0,
+      "currency": "USD",
+      "referenceDocument": "60000001",
+      "referenceDocumentCategory": "H",
+      "processStatusCode": "C",
+      "approvalStatusCode": "",
+      "createdAt": "2016-09-21"
+    },
+    "source": {
+      "mode": "live",
+      "label": "SAP public sandbox \u00b7 read-only GET",
+      "fetchedAt": "2026-10-07T12:18:31Z"
+    },
+    "capturedAt": "2026-10-07T12:18:31Z",
+    "note": "Public SAP sandbox reference for demonstrating case preparation. Booking match and actual payment remain unverified.",
+    "version": 1,
+    "context": "demonstration_only",
+    "bookingMatch": "not_verified",
+    "paymentVerification": "not_performed",
+    "refundEligibility": "not_assessed",
+    "interpretation": "Demonstration-only financial reference. Not matched to this booking; does not verify payment, refund eligibility, approval or settlement."
+  },
+  "unknown_document_observation": {
+    "documentId": "9999999999",
+    "uiMessage": "No SAP credit memo request matches this document ID.",
+    "unchangedVersion": 1,
+    "unchangedEventCount": 2,
+    "scope": "Actual case-capture UI failure, followed by read-only API observation. The prior successful capture remained; no additional snapshot/event was created."
+  },
+  "receipt_download": {
+    "filename": "airassist-receipt-AF-21B3A992AD5C.json",
+    "bytes": 5042,
+    "sha256": "a6735994b7c66d73b62c41e8d82ef533961fcf7fac83f4aa201dea9bda33d3c3",
+    "format": "airassist-application-receipt"
+  },
+  "checks": {
+    "actual_server_fetched_public_sandbox_reference": true,
+    "saved_financial_sample": true,
+    "snapshot_did_not_complete_checks": true,
+    "snapshot_did_not_make_handoff_ready": true,
+    "snapshot_did_not_verify_payment_or_match": true,
+    "snapshot_did_not_assess_eligibility": true,
+    "track_receipt_financial_snapshot_consistent": true,
+    "ui_download_matches_current_api_receipt": true,
+    "specialist_handoff_persisted": true,
+    "no_sap_document_creation": true
+  },
+  "passed": true,
+  "limitations": [
+    "SAP sample is generic finance data, not an airline booking or payment record.",
+    "Human checkboxes are local prototype attestations.",
+    "Closure demonstrated is case preparation, routing, handoff and consistent visibility; airline approval and settlement are not implemented."
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "personalAccountVerified": true,
+  "accountType": "personal",
+  "queries": [
+    {
+      "documentId": "60000002",
+      "localHttpStatus": 200,
+      "requestMethod": "GET",
+      "response": {
+        "record": {
+          "id": "60000002",
+          "totalNetAmount": 1000.0,
+          "currency": "USD",
+          "referenceDocument": "60000001",
+          "referenceDocumentCategory": "H",
+          "processStatusCode": "C",
+          "approvalStatusCode": "",
+          "createdAt": "2016-09-21",
+          "source": {
+            "mode": "live",
+            "label": "Personal SAP account \u00b7 live API response",
+            "fetchedAt": "2026-10-07T10:26:30Z"
+          },
+          "interpretation": "This SAP financial reference does not confirm the paid fare, approval of this application, or refund settlement."
+        }
+      }
+    },
+    {
+      "documentId": "9999999999",
+      "localHttpStatus": 404,
+      "requestMethod": "GET",
+      "response": {
+        "error": {
+          "code": "SAP_NOT_FOUND",
+          "message": "No SAP credit memo request matches this document ID."
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-09",
+  "file": "AirAssist_A3_Client_Pitch_V1_4_Refined.pptx",
+  "sha256": "a0d177f09ee836ebeb4ca5c666e83e4041b27e1df6780241f6bdb1250cf6ef40",
+  "checks": {
+    "zip_crc_valid": true,
+    "twelve_slides": true,
+    "all_slides_visible": true,
+    "manual_advance": true,
+    "main_script_in_notes": true,
+    "all_five_hint_urls_in_notes": true,
+    "no_production_prompts_or_pending_fields": true,
+    "no_slide_canned_verification_disclaimers": true,
+    "scr_visible": true,
+    "design_five_stages_visible": true,
+    "option_two_changes_visible": true,
+    "sap_source_and_scope_visible": true,
+    "sap_native_table_transcribes_observed_response": true,
+    "screenshot_stage_provenance_in_notes": true,
+    "open_code_contribution_visible": true,
+    "teacher_template_text_preserved": true,
+    "teacher_native_six_column_four_row_table": true,
+    "usernames_match_named_members": true,
+    "four_confirmed_equal_shares": true,
+    "optional_teacher_comments_empty": true
+  },
+  "passed": true,
+  "slides": 12,
+  "spokenWords": 267,
+  "plannedSeconds": 300,
+  "nativeRenderDirectory": "C:\\Users\\Administrator\\Documents\\Codex\\2026-09-13\\new-chat\\work\\a3-presentation\\v14\\native-render",
+  "visualQa": {
+    "method": "Native PowerPoint export; all 12 slide PNGs individually inspected. Slide 7 re-inspected after replacing soft enlarged screenshot with a native response table.",
+    "slidesReviewed": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "clippingOrOverlapFound": false,
+    "teacherOriginalFormatPreserved": true
+  },
+  "scope": "A3 client pitch; sources in speaker notes; lecturer contribution page last. No deployment.",
+  "actualOralDeliveryObserved": false
+}

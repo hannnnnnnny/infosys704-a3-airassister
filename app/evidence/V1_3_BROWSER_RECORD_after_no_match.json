@@ -1,0 +1,212 @@
+{
+  "case": {
+    "request": {
+      "publicReference": "AF-9973287D7BF6",
+      "bookingReference": "NZ7K2H",
+      "lastName": "Taylor",
+      "email": "v13.review.demo.20261008@example.com",
+      "reason": "flight_cancelled",
+      "details": "Synthetic V1.3 acceptance case. No real passenger or payment data.",
+      "status": "submitted",
+      "statusLabel": "Received · awaiting review",
+      "createdAt": "2026-10-07T22:49:15Z",
+      "updatedAt": "2026-10-07T22:50:19Z",
+      "sapCreditMemoRequestId": null,
+      "ticketValue": 248.0,
+      "currency": "NZD",
+      "source": {
+        "mode": "local",
+        "label": "Local prototype application"
+      },
+      "review": {
+        "state": "not_started",
+        "version": 1,
+        "route": "information_needed",
+        "routeLabel": "Information needed",
+        "queue": "Information follow-up",
+        "ownerRole": "Case coordinator",
+        "missingItems": [
+          "Payment evidence review",
+          "Refund rules review",
+          "Supporting details review"
+        ],
+        "events": [
+          {
+            "type": "submitted",
+            "at": "2026-10-07T22:49:15Z",
+            "summary": "Application received locally and awaiting review.",
+            "note": "",
+            "route": "",
+            "queue": "",
+            "version": 0
+          },
+          {
+            "type": "financial_reference_captured",
+            "at": "2026-10-07T22:50:19Z",
+            "summary": "SAP financial reference captured for demonstration; booking and payment remain unverified.",
+            "note": "Public SAP sample for demonstration only. Booking and payment are not verified.",
+            "route": "information_needed",
+            "queue": "Information follow-up",
+            "version": 1
+          }
+        ],
+        "financialReference": {
+          "documentId": "60000002",
+          "record": {
+            "id": "60000002",
+            "totalNetAmount": 1000.0,
+            "currency": "USD",
+            "referenceDocument": "60000001",
+            "referenceDocumentCategory": "H",
+            "processStatusCode": "C",
+            "approvalStatusCode": "",
+            "createdAt": "2016-09-21"
+          },
+          "source": {
+            "mode": "live",
+            "label": "SAP public sandbox · read-only GET",
+            "fetchedAt": "2026-10-07T22:50:19Z"
+          },
+          "capturedAt": "2026-10-07T22:50:19Z",
+          "note": "Public SAP sample for demonstration only. Booking and payment are not verified.",
+          "version": 1,
+          "context": "demonstration_only",
+          "bookingMatch": "not_verified",
+          "paymentVerification": "not_performed",
+          "refundEligibility": "not_assessed",
+          "interpretation": "Demonstration-only financial reference. Not matched to this booking; does not verify payment, refund eligibility, approval or settlement."
+        }
+      }
+    },
+    "booking": {
+      "reference": "NZ7K2H",
+      "lastName": "Taylor",
+      "traveller": "Alex Taylor",
+      "flight": "NZ423",
+      "fromCode": "AKL",
+      "fromCity": "Auckland",
+      "toCode": "WLG",
+      "toCity": "Wellington",
+      "date": "2026-10-15",
+      "departure": "10:30 AM",
+      "arrival": "11:40 AM",
+      "currency": "NZD",
+      "ticketValue": 248.0,
+      "channel": "direct",
+      "flightStatus": "cancelled",
+      "source": {
+        "mode": "synthetic",
+        "label": "Sample journey"
+      }
+    },
+    "version": 1,
+    "checks": {
+      "paymentEvidenceReviewed": false,
+      "refundRulesReviewed": false,
+      "supportingDetailsReviewed": false
+    },
+    "paymentReference": "",
+    "specialistRequired": false,
+    "reviewNote": "",
+    "reviewState": "not_started",
+    "checklist": [
+      {
+        "id": "booking",
+        "label": "Booking details",
+        "status": "available",
+        "source": "Sample booking",
+        "required": true
+      },
+      {
+        "id": "contact",
+        "label": "Contact details",
+        "status": "available",
+        "source": "Local application",
+        "required": true
+      },
+      {
+        "id": "payment",
+        "label": "Payment evidence review",
+        "status": "missing",
+        "source": "Manual prototype check",
+        "required": true,
+        "detail": "Local prototype review note only; it does not verify real airline payment or refund policy."
+      },
+      {
+        "id": "rules",
+        "label": "Refund rules review",
+        "status": "missing",
+        "source": "Manual prototype check",
+        "required": true,
+        "detail": "Local prototype review note only; it does not verify real airline payment or refund policy."
+      },
+      {
+        "id": "supporting",
+        "label": "Supporting details review",
+        "status": "missing",
+        "source": "Manual prototype check",
+        "required": true,
+        "detail": "Local prototype review note only; it does not verify real airline payment or refund policy."
+      }
+    ],
+    "triage": {
+      "route": "information_needed",
+      "label": "Information needed",
+      "queue": "Information follow-up",
+      "ownerRole": "Case coordinator",
+      "readyForHandoff": false,
+      "ruleVersion": "prototype-v1",
+      "reasons": [
+        "Missing required review item: Payment evidence review.",
+        "Missing required review item: Refund rules review.",
+        "Missing required review item: Supporting details review."
+      ]
+    },
+    "events": [
+      {
+        "type": "submitted",
+        "at": "2026-10-07T22:49:15Z",
+        "summary": "Application received locally and awaiting review.",
+        "note": "",
+        "route": "",
+        "queue": "",
+        "version": 0
+      },
+      {
+        "type": "financial_reference_captured",
+        "at": "2026-10-07T22:50:19Z",
+        "summary": "SAP financial reference captured for demonstration; booking and payment remain unverified.",
+        "note": "Public SAP sample for demonstration only. Booking and payment are not verified.",
+        "route": "information_needed",
+        "queue": "Information follow-up",
+        "version": 1
+      }
+    ],
+    "financialReference": {
+      "documentId": "60000002",
+      "record": {
+        "id": "60000002",
+        "totalNetAmount": 1000.0,
+        "currency": "USD",
+        "referenceDocument": "60000001",
+        "referenceDocumentCategory": "H",
+        "processStatusCode": "C",
+        "approvalStatusCode": "",
+        "createdAt": "2016-09-21"
+      },
+      "source": {
+        "mode": "live",
+        "label": "SAP public sandbox · read-only GET",
+        "fetchedAt": "2026-10-07T22:50:19Z"
+      },
+      "capturedAt": "2026-10-07T22:50:19Z",
+      "note": "Public SAP sample for demonstration only. Booking and payment are not verified.",
+      "version": 1,
+      "context": "demonstration_only",
+      "bookingMatch": "not_verified",
+      "paymentVerification": "not_performed",
+      "refundEligibility": "not_assessed",
+      "interpretation": "Demonstration-only financial reference. Not matched to this booking; does not verify payment, refund eligibility, approval or settlement."
+    }
+  }
+}

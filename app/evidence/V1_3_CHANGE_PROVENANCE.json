@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-08",
+  "revision": "V1.3",
+  "changes": {
+    "public/app.js": "Compact saved context, grouped review, sticky actions and native disclosure state; initial guidance reflects inline SAP reference.",
+    "public/styles.css": "Spacing, two-column review, responsive active-form priority and action rail.",
+    "tests/frontend-state.cjs": "Five additional focused review disclosure/action-state regressions.",
+    "README.txt": "Current launch, source/evidence provenance and submission preparation."
+  },
+  "backendIdenticalToV1_2": true,
+  "nativeOpenCodeExportsUnchanged": true,
+  "v1_3_contributor": "Local Codex-assisted changes; earlier genuine OpenCode core contributions retained.",
+  "sourceHashes": {
+    "server.py": "b526509be8e73db7bc07c4257e14a06b7690a13618ce76bc0fdd42d84afba5f5",
+    "public/app.js": "73b9bb97523a3b057f725f94caa2af2d3802984007b168e94beef2950e3284f3",
+    "public/styles.css": "c343cf1f03bf6f128664a20652b757fcb0e08e74516e1da9cbe6c61b6299769f",
+    "tests/frontend-state.cjs": "41df97aaeffadc727ff12fde30415884bf9ff01df28f6344a945eecd6b01b5bb",
+    "README.txt": "41cf6ce5ab659cfd71dbb948055451667518d5d035b32430a2e2c53c0d966df6"
+  },
+  "noUpstreamWrite": true,
+  "verification": [
+    "TEST_RESULTS_V1_3.txt",
+    "FRONTEND_TEST_RESULTS_V1_3.txt",
+    "V1_3_BROWSER_ACCEPTANCE.json"
+  ],
+  "scope": "Local case preparation and review queue handoff; not ticket cancellation, eligibility decision or refund payment."
+}

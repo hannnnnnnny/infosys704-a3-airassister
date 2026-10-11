@@ -1,0 +1,38 @@
+Implement the core local case-preparation workflow in the existing AirAssist Python prototype. Actually edit server.py and add tests/test_case_workflow.py in this source-only staging directory. Do not just describe changes. Do not run tests or invoke a shell; source files are attached and the read/edit/write tools are available. An independent reviewer will test and integrate afterwards. No .env, credentials, saved databases, private documents or external directories are present or may be read. No SAP writes or changes to the existing SAP client.
+
+Preserve ALL existing behavior: submissions/idempotency/concurrency/receipt, same reference+email normalized owner lookup, original refund_requests and submission_keys tables, existing data, Host/Origin guards, common security headers, no request logs, correct SAP OData V4 route and bounded gzip decoding. Add schema with CREATE TABLE IF NOT EXISTS and FK rather than rewriting/dropping old tables. Atomic version-checked review updates/events are required.
+
+Implement exact API contract:
+GET /api/review-cases?reference=...&email=... -> {"case": bundle}
+POST /api/review-cases -> {"case": bundle}, HTTP200.
+POST JSON:
+{reference,email,version:<integer>=0,checks:{paymentEvidenceReviewed:<bool>,refundRulesReviewed:<bool>,supportingDetailsReviewed:<bool>},paymentReference:<string <=80>,specialistRequired:<bool>,note:<required nonempty string <=1000>,action:"save_review"|"handoff"|"reopen"}
+Reject bool-as-version, coercions, malformed checks/action, and missing values. A true paymentEvidenceReviewed requires a nonempty paymentReference. Use existing safe string/email normalization and the exact owner-pair lookup on every read/write; wrong owner/unknown ref generic404 REQUEST_NOT_FOUND. No unrestricted list endpoint.
+
+bundle shape:
+{request:<public request>,booking:<synthetic sample booking>,version:int,
+ checks:<the exact three bool fields>,paymentReference:string,specialistRequired:bool,
+ reviewNote:string,reviewState:"not_started"|"prepared"|"queued",
+ checklist:[{id,label,status:"available"|"missing"|"recorded"|"not_required",source,required:bool}],
+ triage:{route:"information_needed"|"standard"|"complex",label,queue,ownerRole,reasons:[string],readyForHandoff:bool,ruleVersion:"prototype-v1"},
+ events:[{type,at,summary,note,route,queue,version}]}
+
+Checklist IDs booking/contact/payment/rules/supporting. Booking and contact are available from synthetic booking and validated saved application; read-only. Payment and refund-rules checks are always required. Supporting details review is required if reason is "other" OR the saved application.details is nonempty; otherwise it is not_required. Missing required items must retain clear missing states and missing reasons. Source labels distinguish Sample booking, Local application and Manual prototype check. Recorded checklist checks are local review notes, not verified real airline payment/refund policy.
+
+Prototype triage rules (not airline policy):
+- Any required check missing -> route information_needed, label "Information needed", queue "Information follow-up", ownerRole "Case coordinator", readyForHandoff false, reasons name the missing items.
+- No missing checks AND (reason other OR specialistRequired) -> complex, label "Complex review", queue "Specialist review", ownerRole "Refund specialist", readyForHandoff true; reasons explain the other reason/manual exception flag.
+- Otherwise -> standard, label "Standard review", queue "Standard review", ownerRole "Refund reviewer", readyForHandoff true; reasons explain all required checks recorded and no exception flag.
+
+Persistence/state:
+New or legacy cases default version0, not_started, all manual checks false, empty ref/note, specialist false. No writes on GET. Include a synthetic submitted event anchored to request.createdAt (no changing GET timestamps).
+save_review: allowed only not_started/prepared. Atomically update review/checks/ref/flag/note, version+1, event review_saved; reviewState prepared. request.status becomes information_needed if checks missing else review_prepared.
+handoff: same allowed states; use submitted checks and validate all required evidence first; missing ->409 INCOMPLETE_CASE with no mutation. On success persist queued state/version+1, handoff event with route/queue and note; request.status queued_for_review.
+Queued case rejects save_review/handoff with409 CASE_ALREADY_QUEUED. reopen is allowed only queued, with current version/note and submitted valid checks; sets prepared/version+1, event reopened, derives information_needed/review_prepared accordingly. Other wrong-state reopen ->409 INVALID_REVIEW_STATE.
+All actions with stale version ->409 REVIEW_VERSION_CONFLICT, no evidence/event overwrite. BEGIN IMMEDIATE and current version compare within one transaction must prevent concurrent lost updates. Use server utc_now for actual updatedAt/events. Preserve original submitted fields and createdAt.
+
+Normal public request, GET refund-requests, submit duplicate, and receipt MUST expose the same persisted status and updatedAt; include review:{state,version,route,routeLabel,queue,ownerRole,missingItems:[string],events:<same list>}. Initial status remains submitted / "Received · awaiting review". Others statusLabel: "Information needed · local review", "Prepared · local review", "Queued · local review". Source stays local, sapCreditMemoRequestId stays null, ticketValue remains sample, amount/approval/payment stay undetermined. Avoid recursion between request enrichment and case rendering. Default state produces identical values across submit/retrieve/receipt/reopen-store.
+
+Extend do_POST whitelist to the two local endpoints; keep all media type/body size/transfer/query/security/error checks. SOAP or SAP POST never added. No public JSON returns internal keys, database paths or API keys. Staff access uses the same owner-pair as the local prototype; do not imply production staff authentication. No external message or real queue assignment.
+
+Add meaningful unittest HTTP tests in tests/test_case_workflow.py for initial/missing state, valid standard handoff and persisted retrieval/receipt after store reopen, other/specialist complex route, incomplete/stale/wrong-owner no mutation, queued-save lock and explicit reopen. Use temporary local DB and ephemeral HTTP server, existing pattern. Existing20 tests must remain compatible. Save files, then finish with a concise summary. No tests/shell needed by you; root runs them independently.

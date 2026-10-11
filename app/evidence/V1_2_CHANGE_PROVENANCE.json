@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-08",
+  "version": "V1.2",
+  "opencode_contribution": "Historical actual V1/V1.1 receipt and core case-review contribution remains in OPENCODE_SESSION.json / OPENCODE_CASE_SESSION.json and matching build records.",
+  "current_modifications_actor": "Local Codex implementation and independent review; not claimed to be generated in the historical OpenCode session.",
+  "changes": [
+    "Case-context server-fetched financial snapshots",
+    "Read query intent and stale-response isolation",
+    "Session-only owner/version review drafts",
+    "Explicit conflict recovery",
+    "Saved-review handoff button correction",
+    "Case-owned financial capture inputs",
+    "Strict upstream boolean amount rejection"
+  ],
+  "current_sha256": {
+    "server.py": "b526509be8e73db7bc07c4257e14a06b7690a13618ce76bc0fdd42d84afba5f5",
+    "public/app.js": "0d49820d61fc0f1d66ae72161072a42b4a7c5b5c8759af6243768ffc047755c1",
+    "public/workflow-state.js": "678b6b3a2caf9ef4b84c18050ddb707cacf2a20ac5e85bf856164afcf17536ff",
+    "public/styles.css": "f333c4bd31a477801cfd69606213fb8653051eec290338234894af90193acaf1",
+    "tests/frontend-state.cjs": "143b46dac0bd77a324b3f6a9acc4535f57f8378e3ae8e57bf8415038687147b8",
+    "tests/test_financial_reference.py": "d2bea35155b61a0ba39f8e6ed7619fd45bd261856c98bb877a1ed3e697709ef0"
+  },
+  "test_evidence": [
+    "TEST_RESULTS_V1_2.txt: 49 backend passes in 22.327 seconds",
+    "FRONTEND_TEST_RESULTS_V1_2.txt: 23 frontend checks passed"
+  ],
+  "package_boundary": "Runnable source ZIP is locally packaged; native CLI exports are session JSON. Formal course-specific App ZIP export interpretation is not independently verified by these JSON exports."
+}

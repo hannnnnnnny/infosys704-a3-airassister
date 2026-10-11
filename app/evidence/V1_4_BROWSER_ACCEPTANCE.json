@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-09",
+  "revision": "V1.4",
+  "method": "Actual browser UI interactions using synthetic local case; read-only API and downloaded-file comparison after UI checks.",
+  "reference": "AF-CC7A93DA2007",
+  "version": 6,
+  "events": 7,
+  "checks": {
+    "browser_request_saved": true,
+    "manual_checks_initially_unchecked_and_handoff_disabled": true,
+    "personal_sap_public_sample_query_persisted": true,
+    "sap_reference_does_not_check_manual_evidence": true,
+    "missing_sap_document_failure_keeps_version_and_events": true,
+    "unsaved_review_draft_restored_on_refresh": true,
+    "unsaved_review_cannot_be_handed_off": true,
+    "standard_queue_handoff": true,
+    "reopen_with_reason": true,
+    "mobile_specialist_review_saved_and_handed_off": true,
+    "track_matches_review": true,
+    "ui_downloaded_receipt_matches_saved_case": true,
+    "mobile_390px_no_horizontal_overflow": true,
+    "mobile_form_font_16px_and_review_actions_48px": true,
+    "mobile_refund_reason_selection": true
+  },
+  "passed": true,
+  "viewport": {
+    "mobile": [
+      390,
+      844
+    ],
+    "documentWidth": 375,
+    "desktop": [
+      1280,
+      900
+    ]
+  },
+  "sapScope": "Personal-account SAP API Hub public sandbox GET, document 60000002. Generic financial reference, not airline payment or booking matching.",
+  "backendChanged": false,
+  "realMacDeviceTest": false,
+  "realPassengerResearch": false,
+  "downloadedReceiptSha256": "40aa4a024d48cf137b9170b64072eaf605e66c7078578bcd661c4b6143ae605f"
+}

@@ -1,0 +1,17 @@
+AirAssist A3 — V1.4 / 2026-10-09
+
+先打开 A3_Presentation/A3_Group_Check.md。
+PPT：A3_Presentation/AirAssist_A3_Client_Pitch_V1_4_Refined.pptx
+推荐慢语速稿：A3_Presentation/A3_Speaking_Script_Slow_V1_4.pdf（212词）
+完整操作稿：A3_Presentation/A3_Speaking_Script_V1_4.pdf（267词）
+应用：A3_App_V1/AirAssist_A3_V1_4.zip
+老师原模板：A3_Presentation/Groupwork_Management_25_Percent_Confirmed.pptx
+
+四人username与各25%贡献已由用户确认，末页已填写。
+PPT共12页、无隐藏页；制作提示和重复声明已清理。老师必需声明保留。
+前端减少重复卡片和标签，统一字体与留白；禁用按钮更清楚。
+49后端、28前端、15浏览器/收据检查、10包检查及11独立解压运行检查通过。
+PPT和两份讲稿均已逐页渲染检查。实际现场演讲尚未计时。
+本轮不部署。共享文件无个人SAP密钥、.env或数据库；另机配置自己的个人API Hub key。
+原生OpenCode会话位于应用ZIP；本地修订与源码打包来源单独说明。
+保持两个目录的相对位置，MD链接可正常使用。本包供组员核对；Canvas的App ZIP与slides分别提交。

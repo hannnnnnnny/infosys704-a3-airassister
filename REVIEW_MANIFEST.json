@@ -1,0 +1,196 @@
+{
+  "date": "2026-10-09",
+  "revision": "V1.4",
+  "files": [
+    {
+      "path": "A3_Presentation/AirAssist_A3_Client_Pitch_V1_4_Refined.pptx",
+      "bytes": 7767885,
+      "sha256": "a0d177f09ee836ebeb4ca5c666e83e4041b27e1df6780241f6bdb1250cf6ef40"
+    },
+    {
+      "path": "A3_Presentation/Groupwork_Management_25_Percent_Confirmed.pptx",
+      "bytes": 34043,
+      "sha256": "29b76e09bdccb74a78a7b7a48d1a72ad050816799065b319fb539d172e0d010d"
+    },
+    {
+      "path": "A3_Presentation/A3_Speaking_Script_Slow_V1_4.pdf",
+      "bytes": 314081,
+      "sha256": "bf0dda42e7c32d89d4edf14bcd5a408a316189d3253282089f322b79e2f44a30"
+    },
+    {
+      "path": "A3_Presentation/A3_Speaking_Script_V1_4.pdf",
+      "bytes": 382617,
+      "sha256": "7db8b0891efc66295548e92f6947fbb0e587a2f6924280036e602f8bff05f5b7"
+    },
+    {
+      "path": "A3_Presentation/A3_Speaking_Script.md",
+      "bytes": 14872,
+      "sha256": "8db2b46c6c02a61f54e11538383550e9c87d0952fd2307ef6b951c930fcd6848"
+    },
+    {
+      "path": "A3_Presentation/A3_Group_Check.md",
+      "bytes": 14678,
+      "sha256": "1aaeb11510c28cedbc8b0446ae1baf8cce2318b8720b912114cf5981a402efe2"
+    },
+    {
+      "path": "A3_Presentation/A3_Marker_Self_Review.md",
+      "bytes": 8803,
+      "sha256": "235032587325a7f419f6a62bf0183e73b678ae7a1141904a188b5031be21d67e"
+    },
+    {
+      "path": "A3_Presentation/A3_Requirements_Clarification.md",
+      "bytes": 8549,
+      "sha256": "88f5c50ef73677ba3257848229710193e457735ce8181a6b557344bf076d03ea"
+    },
+    {
+      "path": "A3_Presentation/A3_Hint_Link_Audit.md",
+      "bytes": 17616,
+      "sha256": "43d96e02c1448b2bb97fc133e9e837a10274066573d907f6bed2557fb756eb4e"
+    },
+    {
+      "path": "A3_Presentation/preview-cover-v1-4.png",
+      "bytes": 2015711,
+      "sha256": "409b3ff1d69ba9ddb1f3f80132400f5d6140f6b55733fbaa3c6679782f14036b"
+    },
+    {
+      "path": "A3_Presentation/PPT_REVIEW_V1_4.json",
+      "bytes": 1842,
+      "sha256": "311a98de44ea2981d8a066c5d89f4e166bb0c98bd664cc94e99c3c36fe951857"
+    },
+    {
+      "path": "A3_Presentation/SCRIPT_REVIEW_V1_4.json",
+      "bytes": 5500,
+      "sha256": "809540ea98d7a1d55b9bf53d68cfd2ca9f6ceb9c11fa9ca96ae91e2aba565ff3"
+    },
+    {
+      "path": "A3_App_V1/AirAssist_A3_V1_4.zip",
+      "bytes": 232431,
+      "sha256": "5a191abdbb189ef1c640c5d7f2eabaee74af3d77d9182445b19ec4536910808d"
+    },
+    {
+      "path": "A3_App_V1/README.txt",
+      "bytes": 8668,
+      "sha256": "06c05daeca6d40781bb5f3fb50c79e66d231f49bc2c388f8981266135119a44c"
+    },
+    {
+      "path": "A3_App_V1/V1_4_RELEASE_REVIEW.txt",
+      "bytes": 2309,
+      "sha256": "74a80bc1f9bf51a880d39d069453c3c5036fabc714228da93062e23496b33b49"
+    },
+    {
+      "path": "A3_App_V1/RUBRIC_TRACEABILITY.txt",
+      "bytes": 16608,
+      "sha256": "6e5b5fe0a25b176178f15deb5efab8771fb56245b687104d448384b915e74741"
+    },
+    {
+      "path": "A3_App_V1/COURSEWORK_BASIS.txt",
+      "bytes": 34325,
+      "sha256": "4bd9e86dd1f2ce31d3f6b55b7cbd282e35ac8f5ac930f48e03128c66a4e2bf60"
+    },
+    {
+      "path": "A3_App_V1/TEST_RESULTS_V1_4.txt",
+      "bytes": 8376,
+      "sha256": "c063eec1cba12655181c78db5913d99ea29da0bbcd6aae24f1b859e4515c482c"
+    },
+    {
+      "path": "A3_App_V1/FRONTEND_TEST_RESULTS_V1_4.txt",
+      "bytes": 2319,
+      "sha256": "6b3721fce90446db3f081b5f7410431ec15a492999bd546122eae23be032f779"
+    },
+    {
+      "path": "A3_App_V1/V1_4_FRONTEND_CHANGE_REVIEW.txt",
+      "bytes": 4554,
+      "sha256": "1b67204ea10b4a5f33fabef5bc7354be4810289b1ed9c78f03300870a8d340ae"
+    },
+    {
+      "path": "A3_App_V1/PACKAGE_CHECK_V1_4.json",
+      "bytes": 776,
+      "sha256": "0551e4f4d6a361f6c094eebb62f23bc86de0efdd7f3e148a887c7d2136b41de4"
+    },
+    {
+      "path": "A3_App_V1/PACKAGE_SMOKE_V1_4.json",
+      "bytes": 763,
+      "sha256": "95cf06c3f1cbbf5af0b30632ef7eece6bdcb461e832c3b82d1d5cafffbde5eb9"
+    },
+    {
+      "path": "A3_App_V1/V1_4_BROWSER_ACCEPTANCE.json",
+      "bytes": 1561,
+      "sha256": "aa081de86425e4860626e73975b9049c0f8e22858caf23b424b1582dd5ac8782"
+    },
+    {
+      "path": "A3_App_V1/V1_4_BROWSER_RECORD_final.json",
+      "bytes": 10177,
+      "sha256": "fd5e4220adea40ff83820a41418c04e6e32cc76f6d24d704173814114c3bbf05"
+    },
+    {
+      "path": "A3_App_V1/V1_4_BROWSER_RECEIPT.json",
+      "bytes": 4611,
+      "sha256": "fe5b21dc28924fe31266e2f288b69056545fccf16ac8d532bc1ff9381af978d8"
+    },
+    {
+      "path": "A3_App_V1/V1_4_CHANGE_PROVENANCE.json",
+      "bytes": 1758,
+      "sha256": "b39884a4f9d88c8a518b947029661971a2596ed6849e30f721a937e8405557a6"
+    },
+    {
+      "path": "A3_App_V1/OPENCODE_CASE_BUILD.txt",
+      "bytes": 3319,
+      "sha256": "2d55073dc795c6e293a8c2bee697f6078791913207e3ecfdd85bd27bdd925012"
+    },
+    {
+      "path": "A3_App_V1/OPENCODE_BUILD.txt",
+      "bytes": 2944,
+      "sha256": "c07a398b4658b8ba45110c8b7bb12c0a29e7bb927a74a2b8d4dc383954e89a55"
+    },
+    {
+      "path": "A3_App_V1/screenshots/V1_4/journey-desktop.png",
+      "bytes": 58113,
+      "sha256": "6e5670439ef5ba63be0d4301248de24038672fa38e09bf3d2305bd6a6fe3b5c4"
+    },
+    {
+      "path": "A3_App_V1/screenshots/V1_4/journey-final.png",
+      "bytes": 56993,
+      "sha256": "c8ed9443fb261bb928871f0d7030ad7e5f1888057c32b1bd2372c67dc281c277"
+    },
+    {
+      "path": "A3_App_V1/screenshots/V1_4/journey-mobile.png",
+      "bytes": 35013,
+      "sha256": "aee3442fd6d1f57bc23b10d64d917843aac1e188522ad935df6d0c9eccab4acb"
+    },
+    {
+      "path": "A3_App_V1/screenshots/V1_4/sap-case-reference.png",
+      "bytes": 52105,
+      "sha256": "38abf7f8a4f74cb2025657ccbf258ecf847b0803d3107ea653c7e6cad5cc21fa"
+    },
+    {
+      "path": "A3_App_V1/screenshots/V1_4/staff-incomplete-actions.png",
+      "bytes": 62392,
+      "sha256": "64e99eb9bd58bb27bcf503254002217b6da9ff5cfe5ad4bf982beaa25252612e"
+    },
+    {
+      "path": "A3_App_V1/screenshots/V1_4/staff-incomplete-desktop.png",
+      "bytes": 48964,
+      "sha256": "9064027aa179ace342bc0d5a977aac8808d047fe4833cf0a70f54d10d08e2f37"
+    },
+    {
+      "path": "A3_App_V1/screenshots/V1_4/staff-mobile-ready.png",
+      "bytes": 31545,
+      "sha256": "79c7ed4094b86c178994b61a5a74d09bf47b730accd074f46b111266f74a7056"
+    },
+    {
+      "path": "A3_App_V1/screenshots/V1_4/staff-mobile-routing.png",
+      "bytes": 30841,
+      "sha256": "14ad76201877be727b4b09a93c3a7bb40c497e12322611bb1ce4b953c39c6c48"
+    },
+    {
+      "path": "A3_App_V1/screenshots/V1_4/staff-ready-full.png",
+      "bytes": 144826,
+      "sha256": "19a777b7f7c778379c6248cc6a249b53d4989806b3c8652adf974dac053fc612"
+    },
+    {
+      "path": "A3_App_V1/screenshots/V1_4/tracking-desktop.png",
+      "bytes": 29207,
+      "sha256": "533b33d34d6657abbc061cd32accb45bcfbba103773ff889d0b73e6818fd1132"
+    }
+  ]
+}

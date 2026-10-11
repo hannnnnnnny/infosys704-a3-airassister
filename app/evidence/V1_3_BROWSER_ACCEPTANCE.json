@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-08",
+  "case": "AF-9973287D7BF6",
+  "scope": "Actual local browser acceptance using synthetic passenger data and a real read-only public SAP sandbox reference with the personal account key.",
+  "observed_browser_steps": [
+    "Create a request; incomplete review prevents handoff.",
+    "Read and save public SAP record 60000002; manual checks remain unchanged.",
+    "Read nonexistent 9999999999; visible error; saved case version and events unchanged.",
+    "Edit review, reload and recover draft; unsaved review still prevents handoff.",
+    "Save review; standard handoff succeeds.",
+    "Reopen with required reason; checks retained.",
+    "Save specialist review and click specialist handoff; final version 7 with 8 events.",
+    "Track final status and download the same case receipt.",
+    "390 x 844 browser viewport: no horizontal overflow; active form before optional context and 48-pixel action target."
+  ],
+  "checks": {
+    "downloaded_receipt_is_current_record": true,
+    "tracking_and_receipt_review_identical": true,
+    "tracking_and_receipt_status_identical": true,
+    "case_version_is_7": true,
+    "case_events_are_8": true,
+    "case_is_queued": true,
+    "specialist_route": true,
+    "no_sap_refund_created": true
+  },
+  "passed": true,
+  "limitations": [
+    "Developer acceptance, not a participant study or a real Mac/iPhone hardware test.",
+    "SAP public financial data do not establish the airline booking, original payment, eligibility, approval or settlement.",
+    "No upstream SAP write or real refund operation was performed."
+  ]
+}

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#1c282c">
+  <meta name="description" content="AirAssist functional prototype for direct-booking refund applications. Sample journeys and local records.">
+  <title>AirAssist · Manage booking</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a href="#main" class="skip">Skip to content</a>
+  <header class="masthead"><div class="masthead-inner"><a href="?view=journey" class="brand" aria-label="AirAssist home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 24 25 5M8 10l17-5-5 17M5 24l9-3"/></svg><span>AirAssist</span></a><nav class="main-navigation" aria-label="Passenger navigation"><a href="?view=journey" data-nav="journey">My journey</a><a href="?view=refund" data-nav="refund">Refund request</a><a href="?view=track" data-nav="track">Track request</a></nav><a class="staff-navigation" href="?view=staff" data-nav="staff">Staff review <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></a><span class="mobile-preview">Course prototype</span></div></header>
+  <div class="app-shell">
+    <header class="topbar"><a class="mobile-brand" href="?view=journey">AirAssist</a><div class="context"><span class="context-label">Travel support</span><span class="context-slash">/</span><span id="context-page">My journey</span></div><div class="topbar-right"><span class="prototype-tag">Course prototype</span></div></header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="page-footer"><span>Air New Zealand · coursework concept</span><span>Sample bookings. Requests stored locally.</span></footer>
+  </div>
+  <nav class="mobile-nav" aria-label="Mobile navigation"><a href="?view=journey" data-nav="journey"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 14 6-2-5-6 2-1 8 6 5-1c3 0 3 3 0 3l-5 1-3 6-2 1 1-7-5 2z"/></svg>Journey</a><a href="?view=refund" data-nav="refund"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h5"/></svg>Refund</a><a href="?view=track" data-nav="track"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>Track</a><a href="?view=staff" data-nav="staff"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6V4h8v2M5 6h14v15H5zM9 11h6M9 15h6"/></svg>Staff</a></nav>
+  <script src="workflow-state.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

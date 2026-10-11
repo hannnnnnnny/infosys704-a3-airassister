@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-09",
+  "archive": "AirAssist_A3_V1_4.zip",
+  "sha256": "5a191abdbb189ef1c640c5d7f2eabaee74af3d77d9182445b19ec4536910808d",
+  "scope": "Fresh extracted project, isolated synthetic data, no SAP credentials or upstream calls",
+  "checks": {
+    "fresh_server_started": true,
+    "no_env_or_database_shipped": true,
+    "sample_booking_readable": true,
+    "fresh_application_created": true,
+    "new_case_requires_evidence": true,
+    "unconfigured_case_reference_fails_honestly": true,
+    "failed_reference_keeps_case_unchanged": true,
+    "standard_review_prepared": true,
+    "queue_handoff_persisted": true,
+    "track_and_receipt_same_state": true,
+    "unconfigured_sap_is_not_fake_live": true
+  },
+  "passed": true
+}

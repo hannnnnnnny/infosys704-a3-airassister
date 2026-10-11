@@ -1,0 +1,937 @@
+{
+  "schema_version": "1.0",
+  "recorded_date": "2026-10-08",
+  "provenance": {
+    "observer": "main task",
+    "evidence_recorder": "requirements/evidence subagent",
+    "raw_log_or_screenshot_attached_here": false,
+    "note": "Records actual results explicitly supplied by the main task; this subagent did not rerun tests or operate the browser"
+  },
+  "environment": {
+    "url": "http://localhost:8789",
+    "runtime": "Python standard-library HTTP service + SQLite",
+    "airline_data": "synthetic"
+  },
+  "browser_observations": [
+    {
+      "id": "B01",
+      "action": "Edit contact email and additional details, continue to review",
+      "result": "Both carried into review",
+      "email": "slow.speaker@example.com",
+      "details_exact_text": null,
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B02",
+      "action": "Leave acknowledgment unchecked, then check it",
+      "result": "Submit disabled when unchecked and enabled after checking",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B03",
+      "action": "Submit valid local application",
+      "http_status": 201,
+      "public_reference": "AF-937FC600C098",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B04",
+      "action": "Reload confirmation",
+      "result": "Fetched the same persistent local record",
+      "public_reference": "AF-937FC600C098",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B05",
+      "action": "Track saved request",
+      "result": "Displayed exact original submitted details",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B06",
+      "action": "Lookup using wrong.owner@example.com",
+      "result": "Generic not found; stale record removed",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B07",
+      "action": "Lookup travel-agent sample NZ8T3H / Taylor",
+      "result": "Refund CTA changed to travel-agent guidance",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B08",
+      "action": "Visit ?view=refund with the agent sample selected",
+      "result": "No refund form; guidance says contact the travel agent",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B09",
+      "action": "Lookup sample reference BAD999",
+      "result": "Generic not found, stale ticket removed, entered input retained",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B10",
+      "action": "Click Check document while SAP is unconfigured",
+      "http_status": 503,
+      "result": "Actual server error message displayed; no example document appeared",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B11",
+      "action": "Inspect mobile overflow in 390px requested viewport",
+      "measured_client_width": 375,
+      "measured_scroll_width": 375,
+      "result": "No horizontal overflow in the checked mobile session",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B12",
+      "action": "On mobile, change reason/details and submit with same booking/email",
+      "result": "Existing AF-937FC600C098 returned with original Flight cancelled reason and original details explicitly unchanged",
+      "public_reference": "AF-937FC600C098",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B13",
+      "action": "Inspect desktop overflow at 1280px viewport",
+      "measured_client_width": 1265,
+      "measured_scroll_width": 1265,
+      "result": "No horizontal overflow in checked desktop view",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B14",
+      "action": "Navigate to Refund",
+      "result": "Active element MAIN after navigation",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B15",
+      "action": "Track via asynchronous Use last saved request",
+      "result": "Active element DIV result; result text matches saved record",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B16",
+      "action": "Keyboard Tab from tracking Request reference",
+      "result": "Focus advances to track-email INPUT, then Find request BUTTON",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B17",
+      "action": "Submit second synthetic application after asynchronous focus fix",
+      "email": "focus.check@example.com",
+      "http_status": 201,
+      "public_reference": "AF-6B04B05AB68F",
+      "result": "After confirmation async GET/rerender, activeElement H2 text Request saved successfully.; document title AirAssist · Request saved",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B18",
+      "action": "Query SAP Credit Memo Request 60000002 in staff view after personal configuration",
+      "http_status": 200,
+      "result": "Live response displayed exact financial fields and personal live provenance, without inferred approval or payment",
+      "status": "passed_reported",
+      "screenshot": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/sap-live-query.jpg",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B19",
+      "action": "Query unknown SAP document after a successful staff live response",
+      "http_status": 404,
+      "result": "Generic No SAP matches; stale successful record removed; genuine upstream failure without substitute record",
+      "status": "passed_reported",
+      "screenshot": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/sap-query-not-found.jpg",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B20",
+      "action": "After main server reload/restart, track persisted request and click Download receipt",
+      "public_reference": "AF-937FC600C098",
+      "email": "slow.speaker@example.com",
+      "result": "Original persistent record retrieved; browser completed actual682byteJSON; root parsed matching format/reference/email, source local, status submitted, nullSAP id and no requestKey; UI Receipt download started",
+      "receipt_file": "C:/Users/Administrator/Downloads/airassist-receipt-AF-937FC600C098.json",
+      "receipt_bytes": 682,
+      "receipt_inspected_by": "main task",
+      "status": "passed_reported",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B21",
+      "action": "Inspect receipt mobile layout at requested390x844 viewport",
+      "measured_client_width": 375,
+      "measured_scroll_width": 375,
+      "receipt_button_width": 143.28,
+      "receipt_button_height": 48,
+      "result": "No horizontal overflow; measured button target143.28x48px; viewport reset and returned Journey",
+      "status": "passed_reported",
+      "limitation": "Layout measurement only; no separate mobile download test",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B22",
+      "action": "Reload fresh confirmation route after receipt integration",
+      "public_reference": "AF-937FC600C098",
+      "result": "Fetched original record; title Saved application/H2 Your saved application; original reason/details; local pending, no SAP/airline-sent claim; Download receipt present; returned Journey afterward",
+      "status": "passed_reported",
+      "screenshot": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/confirmation-receipt.jpg",
+      "version": "Historical V1 baseline"
+    },
+    {
+      "id": "B23",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Atv0 show3missingchecks/Handoffdisabled",
+      "result": "Actual initial case state missing checks and Handoff disabled",
+      "case_version": 0,
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B24",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Save incomplete review",
+      "result": "Information-needed state saved",
+      "case_version": 1,
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B25",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Completechecks/reference/note/save",
+      "result": "Standard ready route with proposed queue",
+      "case_version": 2,
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B26",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Handoffstandard",
+      "result": "Queued standard and edits locked",
+      "case_version": 3,
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B27",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Reopenwithnote",
+      "result": "Prepared state restored explicitly",
+      "case_version": 4,
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B28",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Flag specialist and save note",
+      "result": "Complex route/manual-flag reason/Refund specialist",
+      "case_version": 5,
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B29",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Handoffspecialist",
+      "result": "Assigned specialist local queue",
+      "case_version": 6,
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B30",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Reload local reviewer workspace",
+      "result": "Persistedv6 fetched",
+      "case_version": 6,
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B31",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Passengertrack currentcase",
+      "result": "Queued complex/role/sevenevents; approval amount payment undetermined; no SAPdoc",
+      "case_version": 6,
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B32",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Download currentV1.1receipt",
+      "result": "Actual3248byteJSON parsed byroot: queuedv6/complex/specialist/sevenevents/local/noSAPlink/nointernalkey",
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B33",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Wrongownerstaffquery thenrestoreowner",
+      "result": "Noapplicationmatches removesoldcase; correctowner fetchespersistedv6",
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B34",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Measure reviewer mobile390x844",
+      "result": "Actualclient375/scroll375; Reopen297x48px; nooverflow",
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B35",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "Tab from review note after viewport reset",
+      "result": "Reopenbutton receivesfocus",
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B36",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "SeparatepersonalSAPFinancialUI GET60000002",
+      "result": "LiveResponseUSD1000/reference60000001/processC/approvalNotsupplied",
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B37",
+      "version": "V1.1",
+      "recorded_date": "2026-10-08",
+      "action": "SeparateFinancialUI GET9999999999",
+      "result": "NoSAPmatches removesoldfinancialresult",
+      "status": "passed_reported",
+      "observer": "main task"
+    },
+    {
+      "id": "B38",
+      "version": "V1.2",
+      "date": "2026-10-08",
+      "action": "V1.2 snapshot",
+      "result": "v1/two events/checksfalse/notready",
+      "status": "passed_reported_bounded",
+      "observer": "root"
+    },
+    {
+      "id": "B39",
+      "version": "V1.2",
+      "date": "2026-10-08",
+      "action": "V1.2 missing document",
+      "result": "No mutation/v1/twoevents",
+      "status": "passed_reported_bounded",
+      "observer": "root"
+    },
+    {
+      "id": "B40",
+      "version": "V1.2",
+      "date": "2026-10-08",
+      "action": "V1.2 draft/conflict",
+      "result": "Reload+two-tab oldv1/newv2 retained/manualKeep/freshSave",
+      "status": "passed_reported_bounded",
+      "observer": "root"
+    },
+    {
+      "id": "B41",
+      "version": "V1.2",
+      "date": "2026-10-08",
+      "action": "V1.2 native handoff",
+      "result": "Corrected normalclick→standardv4/reopenv5/complexv6/specialistv7",
+      "status": "passed_reported_bounded",
+      "observer": "root"
+    },
+    {
+      "id": "B42",
+      "version": "V1.2",
+      "date": "2026-10-08",
+      "action": "V1.2 receipt/track",
+      "result": "Actual5042byte download/rootAPI comparison/v7/8events/nullSAPcreatedID",
+      "status": "passed_reported_bounded",
+      "observer": "root"
+    },
+    {
+      "id": "B43",
+      "version": "V1.2",
+      "date": "2026-10-08",
+      "action": "V1.2 queries/navigation",
+      "result": "Pending financial locks/cancel/no bleed",
+      "status": "passed_reported_bounded",
+      "observer": "root"
+    },
+    {
+      "id": "B44",
+      "version": "V1.2",
+      "date": "2026-10-08",
+      "action": "V1.2 owner recovery",
+      "result": "Wrongowner nooldrecord/correctedit hidesolderror/v7",
+      "status": "passed_reported_bounded",
+      "observer": "root"
+    },
+    {
+      "id": "B45",
+      "version": "V1.2",
+      "date": "2026-10-08",
+      "action": "V1.2 mobile/focus",
+      "result": "375=375;Find46/capture48/reopen48/secondaryfinal44;Tabref-email-Findcase",
+      "status": "passed_reported_bounded",
+      "observer": "root"
+    }
+  ],
+  "backend_suite": {
+    "test_source": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/work/a3-app-v1/tests/test_server.py",
+    "passed_count": 49,
+    "result_source": "Root-owned TEST_RESULTS_V1_2.txt stdout inspected by evidence agent",
+    "coverage_source": "38 captured successful test names and new test source inspected",
+    "coverage": [
+      "Persistence/store reopening",
+      "Idempotency and conflicting keys",
+      "Duplicate metadata",
+      "Concurrent submissions",
+      "Wrong owner and missing reference",
+      "Agent booking and input validation",
+      "Unconfigured/nonpersonal upstream prevention",
+      "Mocked SAP GET provenance",
+      "Mocked SAP errors",
+      "Malformed/wrong-ID/excessive response",
+      "Absent SAP amount/currency",
+      "HTTP submit/track",
+      "Private paths/query pollution/SAP POST rejection",
+      "Host/Origin guards",
+      "V4 route and bounded gzip handling: latest main-task reported corrections/checks",
+      "Integrated receipt endpoint: four new automated tests reported by main task",
+      "Original schema/submission-key migration and old idempotency survive",
+      "Owner-pair review access; no unrestricted case list",
+      "Missing evidence blocks handoff without mutation",
+      "Explained standard/specialist prototype routes",
+      "Save/handoff/reopen persistence; tracking/receipt consistency",
+      "Stale and concurrent version409 protects one-event write",
+      "Strict case payloads and no SAP calls"
+    ],
+    "proves_live_sap_authentication": false,
+    "latest_elapsed_seconds": 22.327,
+    "latest_run_context": "Actual captured 49 PASS /22.327s/exit0;38 prior+11financial-reference tests; mocked upstream",
+    "previous_passed_count": 20,
+    "independent_stage_passed_count": 20,
+    "independent_stage_elapsed_seconds": 4.628,
+    "verified_version": "V1.2",
+    "independent_stage_run_scope": "HistoricalV1 receipt-stage20PASS4.628s; current integratedmain38PASS15.649s",
+    "current_result_record": "TEST_RESULTS_V1_2.txt"
+  },
+  "audit_corrections": [
+    {
+      "issue": "Changed duplicate silently returned unchanged original",
+      "state": "Backend returns created metadata/message and UI labels existing unchanged request",
+      "verification": "Reviewed updated source; reported backend test pass",
+      "independent_browser_retest": false,
+      "browser_retest_reported": true,
+      "browser_result": "Main task verified explicit unchanged original on mobile duplicate submission"
+    },
+    {
+      "issue": "Missing SAP net amount became 0.00",
+      "state": "Absent amount/currency is Not supplied",
+      "verification": "Reviewed updated formatter and reported absent-value backend test pass",
+      "independent_browser_retest": false
+    }
+  ],
+  "pending": {
+    "mobile_keyboard_regression": "Bounded current/historical paths verified; comprehensive keyboard/screen-reader coverage not conducted",
+    "classroom_submission": "Not performed; formal deadlines and group deliverables still apply",
+    "native_mac": "Native Mac launch not tested",
+    "lab_export_class_delivery": "Course App-ZIP procedure, unrecorded later lab guidance and formal Canvas delivery unverified",
+    "participant_business_study": "Not conducted; no measured benefit"
+  },
+  "account_policy": {
+    "actual_work_uses_personal_account": "required",
+    "classroom_account_used_for_actual_work": "main task reports no",
+    "secrets_in_this_record": false
+  },
+  "claims_excluded": [
+    "Live Air New Zealand integration",
+    "Airline request sent",
+    "SAP refund created",
+    "Approved refund",
+    "Paid refund",
+    "Participant usability study",
+    "Measured business improvement",
+    "CLI native App ZIP export"
+  ],
+  "screenshots": [
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/desktop-journey.jpg",
+      "context": "Desktop journey; main task reports 1280px browser viewport",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/mobile-application.jpg",
+      "context": "Mobile existing-application confirmation",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/sap-live-query.jpg",
+      "context": "Main-task observed authenticated personal-account SAP 200 staff Live response",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/sap-query-not-found.jpg",
+      "context": "Main-task observed genuine SAP404 and stale-record removal",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/desktop-receipt.jpg",
+      "context": "Main-task actual browser receipt download and persisted-record retrieval after restart",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/mobile-receipt.jpg",
+      "context": "Receipt mobile layout390x844 requested; actual client/scroll375",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/confirmation-receipt.jpg",
+      "context": "Main-task final confirmation reload/original record/local pending with receipt action",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/v1-1-queued-track.jpg",
+      "context": "ActualV1.1 persistedv6complexqueue/role/sevenevents",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/v1-1-mobile-case.jpg",
+      "context": "ActualV1.1 reviewer390x844/client375scroll375",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/v1-1-sap-live.jpg",
+      "context": "ActualV1.1 separateFinancialUI personalSAPGET200",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/v1-2-sap-case-reference.jpg",
+      "context": "Actual root V1.2 CUA",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/v1-2-sap-missing-document.jpg",
+      "context": "Actual root V1.2 CUA",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/v1-2-review-conflict.jpg",
+      "context": "Actual root V1.2 CUA",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/v1-2-queued-track.jpg",
+      "context": "Actual root V1.2 CUA",
+      "inspected_by_evidence_subagent": false
+    },
+    {
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/v1-2-mobile-sap-case.jpg",
+      "context": "Actual root V1.2 CUA",
+      "inspected_by_evidence_subagent": false
+    }
+  ],
+  "keyboard_focus": {
+    "complete": false,
+    "verified_segments": [
+      "Refund navigation focuses MAIN",
+      "Async tracking focuses result DIV with matching text",
+      "Tab from request reference to email INPUT to Find request BUTTON",
+      "Final POST/confirmation async rerender focuses H2 Request saved successfully.",
+      "V1.1 review note Tab to Reopen button after viewport reset",
+      "V1.2 reference→email→Findcase actual Tab"
+    ],
+    "final_post_focus_status": "passed_in_reported_scenario",
+    "full_page_initial_load": "BODY remains focused intentionally; no automatic focus hijack and not a bug",
+    "remaining_limit": "Not every keyboard interaction or accessibility scenario tested"
+  },
+  "javascript_syntax_check": {
+    "command": "node --check public/app.js",
+    "result": "passed_reported",
+    "proves_browser_runtime": false
+  },
+  "packaging_helper": {
+    "state": "Current V1.2 verification authority is external",
+    "verification_is_external": true,
+    "app_zip_is_native_cli_session_export": false
+  },
+  "user_authorization": {
+    "opencode_source_transmission": "explicitly approved by user",
+    "private_personal_api_key_save": "explicitly approved by user",
+    "local_env_save": "completed as reported by main task; key not accessed by evidence subagent",
+    "isolated_opencode_stage_excludes_env": "main task reports yes"
+  },
+  "sap_live_read": {
+    "status": "verified_main_task_and_sanitized_record",
+    "personal_account_verified": true,
+    "source_record": "C:\\Users\\Administrator\\Documents\\Codex\\2026-09-13\\new-chat\\work\\a3-app-v1\\evidence\\SAP_LIVE_QUERY.json",
+    "record_inspected_by_evidence_subagent": true,
+    "browser_observer": "main task",
+    "queries": [
+      {
+        "documentId": "60000002",
+        "localHttpStatus": 200,
+        "requestMethod": "GET",
+        "response": {
+          "record": {
+            "id": "60000002",
+            "totalNetAmount": 1000.0,
+            "currency": "USD",
+            "referenceDocument": "60000001",
+            "referenceDocumentCategory": "H",
+            "processStatusCode": "C",
+            "approvalStatusCode": "",
+            "createdAt": "2016-09-21",
+            "source": {
+              "mode": "live",
+              "label": "Personal SAP account · live API response",
+              "fetchedAt": "2026-10-07T10:26:30Z"
+            },
+            "interpretation": "This SAP financial reference does not confirm the paid fare, approval of this application, or refund settlement."
+          }
+        }
+      },
+      {
+        "documentId": "9999999999",
+        "localHttpStatus": 404,
+        "requestMethod": "GET",
+        "response": {
+          "error": {
+            "code": "SAP_NOT_FOUND",
+            "message": "No SAP credit memo request matches this document ID."
+          }
+        }
+      }
+    ],
+    "limits": "GET only; no SAP write, airline link, refund eligibility, approval or settlement proved; raw H/C and blank approval not inferred"
+  },
+  "opencode_workflow": {
+    "authorization": "explicitly approved",
+    "initial_allowed_run": "403 FreeTierError",
+    "normal_tool_config_retry": "Actual staged receipt-endpoint/test source contribution completed as main task reports",
+    "session_id": "ses_eea1d9afeffeG8mqaDzCCaGq7n",
+    "model": "opencode/fledge-alpha-free",
+    "build_complete": true,
+    "contribution_runtime_verified": true,
+    "export_complete": true,
+    "source_contribution_verified": true,
+    "export_format": "native OpenCode session JSON; distinct from App source ZIP",
+    "session_export": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-09-13\\new-chat\\work\\a3-app-v1\\evidence\\OPENCODE_SESSION.json",
+      "utf8_json_valid": true,
+      "bytes": 26643,
+      "message_count": 11,
+      "sha256": "8e3abc87e0d029a8c450cd87e41e7f175914428ef6966db023d2831a9400d8d8",
+      "metadata_checked_by_evidence_subagent": true
+    },
+    "contribution_integrated": true,
+    "runtime_verification_scope": "Receipt backend main20PASS4.679s and independent stage20PASS4.628s; actual UI download/file acceptance passed after main server restart",
+    "ui_receipt_download_verified": true,
+    "additional_main_task_provenance_files": [
+      "OPENCODE_BUILD.txt",
+      "OPENCODE_BUILD.json",
+      "OPENCODE_STAGE_CONFIG.json"
+    ],
+    "cloud_personal_login_verified": false,
+    "client": "official local CLI",
+    "scope": "source-only authorized isolated stage; free provider"
+  },
+  "process_restart_tracking": {
+    "verified": true,
+    "scope": "Original AF-937FC600C098 retrieved by matching reference/synthetic email after main server restart on port8789",
+    "observer": "main task"
+  },
+  "package_verification": {
+    "current_version": "V1.2",
+    "artifact": "AirAssist_A3_V1_2.zip",
+    "verification_mode": "Authoritative external reports after source/evidence writes stop",
+    "record": "outputs/A3_App_V1/PACKAGE_CHECK_V1_2.json",
+    "extracted_smoke": "outputs/A3_App_V1/PACKAGE_SMOKE_V1_2.json",
+    "zip_self_hash_embedded": false,
+    "classroom_submission_complete": false,
+    "dedicated_course_ui_app_zip_export_verified": false
+  },
+  "current_version": "V1.2: verified scoped preparation/snapshot/draft browser flow; current package authority external",
+  "opencode_case_workflow": {
+    "source_contribution_verified": true,
+    "client": "official local CLI1.18.35",
+    "model": "opencode/fledge-alpha-free",
+    "session_id": "ses_ee9f0a481ffeU4025PaxyUCkoa",
+    "generated_test_file": "test_case_workflow.py",
+    "authorization": "User explicitly allowed three source files and scoped requirements to this specific provider after approval-review rejections, as reported by main task",
+    "session_export": {
+      "path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-09-13\\new-chat\\work\\a3-app-v1\\evidence\\OPENCODE_CASE_SESSION.json",
+      "utf8_json_valid": true,
+      "bytes": 62584,
+      "message_count": 22,
+      "sha256": "dee56a199b28f92b1e83b651ec5926d20f582b5b28ebec73a9ee594ca80c74d7",
+      "metadata_checked_by_evidence_subagent": true
+    },
+    "contribution_integrated": true,
+    "independent_tests_passed": true,
+    "browser_acceptance_complete": true,
+    "personal_cloud_login_verified": false,
+    "integration_review": "Malformed action types/control characters rejected; consistent read transactions; original staging source unchanged",
+    "backend_test_evidence": "TEST_RESULTS.txt actual captured output inspected",
+    "browser_acceptance_scope": "Reported corev0-v6 and fresh currentreceipt/owner/mobile/boundedTab/personalSAP retention passed; comprehensive accessibility/participant study unclaimed",
+    "additional_provenance_files": [
+      "OPENCODE_CASE_BUILD.txt",
+      "OPENCODE_CASE_BUILD.json"
+    ]
+  },
+  "v11_backend_acceptance": {
+    "status": "passed_actual_captured_output",
+    "count": 38,
+    "elapsed_seconds": 15.649,
+    "suite_parts": {
+      "existing": 20,
+      "opencode_case": 11,
+      "independent_case": 7
+    },
+    "record_path": "C:\\Users\\Administrator\\Documents\\Codex\\2026-09-13\\new-chat\\work\\a3-app-v1\\evidence\\TEST_RESULTS.txt",
+    "inspected_by_evidence_subagent": true,
+    "rerun_by_evidence_subagent": false,
+    "browser_proof_complete": true,
+    "browser_core_flow_verified": true,
+    "browser_proof_scope": "All reported boundedV1.1developer scenarios; no universal/browserconflict/participant coverage claim"
+  },
+  "v11_browser_acceptance": {
+    "status": "passed_reported_bounded_scenarios",
+    "observer": "main task",
+    "recorded_date": "2026-10-08",
+    "independently_operated_by_evidence_subagent": false,
+    "public_reference": "AF-937FC600C098",
+    "contact": "slow.speaker@example.com",
+    "observed_versions": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "current_review_state": "queued",
+    "current_route": "complex",
+    "current_owner_role": "Refund specialist",
+    "local_event_count": 7,
+    "staff_reload_persisted": true,
+    "passenger_tracking_consistent": true,
+    "approval_amount_payment": "undetermined",
+    "sap_document_created": false,
+    "screenshot": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/screenshots/v1-1-queued-track.jpg",
+    "retention_checks_verified": [
+      "Actual3248bytecurrentreceipt",
+      "Wrongownerstalecasecleanup/restoredv6",
+      "Mobile375=375/297x48Reopen/boundedTab",
+      "SeparatepersonalSAPGET200/404"
+    ],
+    "receipt": {
+      "observer_and_parser": "main task",
+      "path": "C:/Users/Administrator/Downloads/airassist-receipt-AF-937FC600C098 (1).json",
+      "bytes": 3248,
+      "format": "airassist-application-receipt",
+      "matching_reference": true,
+      "request_status": "queued_for_review",
+      "review_version": 6,
+      "route": "complex",
+      "owner_role": "Refund specialist",
+      "event_count": 7,
+      "source_mode": "local",
+      "sapCreditMemoRequestId": null,
+      "requestKey_present": false,
+      "independently_read_by_evidence_subagent": false
+    },
+    "mobile": {
+      "requested_viewport": [
+        390,
+        844
+      ],
+      "client_width": 375,
+      "scroll_width": 375,
+      "reopen_size": [
+        297,
+        48
+      ],
+      "no_horizontal_overflow_in_checked_view": true
+    },
+    "keyboard": "After viewport reset, actual Tab from review note to Reopen button; bounded scenario only",
+    "sap_retention": {
+      "personal_financial_page_get200": true,
+      "document_id": "60000002",
+      "net_amount": 1000,
+      "currency": "USD",
+      "reference": "60000001",
+      "process_code": "C",
+      "approval_display": "Not supplied",
+      "unknown_get404": "9999999999",
+      "stale_result_removed": true
+    }
+  },
+  "frontend_suite": {
+    "passed_count": 23,
+    "exit_code": 0,
+    "command": "node tests/frontend-state.cjs",
+    "source": "tests/frontend-state.cjs",
+    "result": "FRONTEND_TEST_RESULTS_V1_2.txt",
+    "scope": "Executable Node VM regressions on actual public source; distinct from native browser",
+    "captured_output_inspected": true,
+    "rerun_by_evidence_agent": false
+  },
+  "v12_acceptance": {
+    "status": "Passed within reported developer/actual JSON scope",
+    "observer": "root CUA",
+    "independently_operated_by_evidence_agent": false,
+    "reference": "AF-21B3A992AD5C",
+    "synthetic_contact": "consultant.v12@example.com",
+    "capture_state": {
+      "case_version": 1,
+      "events": 2,
+      "state": "not_started",
+      "checks_all_false": true,
+      "route": "information_needed",
+      "ready": false
+    },
+    "unknown_sap_no_mutation": {
+      "documentId": "9999999999",
+      "case_version": 1,
+      "events": 2
+    },
+    "draft_conflict": "Reload restored note/capture blocked; second tab v2; first tab v1 conflict retained old draft behind explicit Keep/Discard; human fresh Save v3",
+    "sequence": [
+      "standard handoff v4",
+      "reopen v5",
+      "manual specialist save v6",
+      "specialist handoff v7"
+    ],
+    "current": {
+      "version": 7,
+      "status": "queued_for_review",
+      "route": "complex",
+      "ownerRole": "Refund specialist",
+      "events": 8,
+      "sapCreditMemoRequestId": null
+    },
+    "snapshot": {
+      "capture_version": 1,
+      "documentId": "60000002",
+      "source_mode": "live",
+      "label": "SAP public sandbox · read-only GET",
+      "fetchedAt": "2026-10-07T12:18:31Z",
+      "totalNetAmount": 1000,
+      "currency": "USD",
+      "referenceDocument": "60000001",
+      "rawProcess": "C",
+      "rawCategory": "H",
+      "approval": "",
+      "context": "demonstration_only",
+      "bookingMatch": "not_verified",
+      "paymentVerification": "not_performed",
+      "refundEligibility": "not_assessed"
+    },
+    "proof_records": [
+      "V1_2_ACCEPTANCE_after_sap_capture.json",
+      "V1_2_ACCEPTANCE_queued_specialist.json",
+      "SAP_LIVE_CASE_REFERENCE_V1_2.json"
+    ],
+    "records_inspected": true,
+    "receipt": {
+      "download_reported": true,
+      "filename": "airassist-receipt-AF-21B3A992AD5C.json",
+      "bytes": 5042,
+      "sha256": "a6735994b7c66d73b62c41e8d82ef533961fcf7fac83f4aa201dea9bda33d3c3",
+      "format": "airassist-application-receipt",
+      "matches_current_api": "root reported and summary check true",
+      "file_parsed_by_evidence_agent": false
+    },
+    "query_browser_scope": "Pending financial input/button disabled; navigation cancellation/no bleed; wrong-owner Track clears result and editing contact hides stale error; timed native dual-response not reported",
+    "mobile": {
+      "requested": [
+        390,
+        844
+      ],
+      "client_width": 375,
+      "scroll_width": 375,
+      "find_case_height": 46,
+      "capture_height": 48,
+      "reopen_height": 48,
+      "secondary_last_saved_final_height": 44,
+      "secondary_previous_height": 38,
+      "all_targets_48_claimed": false
+    },
+    "keyboard": "Actual reference→email→Find case Tab; bounded only"
+  },
+  "v12_source_actor": "Local team refinement; retained historical genuine OpenCode core/receipt exports, no new model generation claim",
+  "historical_package_verifications": {
+    "V1": {
+      "candidate_archive": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A3_App_V1/AirAssist_A3_V1.zip",
+      "source_file_count": 28,
+      "manifest_entry_count": 1,
+      "total_entries": 29,
+      "candidate_contents_verified": true,
+      "required_evidence_present": true,
+      "manifest_matches": true,
+      "personal_key_absent": "main task actual key scan verified; key not read by evidence subagent",
+      "excluded_private_content": [
+        ".env",
+        ".data",
+        "database",
+        "cache",
+        "log",
+        "classroom identity"
+      ],
+      "packaging_method": "local App source ZIP after actual OpenCode edits; native session JSON separate",
+      "final_repack_validation_record": "Main task external package-check report after documentation writes; no self-hash embedded",
+      "classroom_submission_complete": false,
+      "dedicated_course_ui_app_zip_export_verified": false,
+      "verification_provenance": "main task actual candidate archive inspection",
+      "verified_version": "Historical V1 baseline",
+      "current_v11_source_package_verified": false
+    },
+    "V1.1": {
+      "artifact": "AirAssist_A3_V1_1.zip",
+      "record": "outputs/A3_App_V1/PACKAGE_CHECK.json",
+      "source_files": 35,
+      "entries": 36,
+      "passed": true,
+      "basis": "Prior read-only audit inspected record and actual archive SHA/CRC/JSON"
+    }
+  }
+}

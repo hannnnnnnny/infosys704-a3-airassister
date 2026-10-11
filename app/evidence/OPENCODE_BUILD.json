@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-07",
+  "tool": "OpenCode CLI",
+  "version": "1.18.35",
+  "sessionId": "ses_eea1d9afeffeG8mqaDzCCaGq7n",
+  "model": "opencode/fledge-alpha-free",
+  "nativeExport": "evidence/OPENCODE_SESSION.json",
+  "appZipMethod": "Local source packaging after reviewed OpenCode contribution",
+  "contribution": [
+    "GET /api/refund-requests/receipt",
+    "JSON attachment helper",
+    "4 HTTP receipt tests"
+  ],
+  "integratedTests": {
+    "passed": 20,
+    "seconds": 4.679
+  },
+  "stageTests": {
+    "passed": 20,
+    "seconds": 4.628
+  },
+  "hashes": {
+    "server.py": "fb52d9f451d150984089d4a4e5ad0502a9942b9138167988e11e1b0c88ed0836",
+    "tests/test_receipt.py": "b66c442b17f8f6b5b0e1e6926e63095f9e9eae5a5d9850b53a6b523dbec6f59b",
+    "evidence/OPENCODE_SESSION.json": "8e3abc87e0d029a8c450cd87e41e7f175914428ef6966db023d2831a9400d8d8",
+    "evidence/OPENCODE_STAGE_CONFIG.json": "f009a56efafe34f6fedfc1e3f8d8fa7efb937c4267338f9e4ec1638027165ba9"
+  },
+  "privacy": "Source-only build stage excluded personal SAP key, .env, databases, application records, and private coursework files."
+}

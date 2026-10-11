@@ -1,0 +1,66 @@
+AirAssist App V1.1 backend behavior test results
+
+Command: python -B -m unittest discover -s tests -v
+Working directory: work/a3-app-v1
+Environment: Windows, Python standard library only.
+Result: PASS (exit code 0).
+
+Scope: 20 existing application/receipt/SAP-boundary tests, 11 OpenCode review
+workflow tests, and 7 independent review migration/ownership/concurrency tests.
+Local HTTP and SQLite operations use isolated temporary test data. Upstream SAP
+responses are mocked; local case tests forbid SAP calls.
+The original schema and submission keys survive migration, and review updates
+persist through reopen with matching passenger-query and receipt state.
+Actual personal-account SAP GET checks are documented separately in SAP
+integration evidence. This automated output does not establish live SAP writes,
+airline refund eligibility, approval, payment or refund settlement.
+
+Review fixes after the original OpenCode contribution:
+- Reject malformed action types and control characters in paymentReference.
+- Use explicit read transactions for consistent request/case snapshots.
+Original OpenCode staging source remains unchanged.
+
+Captured output from the integrated main project (two tool chunks joined):
+test_handoff_with_missing_checks_is_incomplete_and_does_not_mutate (test_case_workflow.CaseWorkflowHTTPTests.test_handoff_with_missing_checks_is_incomplete_and_does_not_mutate) ... ok
+test_initial_state_is_missing_and_not_started (test_case_workflow.CaseWorkflowHTTPTests.test_initial_state_is_missing_and_not_started) ... ok
+test_invalid_review_payloads_are_rejected (test_case_workflow.CaseWorkflowHTTPTests.test_invalid_review_payloads_are_rejected) ... ok
+test_missing_fields_are_rejected (test_case_workflow.CaseWorkflowHTTPTests.test_missing_fields_are_rejected) ... ok
+test_other_reason_routes_complex_with_specialist_queue (test_case_workflow.CaseWorkflowHTTPTests.test_other_reason_routes_complex_with_specialist_queue) ... ok
+test_queued_case_rejects_save_and_handoff_until_reopened (test_case_workflow.CaseWorkflowHTTPTests.test_queued_case_rejects_save_and_handoff_until_reopened) ... ok
+test_reopen_rejected_when_not_queued (test_case_workflow.CaseWorkflowHTTPTests.test_reopen_rejected_when_not_queued) ... ok
+test_specialist_flag_routes_complex_even_for_standard_reason (test_case_workflow.CaseWorkflowHTTPTests.test_specialist_flag_routes_complex_even_for_standard_reason) ... ok
+test_stale_version_and_wrong_owner_do_not_mutate (test_case_workflow.CaseWorkflowHTTPTests.test_stale_version_and_wrong_owner_do_not_mutate) ... ok
+test_standard_handoff_persists_across_store_reopen_and_receipt (test_case_workflow.CaseWorkflowHTTPTests.test_standard_handoff_persists_across_store_reopen_and_receipt) ... ok
+test_supporting_required_for_other_reason_or_details (test_case_workflow.CaseWorkflowHTTPTests.test_supporting_required_for_other_reason_or_details) ... ok
+test_case_owner_pair_required_and_no_unrestricted_list (test_cases.ReviewCaseTests.test_case_owner_pair_required_and_no_unrestricted_list) ... ok
+test_missing_required_evidence_blocks_handoff_without_mutating (test_cases.ReviewCaseTests.test_missing_required_evidence_blocks_handoff_without_mutating) ... ok
+test_old_schema_and_original_idempotency_survive_case_migration (test_cases.ReviewCaseTests.test_old_schema_and_original_idempotency_survive_case_migration) ... ok
+test_other_reason_and_specialist_flag_route_to_complex (test_cases.ReviewCaseTests.test_other_reason_and_specialist_flag_route_to_complex) ... ok
+test_same_version_concurrent_writers_one_wins_one_conflicts (test_cases.ReviewCaseTests.test_same_version_concurrent_writers_one_wins_one_conflicts) ... ok
+test_standard_handoff_reopen_and_receipt_share_persisted_state (test_cases.ReviewCaseTests.test_standard_handoff_reopen_and_receipt_share_persisted_state) ... ok
+test_strict_review_inputs_and_invalid_transitions_preserve_version (test_cases.ReviewCaseTests.test_strict_review_inputs_and_invalid_transitions_preserve_version) ... ok
+test_receipt_downloads_json_for_matching_owner (test_receipt.ReceiptTests.test_receipt_downloads_json_for_matching_owner) ... ok
+test_receipt_hides_unknown_or_wrong_owner_application (test_receipt.ReceiptTests.test_receipt_hides_unknown_or_wrong_owner_application) ... ok
+test_receipt_is_case_insensitive_for_owner_lookup (test_receipt.ReceiptTests.test_receipt_is_case_insensitive_for_owner_lookup) ... ok
+test_receipt_rejects_bad_parameters_and_wrong_method (test_receipt.ReceiptTests.test_receipt_rejects_bad_parameters_and_wrong_method) ... ok
+test_application_validation_blocks_agent_booking_and_bad_input (test_server.ApplicationBehaviorTests.test_application_validation_blocks_agent_booking_and_bad_input) ... ok
+test_concurrent_submissions_create_one_application (test_server.ApplicationBehaviorTests.test_concurrent_submissions_create_one_application) ... ok
+test_retry_and_new_key_deduplicate_but_key_reuse_conflicts (test_server.ApplicationBehaviorTests.test_retry_and_new_key_deduplicate_but_key_reuse_conflicts) ... ok
+test_saved_request_survives_new_store_and_never_claims_sap_creation (test_server.ApplicationBehaviorTests.test_saved_request_survives_new_store_and_never_claims_sap_creation) ... ok
+test_wrong_owner_and_missing_reference_do_not_disclose_an_application (test_server.ApplicationBehaviorTests.test_wrong_owner_and_missing_reference_do_not_disclose_an_application) ... ok
+test_changed_duplicate_submission_explicitly_returns_original_unchanged (test_server.HTTPContractTests.test_changed_duplicate_submission_explicitly_returns_original_unchanged) ... ok
+test_http_submission_tracking_and_unconfigured_sap (test_server.HTTPContractTests.test_http_submission_tracking_and_unconfigured_sap) ... ok
+test_local_host_and_origin_block_other_websites (test_server.HTTPContractTests.test_local_host_and_origin_block_other_websites) ... ok
+test_private_paths_query_pollution_and_sap_post_are_blocked (test_server.HTTPContractTests.test_private_paths_query_pollution_and_sap_post_are_blocked) ... ok
+test_gzip_bomb_and_malformed_compressed_response_are_rejected (test_server.SAPBoundaryTests.test_gzip_bomb_and_malformed_compressed_response_are_rejected) ... ok
+test_gzip_sap_json_preserves_reference_amount_and_raw_statuses (test_server.SAPBoundaryTests.test_gzip_sap_json_preserves_reference_amount_and_raw_statuses) ... ok
+test_live_get_preserves_financial_reference_and_no_payment_mapping (test_server.SAPBoundaryTests.test_live_get_preserves_financial_reference_and_no_payment_mapping) ... ok
+test_malformed_wrong_id_or_excessive_response_is_rejected (test_server.SAPBoundaryTests.test_malformed_wrong_id_or_excessive_response_is_rejected) ... ok
+test_missing_sap_amount_or_currency_stays_unknown (test_server.SAPBoundaryTests.test_missing_sap_amount_or_currency_stays_unknown) ... ok
+test_sap_errors_keep_distinct_status_and_never_return_fake_record (test_server.SAPBoundaryTests.test_sap_errors_keep_distinct_status_and_never_return_fake_record) ... ok
+test_unconfigured_or_nonpersonal_config_never_calls_upstream (test_server.SAPBoundaryTests.test_unconfigured_or_nonpersonal_config_never_calls_upstream) ... ok
+
+----------------------------------------------------------------------
+Ran 38 tests in 15.649s
+
+OK

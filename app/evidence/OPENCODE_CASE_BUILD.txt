@@ -1,0 +1,54 @@
+AirAssist V1.1 — actual OpenCode core build and independent review
+Date: 2026-10-08
+
+Official OpenCode CLI 1.18.35; model opencode/fledge-alpha-free.
+Successful session: ses_ee9f0a481ffeU4025PaxyUCkoa.
+The user specifically authorized transmission of server.py, tests/test_server.py,
+tests/test_receipt.py and case-review functional requirements to this service.
+Only the isolated source stage was used. No key, .env, database, saved record or
+private course document was included. Public session sharing was disabled.
+
+Actual contribution
+OpenCode read the provided API contract, edited server.py to implement the core
+local case-review workflow and wrote tests/test_case_workflow.py with 11 tests.
+Implemented: additive review storage; owner-pair case lookup; evidence checklist;
+information-needed / standard / complex triage; role and queue; noted save,
+handoff and reopening; atomic version checks; matching track/receipt state.
+These actions do not perform airline eligibility, approval, payment or SAP writes.
+The local frontend was developed separately. OpenCode did not author every file.
+
+Review and integration
+An initial multiline command did not deliver the full contract and generated an
+unsuitable workflow. That attempt was stopped and its code was not integrated.
+The successful session used an attached API_CONTRACT.txt; retained local session
+inspection confirmed the full endpoint, version and transition contract arrived.
+Independent review integrated the successful core, preserving existing behavior,
+and fixed action type validation, payment-reference control characters and read
+snapshot consistency. The generated stage remains unchanged for comparison.
+The complete integrated main suite passed: 38 tests in 15.649s, exit 0.
+20 existing application/receipt/SAP tests + 11 OpenCode tests + 7 independent tests.
+See TEST_RESULTS.txt for the actual captured output. Browser acceptance is
+recorded separately in RUNTIME_ACCEPTANCE.txt; it is not inferred from source.
+
+Native export
+opencode export ses_ee9f0a481ffeU4025PaxyUCkoa --sanitize
+OPENCODE_CASE_SESSION.json: 62584 bytes,
+22 messages; valid UTF-8 JSON.
+SHA-256: dee56a199b28f92b1e83b651ec5926d20f582b5b28ebec73a9ee594ca80c74d7
+OPENCODE_CASE_BUILD.json contains generated and integrated source hashes.
+CASE_API_CONTRACT.txt and OPENCODE_CASE_STAGE_CONFIG.json preserve the scoped
+functional brief and isolated configuration. No provider login is claimed.
+
+Artifact distinction
+This is a genuine native OpenCode session export. AirAssist_A3_V1_1.zip is the
+runnable source package created locally after review, containing that export.
+It is not evidence of a dedicated OpenCode App-ZIP export command or course UI.
+Before the final upload, confirm the course's intended App-ZIP export procedure.
+Keep this project, both native sessions and development records until marking.
+OPENCODE_BUILD.txt / OPENCODE_SESSION.json document the historical V1 receipt
+contribution and remain separate from this V1.1 core-workflow contribution.
+
+Account boundary
+Real sandbox queries use the authorized personal SAP API Hub configuration.
+The classroom temporary account was not used for project connections or writes.
+Local cases and generic SAP financial references remain separate data sources.

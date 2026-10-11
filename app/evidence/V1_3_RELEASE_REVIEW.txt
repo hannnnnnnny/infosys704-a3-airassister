@@ -1,0 +1,24 @@
+AirAssist V1.3 review — 2026-10-08
+
+Purpose: improve the A3 coursework evidence and the current case-preparation workflow without widening it into a ticket cancellation, refund approval or settlement product.
+
+Design changes
+The staff review page now places saved routing, evidence checks, the required note and current actions together. Optional request details, inline SAP context and event history use native disclosure controls. Saved/unsaved/queued states still govern the next action. Mobile layout presents the active review before secondary context and reserves space for bottom navigation.
+
+Actual source changes: public/app.js, public/styles.css, tests/frontend-state.cjs, README.txt and current review evidence. The backend, SAP endpoint and OpenCode-generated core contribution are unchanged. V1.3 local changes are Codex-assisted; original OpenCode native sessions are retained unchanged. No API key, database or course document was resent to a model in this revision.
+
+Current verification
+TEST_RESULTS_V1_3.txt: 49 backend behaviour tests PASS, 22.532 seconds.
+FRONTEND_TEST_RESULTS_V1_3.txt: 28 actual-source front-end checks PASS.
+V1_3_BROWSER_ACCEPTANCE.json: actual browser request/review/standard handoff/reopen/specialist handoff/track/download verification. Final synthetic case AF-9973287D7BF6 is version 7 with eight events; downloaded receipt equals the current server receipt and tracking review state.
+Public SAP sandbox record 60000002 was read and saved using the existing personal-account configuration. Manual checks did not auto-complete. Missing record 9999999999 showed an error and left saved version/events unchanged. The captured record is generic financial context; it does not establish airline booking or original payment. No upstream write or refund operation occurred.
+Browser viewport 390 x 844: no horizontal overflow; active form precedes secondary context; action target height 48 pixels. This is browser layout acceptance, not physical Mac/iPhone acceptance or a passenger usability study.
+
+Presentation changes
+Existing employee evidence is connected to consolidated decision evidence, manual checks and named standard/specialist review. Required form fields already existed; the source has indirect refund exposure, and no new interview is invented.
+A visible finding/change/verification example explains the actual long-review-page iteration. Current UI evidence is cropped from real browser captures for projection legibility; screenshot content is not drawn or reconstructed.
+The SAP slide explains retained source/time/note, consistent tracking/receipt and the financial-context boundary. The five A3 Hint methods, Option 2 changes, individual A2 vs group A3 scope, 5-minute SCR timing and the lecturer's native closing declaration remain.
+Main script: 273 spoken English words. Optional slow script: 214 words. Pauses, on-screen actions and pronunciation support are retained. Tests and browser checks are developer verification; benefit measures are proposed, not measured.
+
+Remaining submission checks
+Four UPIs need member-provided values. Equal 25% shares are provisional and require member confirmation. Actual delivery and five-minute pacing need rehearsal. A fresh Mac startup must use the user's own SAP API Hub account/key and live mode; classroom accounts are tutorial practice only. The course asks for a functional App ZIP exported from OpenCode.ai but does not specify a particular export button or command; current runnable source ZIP and genuine native OpenCode session evidence are separately identified. Preserve all OpenCode content until marking is complete.

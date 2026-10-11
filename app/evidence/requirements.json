@@ -1,0 +1,280 @@
+{
+  "schema_version": "1.0",
+  "project": "AirAssist V1.2",
+  "snapshot_date": "2026-10-08",
+  "status": "Verified scoped preparation/snapshot/draft;49backend23state+boundedCUA; current package authority external",
+  "purpose": "Supporting requirements evidence; not an additional mandatory assessment report",
+  "sources": [
+    {
+      "id": "S1",
+      "type": "formal_specification",
+      "path": "D:/Downloads/704_A3_2026 Build App_Specificatication and Marking Criteria_V3.docx",
+      "locator_system": "python-docx body paragraph index; table 1 row index"
+    },
+    {
+      "id": "S2",
+      "type": "user_supplied_teacher_announcement",
+      "path": null,
+      "note": "Conversation clarification; no standalone announcement file inspected"
+    },
+    {
+      "id": "S3a",
+      "type": "earlier_lab_slides",
+      "path": "E:/courses/INFOSYS 704/slides/INFOSYS_704_2026_S2_Lab 7_Content_V1.pptx"
+    },
+    {
+      "id": "S3b",
+      "type": "earlier_lab_slides",
+      "path": "E:/courses/INFOSYS 704/slides/INFOSYS_704_2026_S2_Lab 8_Content_V1.pptx"
+    },
+    {
+      "id": "S4",
+      "type": "sap_labs_intro",
+      "path": "E:/courses/INFOSYS 704/slides/INFOSYS704 Labs 01 2026.pdf"
+    },
+    {
+      "id": "S5",
+      "type": "earlier_product_context",
+      "path": "D:/Downloads/SAP UOA 26.pptx",
+      "note": "Product descriptions do not override current OpenCode course requirement"
+    },
+    {
+      "id": "S6",
+      "type": "api_exercise_pool",
+      "path": "E:/courses/INFOSYS 704/slides/SAP API Pool v3.xlsx",
+      "sheet": "Sheet1"
+    },
+    {
+      "id": "S7",
+      "type": "approved_solution_basis",
+      "path": "C:/Users/Administrator/Documents/Codex/2026-09-13/new-chat/outputs/A2D1_Consulting_Proposal_With_Page_Numbers_V8.docx"
+    },
+    {
+      "id": "S8",
+      "type": "original_process_models",
+      "path": "E:/courses/INFOSYS 704/A1D2/A1D2.docx"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "Q01",
+      "requirement": "Use OpenCode.ai and SAP APIs",
+      "authority": "formal",
+      "source": "S1",
+      "locator": "paragraph 7",
+      "quote": "OpenCode.ai and SAP APIs will be used to achieve this objective",
+      "status": "Historical genuine OpenCode core/receipt and current personal SAP sandbox GET/snapshot verified",
+      "evidence": [
+        "OPENCODE_CASE_SESSION.json",
+        "OPENCODE_SESSION.json",
+        "SAP_LIVE_CASE_REFERENCE_V1_2.json",
+        "RUNTIME_ACCEPTANCE.txt"
+      ]
+    },
+    {
+      "id": "Q02",
+      "requirement": "Functional app prototype ZIP exported from OpenCode.ai, uploaded by one group member",
+      "authority": "formal",
+      "source": "S1",
+      "locator": "paragraph 11",
+      "deadline_local": "2026-10-19T11:59:00",
+      "before_noon": true,
+      "timezone": null,
+      "timezone_note": "Specification does not explicitly state timezone; verify Canvas course display",
+      "status": "Runnable source package verification external; formal Canvas/course export not asserted",
+      "note": "V1.2 source locally refined after genuine historical OpenCode contribution. PACKAGE_CHECK_V1_2/SMOKE external. Native export is session JSON; course-specific App ZIP procedure unconfirmed."
+    },
+    {
+      "id": "Q03",
+      "requirement": "Retain OpenCode content until marking is complete",
+      "authority": "formal",
+      "source": "S1",
+      "locator": "paragraph 11",
+      "status": "ongoing_obligation"
+    },
+    {
+      "id": "Q04",
+      "requirement": "Five-minute functional app pitch during assigned Lab 12 slot",
+      "authority": "formal",
+      "source": "S1",
+      "locator": "paragraph 13",
+      "duration_minutes": 5,
+      "status": "planned_later_not_current_build_output"
+    },
+    {
+      "id": "Q05",
+      "requirement": "One group member uploads presentation slides; final slide is groupwork management disclaimer",
+      "authority": "formal",
+      "source": "S1",
+      "locator": "paragraph 13",
+      "deadline_local": "2026-10-20T11:59:00",
+      "before_noon": true,
+      "status": "planned_later_not_current_build_output"
+    },
+    {
+      "id": "Q06",
+      "requirement": "At least one working feature and appropriate features for chosen solution",
+      "authority": "formal",
+      "source": "S1",
+      "locator": "table 1 row 4",
+      "status": "Current scoped working preparation loop verified",
+      "evidence": [
+        "TEST_RESULTS_V1_2.txt",
+        "FRONTEND_TEST_RESULTS_V1_2.txt",
+        "V1_2_ACCEPTANCE_after_sap_capture.json",
+        "V1_2_ACCEPTANCE_queued_specialist.json",
+        "RUNTIME_ACCEPTANCE.txt"
+      ],
+      "note": "49 backend/23 VM and actual bounded CUA; not eligibility/payment/full usability/benefit validation"
+    },
+    {
+      "id": "Q07",
+      "requirement": "Follow lab Development Guidelines",
+      "authority": "formal",
+      "source": "S1",
+      "locator": "table 1 row 4",
+      "status": "Available lab audit documented with coverage boundary",
+      "note": "Lab7/8 and SAP product/context read; Python neither banned nor prescribed; later user-supplied OpenCode announcement applied; unrecorded oral/later guidance unverified."
+    },
+    {
+      "id": "Q08",
+      "requirement": "Apply Design Thinking; tailor to client business need; visual appeal",
+      "authority": "formal",
+      "source": "S1",
+      "locator": "table 1 row 3",
+      "status": "Five-stage reasoning/genuine iteration/current bounded workflow documented",
+      "note": "No participant study or achieved business metrics"
+    },
+    {
+      "id": "Q09",
+      "requirement": "Option 2 partially fitting API: explain wrapper and/or solution changes",
+      "authority": "formal",
+      "source": "S1",
+      "locator": "table 1 row 3",
+      "status": "Option2 changes and capability gap documented",
+      "note": "Contextual snapshot strengthens partial finance-reference fit, not authorized airline reconciliation; prototype standard route is not eligibility."
+    },
+    {
+      "id": "Q10",
+      "requirement": "Options 1/2 may reuse one member's TO-BE with explanation; wholly new Option 3 needs new AS-IS and TO-BE",
+      "authority": "teacher_clarification_supplied_by_user",
+      "source": "S2",
+      "status": "applied_to_design_basis"
+    },
+    {
+      "id": "Q11",
+      "requirement": "All actual project/configuration/API/deployment work uses personal account; classroom temporary account only tutorials/practice",
+      "authority": "user_instruction",
+      "source": "conversation",
+      "status": "binding_ongoing",
+      "tutorial_url": "https://trials.cfapps.eu10-004.hana.ondemand.com",
+      "credentials_in_document": false
+    },
+    {
+      "id": "Q12",
+      "requirement": "Demonstrate clear SCR and professional delivery",
+      "authority": "formal",
+      "source": "S1",
+      "locator": "paragraph 19 and table 1 row 6",
+      "status": "presentation_pending"
+    }
+  ],
+  "architecture_findings": {
+    "implemented_stack": [
+      "Python standard-library HTTP service",
+      "SQLite",
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
+    "python_explicitly_required": false,
+    "python_explicitly_prohibited_in_reviewed_sources": false,
+    "python_explicitly_approved_by_teacher": "not_established",
+    "opencode_requirement_waived_by_local_build": false,
+    "mandatory_public_hosting_in_v3": "not_stated",
+    "mandatory_mcp_for_every_app_in_reviewed_sources": "not_established",
+    "mcp_product_intro_locator": "S4 page 47",
+    "class_mcp_connection_available": "user_supplied_teacher_clarification",
+    "sap_write_required": "not_established",
+    "api_pool_exercise": "GET with $top=5; optional shaping with $select/$filter/$expand",
+    "credit_memo_request_listed_in_api_pool": false,
+    "credit_memo_selection_basis": "User states teacher allows a choice from api.sap.com",
+    "local_operation_demonstration": "Possible functional prototype demonstration; does not waive OpenCode/SAP evidence"
+  },
+  "honesty_boundaries": {
+    "airline_data": "synthetic",
+    "sap_data": "Live generic SAP API financial read; distinct source/currency and no synthetic airline link",
+    "credit_memo_request_equals_paid_refund": false,
+    "airline_booking_to_sap_link_verified": false,
+    "human_eligibility_amount_approval": true,
+    "real_payment_execution": false,
+    "new_interviews_conducted": false,
+    "participant_usability_study_completed": false,
+    "visual_user_approval": "main_task_reported_V2_approval",
+    "runtime_tests_completed_at_snapshot": true,
+    "runtime_evidence_scope": "V1 historical browser/SAP acceptance plus V1.1 integrated38test backend suite; no new V1.1 browser or participant study claimed",
+    "app_personal_account_sap_auth_verified_at_snapshot": true,
+    "opencode_export_completed_at_snapshot": true,
+    "classroom_account_used_for_actual_work": "main_task_reports_no",
+    "opencode_run_approval": "Explicit user approval granted; actual normal-config source contribution completed after initial403",
+    "personal_api_key_local_env_save_approval": "Explicit user approval granted; main task saved privately and reverified personal profile; not read by this evidence subagent",
+    "keyboard_acceptance_complete": false,
+    "mobile_checked_flow_verified": "main_task_reported; requested390/client375/scroll375",
+    "keyboard_verified_segments": [
+      "Refund MAIN focus",
+      "Async Track result DIV",
+      "Track reference/email/button Tab sequence",
+      "Final POST async confirmation H2 focus with saved-success text"
+    ],
+    "final_post_async_focus_passed": true,
+    "sap_live_evidence": "SAP_LIVE_QUERY.json inspected; browser result reported by main task",
+    "opencode_session_id": "ses_eea1d9afeffeG8mqaDzCCaGq7n",
+    "opencode_build_complete_at_snapshot": true,
+    "opencode_contribution_runtime_verified_at_snapshot": true,
+    "opencode_export_format": "native sanitized session JSON; not App source ZIP",
+    "opencode_source_contribution_verified_at_snapshot": true,
+    "opencode_contribution_integrated_at_snapshot": true,
+    "opencode_session_export_evidence": "OPENCODE_SESSION.json metadata independently verified",
+    "opencode_contribution_runtime_scope": "Backend automated validation and actual browser receipt download/file acceptance",
+    "ui_receipt_download_verified_at_snapshot": true,
+    "process_restart_tracking_verified_at_snapshot": true,
+    "app_source_zip_review_complete_at_snapshot": true,
+    "mobile_receipt_layout_verified": "Main task requested390x844 measuredclient375/scroll375/button143.28x48; layout only, no separate mobile download",
+    "personal_opencode_cloud_login_verified": false,
+    "opencode_client": "official local CLI, source-only free-provider session",
+    "app_source_zip_review_scope": "Historical V1 candidate contents only; not current V1.1 source package",
+    "dedicated_course_ui_app_zip_export_verified": false,
+    "classroom_submission_complete": false,
+    "final_repack_validation_record": "external main-task package check after documentation changes; no internal ZIP self-hash",
+    "v11_case_source_contribution_verified": true,
+    "v11_case_source_session_id": "ses_ee9f0a481ffeU4025PaxyUCkoa",
+    "v11_case_session_export_verified": true,
+    "v11_case_backend_integrated": true,
+    "v11_case_runtime_acceptance_complete": true,
+    "v11_case_browser_acceptance_complete": true,
+    "v11_case_runtime_acceptance_scope": "Historical V1.1 v6/sevenevent case and 38-test proof; not current counts",
+    "v11_case_backend_acceptance_complete": true,
+    "v11_case_browser_core_flow_verified": true,
+    "v12_source_actor": "Local team refinements, not new OpenCode generation",
+    "v12_runtime_verified_within_scope": true,
+    "v12_runtime_scope": "49 backend/23 VM/actual bounded CUA; participant/nativeMac/comprehensiveaccessibility/businessbenefit unproved",
+    "current_package_authority": "External PACKAGE_CHECK_V1_2.json/PACKAGE_SMOKE_V1_2.json after frozen source/evidence"
+  },
+  "assessment": {
+    "course_weight_percent": 20,
+    "rubric_total": 200,
+    "canvas_scale_conversion_verified": false
+  },
+  "not_stated_as_mandatory_in_v3": [
+    "Public deployment",
+    "Recorded video submission",
+    "A3 report word limit",
+    "A3 report page limit",
+    "Separate individual A3 report"
+  ],
+  "excluded_source": {
+    "path": "D:/Downloads/Lab 8.pdf",
+    "reason": "COMPSCI 111 HTML5 assignment, not INFOSYS 704"
+  },
+  "current_version": "V1.2"
+}

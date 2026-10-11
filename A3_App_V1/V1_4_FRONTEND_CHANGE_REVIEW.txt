@@ -1,0 +1,34 @@
+AirAssist V1.4 front-end service design refinement
+Date: 2026-10-09 Pacific/Auckland
+Scope: public/index.html, public/app.js and public/styles.css.
+No backend, personal SAP configuration, database, credentials, deployment, presentation or source test changes.
+
+User intent
+The user approved the broad page direction but asked for a less generic AI-looking interface. The refinement follows an airline service pattern: clear booking and application tasks, compact navigation, calm typography and visible saved state, with fewer nested panels and repeated developer-facing labels.
+
+Implemented changes
+1. Use a white page, restrained teal/charcoal accents, Arial/Helvetica-family typography, readable field labels and a consistent small-radius control system. Existing brand, masthead navigation, data and actions remain.
+2. Replace outer lookup cards, nested rounded staff cards and full-width shaded routing panels with thin horizontal separators. Reduce uppercase kicker labels and decorative numbered circles. The staff review task and saved next step are visually distinct without a dashboard of cards.
+3. Remove the homepage's duplicate traveller card. The traveller remains in the itinerary and form summary; route, booking channel, date, ticket value, source, refund uncertainty and ticket details remain available.
+4. Change visible task labels to normal service language: Manage your booking, Review a refund request, Case review, Review the evidence, Save review, Reopen review, Review history and Saved next step. IDs, form names, data attributes, API calls, state guards and actions are unchanged.
+5. Consolidate the general app identity to Course prototype in the masthead and a plain footer describing sample bookings and local request storage. Retain the essential boundaries at decision points: no cancellation or payment, local save/queue only, synthetic ticket values, generic SAP reference with booking/payment/eligibility unknowns, no automatically completed evidence checks.
+6. Passenger reasons use normal stacked form rows, not three decorative tiles. Booking summary and refund-action sidebars use a simple divider. Request tracking prioritises saved progress and dates with plain pending labels.
+7. On mobile, retain task-first ordering, full-width fields, 16px input text, 48px action/disclosure/shortcut targets, bottom navigation clearance, native keyboard disclosures, visible focus, reduced motion and unsaved draft recovery.
+8. After the root-agent slide review identified a disabled Send control too similar to its enabled outline state, give all disabled primary/outline buttons a clearly grey-filled background, grey border and readable grey text. Disabled hover has the same grey appearance; enabled controls retain their white/teal styling. The disabled attribute and all guard logic are unchanged.
+
+Verification by this agent
+JavaScript syntax check: PASS (Node --check, exit 0).
+Unmodified actual-source frontend regression suite: 28/28 PASS, exit 0.
+Re-ran both checks after the disabled-style refinement: PASS, 28/28.
+Disabled button text #5c665f on background #e4e9e5: calculated sRGB contrast 4.85:1.
+Output: evidence/FRONTEND_TEST_RESULTS_V1_4.txt.
+The suite checks stale reads, owner/version recovery, unsaved-review guards, separate saved-review handoff, failed SAP capture retention, disclosure state and late response isolation. These are source/VM regressions; they do not constitute participant usability research or native browser acceptance.
+
+Browser acceptance pending root-agent review
+Required views: journey, direct refund form, review and confirmation, request tracking, staff review with incomplete/ready/queued states, optional SAP capture with success/no-match failure, and financial document view.
+Required actions: new synthetic request; save evidence; handoff to standard or specialist; reasoned reopen; reload retained draft; receipt/status consistency.
+Required layouts: approximately 1280px desktop and 390px mobile. Check no overflow, readable wrapping, 48px controls, active task before optional context, sticky rail and bottom navigation clearance.
+This record does not claim that these browser checks are already completed.
+
+A3 alignment
+Improves App Design and App Usability within the existing selected solution and Option 2 boundaries. Does not add a new A3 requirement, claim production Air New Zealand use, create an actual SAP credit memo/refund, or change the course account policy. Real project work remains on the personal SAP account; classroom account remains tutorial-only.
