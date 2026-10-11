@@ -34,7 +34,7 @@ cd app
 python3 -B server.py --port 8789
 ```
 
-浏览器打开 **http://127.0.0.1:8789/?view=journey**。保持终端运行，结束时按 `Control+C`。不要直接打开 `index.html`；它依赖本地服务。Windows 可在 `app` 目录运行 `python -B server.py --port 8789` 或 `powershell -File start.ps1`。
+浏览器打开 [AirAssist 本地页面](http://127.0.0.1:8789/?view=journey)。保持终端运行，结束时按 `Control+C`。不要直接打开 `index.html`；它依赖本地服务。Windows 可在 `app` 目录运行 `python -B server.py --port 8789` 或 `powershell -File start.ps1`。
 
 这个版本不需要 npm 安装或云服务。若端口被其他程序占用，可运行 `python3 -B server.py --port 8791`，并使用对应的浏览器端口。
 
