@@ -1,6 +1,6 @@
 # AirAssist · INFOSYS 704 A3
 
-四人小组的 A3 可运行原型与演示材料。当前基线为 **V1.4（2026-10-09）**；这个私有仓库用于组员查看、修改和审阅，**没有云部署**。GitHub 保存文件，不会替你启动应用，也不会连接 SAP。
+四人小组的 A3 可运行原型与演示材料。当前基线为 **V1.4（2026-10-09）**；这个公开仓库用于小组查看、修改和审阅，**没有云部署**。任何人均可查看和下载；组员接受协作邀请后可以直接提交修改。GitHub 保存文件，不会替你启动应用，也不会连接 SAP。
 
 ## 从哪里开始
 
@@ -100,4 +100,4 @@ REVIEW_MANIFEST.json  原交付包文件校验记录
 
 ## English quick start
 
-This private repository contains the editable AirAssist coursework prototype and presentation materials. Run `cd app` and `sh start.command` on macOS with Python 3.10+, then open `http://127.0.0.1:8789/`. There is no cloud deployment. The app uses synthetic booking data and a personal-account, read-only SAP sandbox connection when configured locally. Never commit credentials or local databases. Keep the accepted V1.4 archives and evidence as the historical baseline, and use branches and pull requests for changes.
+This public repository contains the editable AirAssist coursework prototype and presentation materials. Anyone can view and download the files; invited group members can contribute after accepting their invitations. Run `cd app` and `sh start.command` on macOS with Python 3.10+, then open `http://127.0.0.1:8789/`. There is no cloud deployment. The app uses synthetic booking data and a personal-account, read-only SAP sandbox connection when configured locally. Never commit credentials or local databases. Keep the accepted V1.4 archives and evidence as the historical baseline, and use branches and pull requests for changes.
