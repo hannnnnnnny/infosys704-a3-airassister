@@ -17,6 +17,8 @@ attach a read-only SAP Credit Memo Request reference and hand it off to a queue.
 - Keep the app runnable with Python 3.10+ and no extra dependencies.
 - Validate all user input on the server; keep SQL parameterised.
 - Make one focused change per task and explain what changed.
+- If a permission rule denies or blocks a command, stop and tell the user. Never work around it with another command, a temporary file or a different tool.
+- Do not write `.env` in commit messages or command text; say "local config" instead.
 
 ## Checks (run from the repository root after every change)
 ```
