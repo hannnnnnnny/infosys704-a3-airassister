@@ -1,0 +1,31 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "disabled",
+  "permission": {
+    "read": { "*": "allow", "*.env": "deny", "*.env.*": "deny", "*.env.example": "allow", "**/.data/**": "deny" },
+    "edit": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "**/.data/**": "deny",
+      "app/evidence/**": "ask",
+      "A3_App_V1/**": "ask",
+      "*.pptx": "deny",
+      "*.pdf": "deny"
+    },
+    "bash": {
+      "*": "ask",
+      "python -B -m unittest*": "allow",
+      "node app/tests/*": "allow",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "*.env*": "deny",
+      "env": "deny",
+      "printenv*": "deny",
+      "set": "deny"
+    },
+    "external_directory": "deny",
+    "webfetch": "ask",
+    "websearch": "ask"
+  }
+}
