@@ -25,6 +25,7 @@ Booking reference：NZ7K2H；Family name：Taylor。
 代理预订示例 NZ8T3H / Taylor 会显示旅行社说明，不能通过直订表单提交。
 
 案件审核演示
+Staff access code 在服务器启动时打印在终端，每次重启都会变化。
 进入 Staff review，用刚保存的申请编号和同一邮箱查询；Use last saved request 可填入本浏览器保存的最近申请。
 检查预订、联系信息及付款证据/规则/补充说明审核项。未完成必要审核项时，不能交接。
 可先填写备注并 Save review，保存资料不足的状态；每次修改都需要备注。
