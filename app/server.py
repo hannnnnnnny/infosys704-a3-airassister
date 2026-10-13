@@ -35,6 +35,7 @@ BASE_DIR = Path(__file__).resolve().parent
 MAX_BODY_BYTES = 16_384
 MAX_SAP_BYTES = 1_048_576
 REASONS = {"flight_cancelled", "schedule_changed", "other"}
+REVIEW_STATES = {"not_started", "prepared", "queued"}
 SAP_HOSTS = {"api.sap.com", "sandbox.api.sap.com"}
 PERSONAL_ENV_KEYS = {
     "AIRASSIST_SAP_MODE", "AIRASSIST_SAP_BASE_URL", "AIRASSIST_SAP_API_KEY",
@@ -527,6 +528,46 @@ class ApplicationStore:
             snapshot = self._review_snapshot(row, review_row, self._financial_reference(connection, row["public_reference"]))
             return self._case_bundle(row, snapshot)
 
+    def staff_queue(self, state=None) -> list:
+        """Newest-first case list for staff. Read-only; filter values are bound, never interpolated."""
+        query = (
+            "SELECT r.public_reference, r.email, r.reason, r.details, r.created_at,"
+            " COALESCE(rs.review_state, 'not_started') AS review_state,"
+            " COALESCE(rs.version, 0) AS version,"
+            " COALESCE(rs.updated_at, r.created_at) AS updated_at,"
+            " COALESCE(rs.check_payment, 0) AS check_payment,"
+            " COALESCE(rs.check_rules, 0) AS check_rules,"
+            " COALESCE(rs.check_supporting, 0) AS check_supporting,"
+            " COALESCE(rs.specialist_required, 0) AS specialist_required"
+            " FROM refund_requests AS r"
+            " LEFT JOIN review_state AS rs ON rs.public_reference = r.public_reference"
+        )
+        parameters: tuple = ()
+        if state is not None:
+            # capture_financial_reference can persist an explicit 'not_started' row, so match both
+            # that row and a case that has no review row at all. COALESCE handles each.
+            query += " WHERE COALESCE(rs.review_state, 'not_started') = ?"
+            parameters = (state,)
+        query += " ORDER BY r.created_at DESC, r.rowid DESC LIMIT 100"
+        with self.connect() as connection:
+            connection.execute("BEGIN")
+            rows = connection.execute(query, parameters).fetchall()
+        cases = []
+        for row in rows:
+            checks = {
+                "paymentEvidenceReviewed": bool(row["check_payment"]),
+                "refundRulesReviewed": bool(row["check_rules"]),
+                "supportingDetailsReviewed": bool(row["check_supporting"]),
+            }
+            triage = case_triage(row["reason"], row["details"], checks, bool(row["specialist_required"]))
+            cases.append({
+                "publicReference": row["public_reference"], "email": row["email"], "reason": row["reason"],
+                "reviewState": row["review_state"], "version": row["version"],
+                "createdAt": row["created_at"], "updatedAt": row["updated_at"],
+                "triage": {"route": triage["route"], "routeLabel": triage["label"], "queue": triage["queue"]},
+            })
+        return cases
+
     def update_review(self, review_input: dict) -> dict:
         reference = text_field(review_input["reference"], "request reference", 40).upper()
         email = normalized_email(review_input["email"])
@@ -736,7 +777,7 @@ class SAPClient:
 
 
 def make_server(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = BASE_DIR / "public",
-                host: str = "127.0.0.1", port: int = 8789) -> ThreadingHTTPServer:
+                host: str = "127.0.0.1", port: int = 8789, staff_access_code: str = "") -> ThreadingHTTPServer:
     public_dir = public_dir.resolve()
 
     class Handler(BaseHTTPRequestHandler):
@@ -816,6 +857,17 @@ def make_server(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = B
             if not allowed_origin:
                 raise APIError(403, "ORIGIN_NOT_ALLOWED", "Submit or view applications from the local application page.")
 
+        def require_staff_access(self):
+            provided = self.headers.get("X-Staff-Code", "")
+            # Compare bytes: secrets.compare_digest raises TypeError for str inputs holding
+            # non-ASCII characters, which would turn a bad header into a 500 instead of a 401.
+            allowed = (
+                bool(staff_access_code) and bool(provided)
+                and secrets.compare_digest(provided.encode("utf-8"), staff_access_code.encode("utf-8"))
+            )
+            if not allowed:
+                raise APIError(401, "STAFF_UNAUTHORIZED", "Provide the staff access code printed in the server terminal.")
+
         def do_GET(self):
             try:
                 self.validate_local_access()
@@ -835,6 +887,12 @@ def make_server(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = B
                     self.json_download(record)
                 elif path == "/api/sap/credit-memo-requests":
                     self.json_response(200, {"record": sap.get_credit_memo(query.get("id"))})
+                elif path == "/api/staff/queue":
+                    self.require_staff_access()
+                    state = query.get("state")
+                    if state is not None and state not in REVIEW_STATES:
+                        raise APIError(400, "INVALID_INPUT", "Filter the staff queue by not_started, prepared, or queued.")
+                    self.json_response(200, {"cases": store.staff_queue(state)})
                 elif path.startswith("/api/"):
                     raise APIError(404, "NOT_FOUND", "This endpoint is not available.")
                 else:
@@ -924,9 +982,11 @@ def main():
     if not database.is_absolute():
         database = BASE_DIR / database
     config = SAPConfig.from_environment()
-    server = make_server(ApplicationStore(database), SAPClient(config), port=args.port)
+    staff_access_code = secrets.token_urlsafe(9)
+    server = make_server(ApplicationStore(database), SAPClient(config), port=args.port, staff_access_code=staff_access_code)
     print(f"AirAssist prototype: http://127.0.0.1:{server.server_port}")
     print(f"Personal SAP read-only connection: {'configured' if config.configured else 'unconfigured'}")
+    print(f"Staff access code: {staff_access_code}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
