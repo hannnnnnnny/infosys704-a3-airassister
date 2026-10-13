@@ -8,24 +8,26 @@
       "*.env": "deny",
       "*.env.*": "deny",
       "**/.data/**": "deny",
-      "app/evidence/**": "ask",
-      "A3_App_V1/**": "ask",
       "*.pptx": "deny",
       "*.pdf": "deny"
     },
     "bash": {
-      "*": "ask",
-      "python -B -m unittest*": "allow",
-      "node app/tests/*": "allow",
-      "git status*": "allow",
-      "git diff*": "allow",
+      "*": "allow",
+      "git push*": "ask",
+      "git reset --hard*": "ask",
+      "git clean*": "ask",
+      "git checkout -- *": "ask",
+      "rm -rf*": "ask",
+      "Remove-Item*-Recurse*": "ask",
       "*.env*": "deny",
       "env": "deny",
       "printenv*": "deny",
-      "set": "deny"
+      "set": "deny",
+      "Get-ChildItem Env:*": "deny",
+      "gci env:*": "deny"
     },
     "external_directory": "deny",
-    "webfetch": "ask",
-    "websearch": "ask"
+    "webfetch": "allow",
+    "websearch": "allow"
   }
 }
