@@ -282,4 +282,5 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 .queue-filter{background:transparent;color:var(--muted);font-size:12px;min-height:44px;padding:6px 2px;border-bottom:2px solid transparent}
 .queue-filter[aria-pressed=true]{color:#116a66;font-weight:500;border-bottom-color:#116a66}
 .queue-empty[role=status]{color:var(--muted)}
+@media(min-width:769px){.queue-item{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr) max-content minmax(0,auto);align-items:center;column-gap:14px;padding:13px 17px}.queue-item>strong{margin-top:0;white-space:nowrap}.queue-item>span{margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.queue-item .badge{margin-top:0;white-space:nowrap}.queue-item>small{margin-top:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
 @media(max-width:700px){.operations-tabs{flex-wrap:wrap}.operations-tabs .staff-lock{margin-left:auto;font-size:13px}.staff-gate{padding:20px}.queue-filter{font-size:13px;min-height:48px}}

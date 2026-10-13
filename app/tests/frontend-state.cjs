@@ -254,4 +254,16 @@ test('selecting a queue row fills caseLookup and opens that case',async()=>{
   assert.equal(h.state.caseLookup.reference,ref);assert.equal(h.state.caseLookup.email,email);
   assert.equal(h.state.caseData.request.publicReference,ref);assert.equal(h.state.caseData.request.email,email);
 });
+test('opening a queue case scrolls the case sheet into view and focuses its heading',async()=>{
+  const h=harness(storage(),'staff');h.state.staffUnlocked=true;
+  const ref='AF-123456789ABC',email='review@example.com';h.state.queue=[queueCase(ref,email)];
+  let scrolled=null;h.nodes.set('#case-results',{scrollIntoView:options=>{scrolled=options}});
+  h.box.api=async()=>({case:sampleCase(1,ref,email)});
+  await h.box.openQueueCase(ref);
+  assert.equal(h.focus.join(),'.case-head');assert.equal(scrolled.block,'start');
+  let scrolledFailed=null;h.nodes.set('#case-results',{scrollIntoView:options=>{scrolledFailed=options}});
+  h.box.api=async()=>{throw Object.assign(new Error('Not found'),{status:404,code:'CASE_NOT_FOUND'})};
+  await h.box.openQueueCase(ref);
+  assert.equal(scrolledFailed,null);assert.equal(h.focus.join(),'.case-head');
+});
 (async()=>{for(const {name,fn} of tests){await fn();console.log(`PASS ${name}`)}console.log(`${tests.length} frontend regression checks passed.`)})().catch(error=>{console.error(error);process.exitCode=1});
