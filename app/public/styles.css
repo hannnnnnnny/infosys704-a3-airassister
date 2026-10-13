@@ -266,3 +266,20 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
 @media(max-width:365px){.masthead .mobile-preview{font-size:9px;max-width:105px}.page-heading h1{font-size:25px}.booking-context{min-width:78px}.booking-context strong{font-size:14px}.route{grid-template-columns:1fr 64px 1fr;gap:10px}.route-code{font-size:39px}.ticket-meta{padding-inline:17px;gap:10px}.ticket-meta>div:not(:first-child){padding-left:10px}.ticket-meta .datum-value{font-size:11px}.flow-step{font-size:10px;gap:6px}}
 @media(max-width:700px){.use-saved-request,.public-review-history summary{min-height:48px}}
 [hidden]{display:none!important}
+
+/* Staff gate and case queue. */
+.staff-gate{background:#fff;border:1px solid var(--line);border-radius:2px;padding:22px 24px;max-width:520px}
+.staff-gate .field{margin-bottom:6px}
+.staff-gate .field input{max-width:100%}
+.staff-gate .hint{font-size:11px;color:var(--muted);margin-top:9px}
+.staff-gate .app-error{margin:16px 0 0}
+.staff-gate .form-actions{display:flex;gap:12px;padding-top:18px;margin-top:18px;border-top:1px solid var(--line)}
+.staff-gate .form-actions .btn{min-height:48px}
+.operations-tabs .staff-lock{margin-left:auto;background:transparent;color:#116a66;font-size:13px;min-height:48px;padding:6px 0}
+.operations-tabs .staff-lock:hover{text-decoration:underline;text-underline-offset:4px}
+.case-queue{margin-bottom:26px}
+.queue-filters{display:flex;gap:16px;flex-wrap:wrap;padding:9px 17px;border-bottom:1px solid var(--line)}
+.queue-filter{background:transparent;color:var(--muted);font-size:12px;min-height:44px;padding:6px 2px;border-bottom:2px solid transparent}
+.queue-filter[aria-pressed=true]{color:#116a66;font-weight:500;border-bottom-color:#116a66}
+.queue-empty[role=status]{color:var(--muted)}
+@media(max-width:700px){.operations-tabs{flex-wrap:wrap}.operations-tabs .staff-lock{margin-left:auto;font-size:13px}.staff-gate{padding:20px}.queue-filter{font-size:13px;min-height:48px}}

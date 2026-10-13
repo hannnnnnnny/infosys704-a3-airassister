@@ -37,6 +37,9 @@ function harness(store=storage(), view='journey') {
 function sampleCase(version=1, ref='AF-123456789ABC', email='review@example.com') {
   return {request:{publicReference:ref,bookingReference:'NZ7K2H',email,lastName:'Taylor',reason:'flight_cancelled',details:'',createdAt:'2026-10-08T01:00:00Z',updatedAt:'2026-10-08T01:00:00Z',status:'submitted',statusLabel:'Received - awaiting local review'},booking:{traveller:'Alex Taylor',fromCode:'AKL',toCode:'WLG',flight:'NZ423',date:'2026-10-15',flightStatus:'cancelled',channel:'direct',ticketValue:248,currency:'NZD',source:{label:'Sample journey'}},version,checks:{paymentEvidenceReviewed:false,refundRulesReviewed:false,supportingDetailsReviewed:false},paymentReference:'',specialistRequired:false,reviewNote:'',reviewState:'not_started',checklist:[],triage:{route:'information_needed',label:'Needs information',queue:'Information follow-up',ownerRole:'Local reviewer',reasons:['Payment review missing'],readyForHandoff:false,ruleVersion:'prototype-v1'},events:[],financialReference:null};
 }
+function queueCase(ref,email,state='not_started',queue='Standard review') {
+  return {publicReference:ref,email,reason:'flight_cancelled',reviewState:state,version:0,createdAt:'2026-10-08T01:00:00Z',updatedAt:'2026-10-09T02:00:00Z',triage:{route:'standard',routeLabel:'Standard review',queue}};
+}
 function select(h,c=sampleCase()) {h.state.caseData=c;h.state.caseLookup={reference:c.request.publicReference,email:c.request.email};h.box.restoreReviewDraft(c);return c;}
 const tests=[];
 const test=(name,fn)=>tests.push({name,fn});
@@ -63,7 +66,7 @@ test('tracking captures the correct owner and disables saved-request shortcut',a
   assert.equal(h.state.trackRecord.email,'new@example.com');assert.equal(h.state.lastRequest.reference,'AF-NEW');
 });
 test('financial query rejects delayed old errors after a newer success',async()=>{
-  const h=harness(storage(),'financial'), a=deferred(), b=deferred();let n=0;
+  const h=harness(storage(),'financial'), a=deferred(), b=deferred();let n=0;h.state.staffUnlocked=true;
   h.box.api=()=>++n===1?a.promise:b.promise;h.state.sapId='60000002';const first=h.box.lookupFinancialDocument();
   assert.match(h.box.financial(),/value="60000002" disabled/);
   h.state.sapId='60000003';const second=h.box.lookupFinancialDocument();
@@ -216,5 +219,39 @@ test('editing a review updates visible action status while the saved routing rem
   assert.equal(status.textContent,'Unsaved changes');assert.match(message.textContent,/Save changes before sending/);
   assert.equal(c.triage.readyForHandoff,false);assert.equal(c.reviewState,'not_started');
   h.state.caseDraftGuard=true;h.box.updateReviewDraftUI();assert.equal(status.textContent,'Review retained draft');assert.match(message.textContent,/Keep or discard/);
+});
+test('locked staff view hides review tools until a code is verified',()=>{
+  const s=harness(storage(),'staff');const staffHtml=s.box.staff();
+  assert.match(staffHtml,/Staff access code/);assert.match(staffHtml,/type="password"/);assert.match(staffHtml,/Unlock staff tools/);assert.match(staffHtml,/Shown in the server terminal at startup/);
+  assert.doesNotMatch(staffHtml,/id="case-lookup"/);assert.doesNotMatch(staffHtml,/id="case-review-form"/);assert.doesNotMatch(staffHtml,/id="case-queue"/);
+  const f=harness(storage(),'financial');const financialHtml=f.box.financial();
+  assert.match(financialHtml,/Unlock staff tools/);assert.doesNotMatch(financialHtml,/id="document-form"/);assert.doesNotMatch(financialHtml,/id="financial-response"/);
+});
+test('wrong staff code stays locked and stores nothing',async()=>{
+  const h=harness(storage(),'staff');let sent=null;
+  h.box.api=async(url,opts)=>{sent=opts.headers['X-Staff-Code'];throw Object.assign(new Error('Unauthorized'),{status:401,code:'STAFF_UNAUTHORIZED'})};
+  h.state.staffCode='wrong-code';await h.box.requestQueue({verifying:true});
+  assert.equal(sent,'wrong-code');assert.equal(h.state.staffUnlocked,false);assert.equal(h.state.staffCode,'');assert.equal(h.store.getItem('airassist-staff-code-v1'),null);
+  assert.match(h.box.staff(),/was not accepted/);assert.doesNotMatch(h.box.staff(),/id="case-lookup"/);
+});
+test('correct staff code unlocks, stores the code and loads the queue',async()=>{
+  const h=harness(storage(),'staff');let url=null;
+  h.box.api=async(target,opts)=>{url=target;assert.equal(opts.headers['X-Staff-Code'],'good-code');return {cases:[queueCase('AF-123456789ABC','review@example.com')]}};
+  h.state.staffCode='good-code';await h.box.requestQueue({verifying:true});
+  assert.equal(h.state.staffUnlocked,true);assert.equal(h.store.getItem('airassist-staff-code-v1'),'good-code');
+  assert.match(url,/^\/api\/staff\/queue$/);assert.equal(h.state.queue.length,1);
+  const html=h.box.staff();assert.match(html,/id="case-lookup"/);assert.match(html,/AF-123456789ABC/);
+  h.box.lockStaff();
+  assert.equal(h.state.staffUnlocked,false);assert.equal(h.store.getItem('airassist-staff-code-v1'),null);
+  assert.doesNotMatch(h.box.staff(),/id="case-lookup"/);assert.match(h.box.staff(),/Unlock staff tools/);
+});
+test('selecting a queue row fills caseLookup and opens that case',async()=>{
+  const h=harness(storage(),'staff');h.state.staffUnlocked=true;
+  const ref='AF-123456789ABC',email='review@example.com';h.state.queue=[queueCase(ref,email)];
+  let url=null;h.box.api=async target=>{url=target;return {case:sampleCase(1,ref,email)}};
+  await h.box.openQueueCase(ref);
+  assert.equal(url,'/api/review-cases?'+new URLSearchParams({reference:ref,email}).toString());
+  assert.equal(h.state.caseLookup.reference,ref);assert.equal(h.state.caseLookup.email,email);
+  assert.equal(h.state.caseData.request.publicReference,ref);assert.equal(h.state.caseData.request.email,email);
 });
 (async()=>{for(const {name,fn} of tests){await fn();console.log(`PASS ${name}`)}console.log(`${tests.length} frontend regression checks passed.`)})().catch(error=>{console.error(error);process.exitCode=1});
