@@ -611,7 +611,7 @@ function statusView(trip) {
   const declinedExtra = String(request.status || '') === 'declined' && followUp
     ? `<p class="contact-note">Our customer service team will contact you at ${esc(followUp)}.</p>` : '';
   return `<section class="panel">
-    ${backLink()}
+    <div class="back-row">${backLink()}</div>
     ${refreshNote()}
     <p class="status-icon status-${copy.status}" aria-hidden="true">${esc(copy.icon)}</p>
     <h1>${esc(copy.headline)}</h1>

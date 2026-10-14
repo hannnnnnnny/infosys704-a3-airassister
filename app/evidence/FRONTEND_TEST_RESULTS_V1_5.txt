@@ -1,0 +1,54 @@
+PASS signing in routes a passenger to the request screen
+PASS signing in routes staff to the staff area
+PASS the header shows the display name and a sign out link after sign-in
+PASS the sign-in page shows the heading, fields and demo accounts without a password
+PASS the access token is never written to Web Storage or cookies
+PASS empty fields are rejected before any request is sent
+PASS 401 shows the incorrect-credentials message
+PASS 429 shows the too-many-attempts message
+PASS 503 shows the sign-in-unavailable message
+PASS a later 401 ends the session and returns to sign-in
+PASS sign out clears the session state and returns to the sign-in page
+PASS the login request sends JSON and later calls carry the bearer token
+PASS displayed values are escaped
+PASS the request screen shows the flight, route, refund amount and one button
+PASS a quote failure shows a retry and no submit button, and retry reloads the booking
+PASS submitting with a bad email and no confirmation shows inline errors and sends nothing
+PASS a successful submit switches to the status screen and clears the request key
+PASS the request key is created once and reused when a submission is retried
+PASS a 409 response reloads the booking and shows the status screen
+PASS a pending request shows the awaiting-approval status
+PASS an approved request shows the approved status and payout sentence
+PASS a declined request shows the decline note
+PASS downloading a receipt fetches with the bearer token
+PASS the passenger screens contain no inline styles or scripts
+PASS the staff list renders newest first with names, amounts and the pending count
+PASS a newly created request shows a New pill and pending rows show a chevron
+PASS expanding a pending row shows flight, route, SAP line and the decision buttons
+PASS only one row is open at a time
+PASS approving requires the inline confirmation before anything is sent
+PASS declining with an empty reason shows an inline error and sends nothing
+PASS a successful decision updates the row and the pending count without reloading
+PASS a 409 decision reloads the list and shows the refresh message
+PASS an empty staff list shows the empty state
+PASS a failed staff load shows an error state with Retry that reloads the list
+PASS the staff screen contains no inline styles or scripts and nests no controls in the toggle
+PASS a collapsed pending row keeps its panel hidden until it is expanded
+PASS only the expanded pending row exposes visible decision controls
+PASS processed rows render no panel and no approve or decline controls
+PASS a mixed list only offers decision controls on its pending rows
+PASS values containing an ampersand are escaped exactly once
+PASS the reset button asks for confirmation before anything is sent
+PASS cancelling the reset closes the confirmation without calling the API
+PASS confirming the reset posts to the demo reset endpoint and shows the new list
+PASS a failed reset is reported in plain words
+PASS My trips home shows greeting, subtitle, tiles and ordered cards
+PASS each trip card opens the right view
+PASS detail views have back navigation and the header links to My trips
+PASS contact validation requires at least one valid detail
+PASS the request screen shows the refund destination with no method choice
+PASS the status screen shows Refund to and declined contact line
+PASS staff expanded rows show mobile, email and refund destination
+PASS opening a trip reloads the latest status from the service
+PASS going home reloads trips and a failed reload keeps the view with an error
+53 frontend regression checks passed.

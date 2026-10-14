@@ -1,6 +1,6 @@
 # AirAssist · INFOSYS 704 A3
 
-AirAssist 是 INFOSYS 704 A3 四人小组的退款申请与案件审核原型。支持示例预订查询、申请提交、人工资料审核、标准/专家队列交接、状态追踪与申请记录下载，并提供可配置的 SAP sandbox 只读财务查询。
+AirAssist 是 INFOSYS 704 A3 四人小组的退款原型：乘客登录后在 My trips 中一键申请全额退款（金额来自 SAP Credit Memo Request API 的实时只读查询），员工登录后查看全部申请并批准或拒绝。不付款、不向 SAP 写入任何数据。
 
 **[打开 AirAssist 在线演示](https://infosys704-a3-airassist.vercel.app/?view=journey)** · [本地运行](#在-mac-运行) · [部署说明](#vercel-部署)
 
@@ -8,14 +8,13 @@ AirAssist 是 INFOSYS 704 A3 四人小组的退款申请与案件审核原型。
 
 ## 在线演示
 
-1. 使用订票号 **NZ7K2H**、姓氏 **Don** 查询示例直订旅程。
-2. 选择 `Request a refund`，使用 **demo@example.com 等示例邮箱**提交申请。
-3. 保存生成的 `AF-` 编号；在 `Track request` 或 `Staff review` 中使用同一编号和邮箱查询。
-4. 在 `Staff review` 中记录人工检查并保存，再交接到标准或专家队列；乘客端可查询状态并下载申请记录。
+1. 乘客用 **Mark.don** 登录，打开 `My trips`，为 **NZ7K2H** 申请全额退款并填写 mobile 联系方式。
+2. 员工用 **admin** 登录，在申请列表中批准（Approve）或拒绝（Decline）该申请；拒绝需填写理由。
+3. 回到 Mark.don 的 `My trips` 查看结果；员工端的 `Reset demo data` 可恢复初始演示数据。
 
-代理预订示例 **NZ8T3H / Taylor** 会显示旅行社说明。在线演示无需安装 Python，也无需 Vercel 登录。
+在线演示无需安装 Python，也无需 Vercel 登录。
 
-线上申请保存在 **私有 Vercel Blob 的 SQLite 快照**中，可以在云端实例重启后继续查询；与本机 SQLite 完全分开。浏览器取得有效的签名会话后才能调用业务 API，案件访问仍需申请编号与邮箱匹配。`Staff review` 是公开课程演示，没有真实员工登录或角色授权，**只使用合成信息，不输入真实旅客或付款数据**。原型不会取消机票、批准退款或付款；SAP 默认未配置。
+线上申请保存在 **私有 Vercel Blob 的 SQLite 快照**中，可以在云端实例重启后继续使用；与本机 SQLite 完全分开。乘客与员工均使用下方的演示账号登录，**只使用合成信息，不输入真实旅客或付款数据**。原型不会付款；SAP 金额为只读查询，绝不写入。
 
 私有快照适合小规模课堂演示：读取绕过缓存，写入使用 ETag 条件更新，避免多个云端实例覆盖彼此的修改；单个快照限制为 5 MiB。繁忙、存储故障或版本冲突会明确报错，不能将它视为正式航空业务数据库。
 
@@ -59,26 +58,28 @@ cd app
 python3 -B server.py --port 8789
 ```
 
-浏览器打开 [AirAssist 本地页面](http://127.0.0.1:8789/?view=journey)。保持终端运行，结束时按 `Control+C`。不要直接打开 `index.html`；它依赖本地服务。Windows 可在 `app` 目录运行 `python -B server.py --port 8789` 或 `powershell -File start.ps1`。
+浏览器打开 [AirAssist 本地页面](http://127.0.0.1:8789/?view=journey)。保持终端运行，结束时按 `Control+C`。不要直接打开 `index.html`；它依赖本地服务。Windows 可在 `app` 目录运行 `python -B server.py --port 8789` 或 `powershell -File start.ps1`。修改后端代码后请重启服务再验证。
 
 这个版本不需要 npm 安装或云服务。若端口被其他程序占用，可运行 `python3 -B server.py --port 8791`，并使用对应的浏览器端口。
 
 ## 快速演示与 SAP 配置
 
-示例订票号 **NZ7K2H**，姓氏 **Don**。使用自己的演示邮箱提交申请，记录生成的 `AF-` 编号，然后在 `Case review` 中使用同一编号和邮箱查询。完整操作顺序见 [`app/README.txt`](app/README.txt)。
+演示账号见下文 [Demo accounts](#demo-accounts)。乘客 Mark.don 的 My trips 列出其全部行程：打开 NZ7K2H，确认实时查到的退款金额后填写联系方式并提交；员工 admin 在列表中批准或拒绝，乘客端 My trips 同步显示结果，状态页可下载收据。
 
-原型的闭环为：查询示例预订 → 保存申请 → 人工资料审核 → 标准/专家队列交接 → 查询同步状态 → 下载申请记录。旅程和申请为合成演示数据；本地运行使用本机 SQLite，线上演示使用私有云快照。它不会取消真实机票、批准退款或付款。
+原型的闭环为：乘客一键申请全额退款 → 员工批准或拒绝 → 乘客查看结果。旅程和申请为合成演示数据；本地运行使用本机 SQLite，线上演示使用私有云快照。它不会取消真实机票，也不会付款。
 
-SAP 使用 **Credit Memo Request (A2X)** 的真实只读 sandbox 查询。仓库不含个人密钥；其他电脑默认显示未配置，不能把未配置状态当作真实 SAP 成功。需要连接时：
+SAP 使用 **Credit Memo Request** 的真实只读 sandbox 查询：NZ7K2H 的退款金额来自文档 **60000073** 的实时读取；预置的演示申请使用已记录的 SAP 快照。退款一律退回原支付方式。本原型绝不向 SAP 写入，也不执行付款。仓库不含个人密钥；其他电脑默认显示未配置，不能把未配置状态当作真实 SAP 成功。需要连接时：
 
 ```sh
 cd app
 cp .env.example .env
 ```
 
-在本机 `.env` 中设置 `AIRASSIST_SAP_MODE=live`，填写**自己的个人 SAP API Hub key**，再重启服务。服务根地址已写在模板中，已验证的公开样例文档号为 `60000002`。课堂临时账号只供教程练习，不能用作项目配置。不要提交 `.env`、密钥、`.data/` 或真实个人记录；根目录与 `app/` 的忽略规则会保护常见本机文件，但提交前仍需检查 Git 的文件列表。
+在本机 `.env` 中设置 `AIRASSIST_SAP_MODE=live`，填写**自己的个人 SAP API Hub key**，再重启服务。
 
-SAP 返回通用财务样例，不是 Air New Zealand 生产机票、支付或审批数据。保存 SAP 参考不会自动勾选人工审核项目；查询失败会显示错误，不会悄悄替换成模拟成功。
+在本机 `.env` 中设置 `AIRASSIST_SAP_MODE=live`，填写**自己的个人 SAP API Hub key**，再重启服务。服务根地址已写在模板中，NZ7K2H 对应的文档号为 `60000073`。课堂临时账号只供教程练习，不能用作项目配置。不要提交 `.env`、密钥、`.data/` 或真实个人记录；根目录与 `app/` 的忽略规则会保护常见本机文件，但提交前仍需检查 Git 的文件列表。
+
+SAP 返回通用财务样例，不是 Air New Zealand 生产机票、支付或审批数据。查询失败会显示错误并提供重试，不会悄悄替换成模拟成功。
 
 ## Vercel 部署
 
@@ -92,11 +93,11 @@ vercel deploy --yes --target preview
 vercel alias set <新部署域名> infosys704-a3-airassist.vercel.app
 ```
 
-部署环境必须连接 **Private Blob**，由 Vercel 注入 `BLOB_READ_WRITE_TOKEN`；`AIRASSIST_ALLOWED_HOSTS` 包含 `infosys704-a3-airassist.vercel.app`。浏览器会话使用 `HttpOnly`、`Secure`、`SameSite=Strict` cookie，有效期一天；会话过期后刷新页面重新取得。它是匿名演示会话，不代表员工身份验证。
+部署环境必须连接 **Private Blob**，由 Vercel 注入 `BLOB_READ_WRITE_TOKEN`；`AIRASSIST_ALLOWED_HOSTS` 包含 `infosys704-a3-airassist.vercel.app`。演示登录账号的密码与本地共用以下环境变量（只写变量名，不写值）：`AIRASSIST_PASSENGER_PASSWORD`、`AIRASSIST_STAFF_PASSWORD`、`AIRASSIST_SESSION_SECRET`、`AIRASSIST_SAP_MODE`、`AIRASSIST_SAP_BASE_URL`、`AIRASSIST_SAP_API_KEY`。
 
 本次通过已登录账号进行 CLI 部署。**GitHub 自动部署尚未连接**：Vercel 当前无法连接仓库所有者的 GitHub 集成，因此 GitHub push 不会自动更新线上版本。正式生产环境需要另行配置存储和环境变量，不能只复用空的生产配置。
 
-若要在云端连接 SAP，在 Vercel 的 Preview 环境设置 `.env.example` 中的 `AIRASSIST_SAP_*` 变量，使用自己的个人 API Hub key，再重新部署。密钥只存于 Vercel 环境变量，不写入 GitHub、README 或网页。
+若要在云端连接 SAP，在 Vercel 的 Preview 环境设置以上 `AIRASSIST_SAP_MODE`、`AIRASSIST_SAP_BASE_URL`、`AIRASSIST_SAP_API_KEY` 变量，使用自己的个人 API Hub key，再重新部署。密钥只存于 Vercel 环境变量，不写入 GitHub、README 或网页。
 
 验证命令（在仓库根目录）：
 
@@ -106,7 +107,7 @@ node app/tests/frontend-state.cjs
 vercel deploy --dry --json
 ```
 
-2026-10-14 部署适配验证：**60 项后端测试、28 项前端检查通过**；额外实际验证了私有 Blob 读写、重新载入和过期 ETag 拒绝。Vercel 构建报告 `READY`。这些结果独立于原 V1.4 历史验收资料。
+当前版本验证：**84 项后端测试、53 项前端检查通过**，结果见 `app/evidence/TEST_RESULTS_V1_5.txt` 与 `app/evidence/FRONTEND_TEST_RESULTS_V1_5.txt`；额外实际验证了私有 Blob 读写、重新载入和过期 ETag 拒绝。Vercel 构建报告 `READY`。`app/evidence/` 下更早的 V1.x 结果文件是原 V1.4 历史验收基线。
 
 ## 评分依据与保留的证据
 
@@ -114,7 +115,7 @@ vercel deploy --dry --json
 
 - 当前演示为 **12 页、五分钟 SCR 结构**，含 90 秒现场操作，手动翻页；最后一页保留老师的 Groupwork Management 声明模板。它不是 A2 的 PechaKucha 演示。
 - 提交包含可运行 App ZIP 和展示 slides。GitHub 协作不能代替 Canvas 提交或课堂 pitch，也没有额外添加生产部署、真实旅客调研或付费服务要求。
-- V1.4 验收记录为 **49 项后端测试、28 项前端状态检查**全部通过，另有实际浏览器与重新解压运行核查。这些是已完成基线的事实，不代表此后每次修改都已验收，也不保证课堂评分。
+- 当前结果为 `app/evidence/TEST_RESULTS_V1_5.txt`（84 项后端测试）与 `app/evidence/FRONTEND_TEST_RESULTS_V1_5.txt`（53 项前端检查）全部通过；更早的 V1.x 文件是原 V1.4 历史验收基线，另有实际浏览器与重新解压运行核查。这些是已完成基线的事实，不代表此后每次修改都已验收，也不保证课堂评分。
 - OpenCode 的实际构建与原生会话导出记录保留在 `app/evidence/`。V1.2–V1.4 的后续本地改进有单独来源记录；不能把全部开发描述成由 OpenCode 完成。
 - 原验收 ZIP、manifest 和 QA 记录保留作基线。修改 `app/` 后，它们不会自动更新；新的提交版本需要重新核查并另行导出，不要手改历史测试结果或来源记录。
 
@@ -159,6 +160,6 @@ REVIEW_MANIFEST.json  原交付包文件校验记录
 
 ## English quick start
 
-Try the **[AirAssist online demo](https://infosys704-a3-airassist.vercel.app/?view=journey)** with booking **NZ7K2H / Don** and an example email. It supports refund applications, case review, queue handoff, tracking and receipt downloads. The Vercel preview stores demo records in private Blob-backed SQLite snapshots and uses signed anonymous browser sessions. Staff review is a public simulation, not a staff-authenticated airline service; use synthetic data only. SAP is unconfigured unless personal-account environment variables are supplied.
+Try the **[AirAssist online demo](https://infosys704-a3-airassist.vercel.app/?view=journey)**. Sign in as passenger **Mark.don**, open My trips, request a full refund for **NZ7K2H** with a mobile number; then sign in as staff **admin** to approve or decline it, and check the result back in Mark.don's My trips. Staff can use Reset demo data to restore the starting state. Refund amounts are read live from the SAP Credit Memo Request API (document 60000073 for NZ7K2H); seeded requests use recorded SAP snapshots. Refunds always go to the original payment method; nothing is written to SAP and no payment is made. The Vercel preview stores demo records in private Blob-backed SQLite snapshots. Use synthetic data only.
 
-For local development, run `cd app` and `sh start.command` on macOS with Python 3.10+, then open `http://127.0.0.1:8789/`. Local SQLite records and cloud demo records are separate. Never commit credentials or databases. Keep the accepted V1.4 archives and evidence as the historical baseline. Deployment currently uses the Vercel CLI; GitHub automatic deployment is not connected.
+For local development, run `cd app` and `sh start.command` on macOS with Python 3.10+, then open `http://127.0.0.1:8789/`. Restart the server after backend changes. Local SQLite records and cloud demo records are separate. Never commit credentials or databases. The current results are `app/evidence/*_V1_5.txt`; older V1.x files are the historical V1.4 baseline. Deployment currently uses the Vercel CLI; GitHub automatic deployment is not connected.

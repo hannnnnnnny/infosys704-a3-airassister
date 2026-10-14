@@ -75,7 +75,7 @@ h1{font-size:34px;line-height:1.2;font-weight:800;letter-spacing:-.02em;margin-b
 .check-row input{width:22px;height:22px;flex:none;margin:2px 0 0;accent-color:var(--brand)}
 .check-row label{font-weight:600}
 
-.status-icon{display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;margin:0 0 16px;border-radius:50%;font-size:28px;font-weight:700}
+.status-icon{display:flex;align-items:center;justify-content:center;width:56px;height:56px;margin:0 0 16px;border-radius:50%;font-size:28px;font-weight:700}
 .status-pending{background:#e3efff;color:#1d4ed8}
 .status-approved{background:#e3f6e9;color:#177a3a}
 .status-declined{background:#fdeaea;color:#b3261e}
