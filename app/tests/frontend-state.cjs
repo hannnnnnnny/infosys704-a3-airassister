@@ -74,18 +74,31 @@ function flight() {
     toCode: 'LAX', toCity: 'Los Angeles', date: '2026-10-28', cabin: 'Economy', flightStatus: 'cancelled'};
 }
 
-function me(overrides = {}) {
+function trip(overrides = {}) {
   return {
-    displayName: 'Mark Don', booking: {reference: 'NZ7K2H'}, flight: flight(),
+    booking: {reference: 'NZ7K2H', paymentMethod: {type: 'card', brand: 'Visa', last4: '4242'}},
+    flight: flight(),
+    refundable: true,
+    request: null,
+    paymentMethod: {type: 'card', brand: 'Visa', last4: '4242'},
     quote: {sapDocument: '60000073', amount: 175.5, currency: 'USD', processStatus: 'A', fetchedAt: '2026-10-14T00:00:00Z'},
-    quoteError: null, request: null, ...overrides,
+    quoteError: null,
+    ...overrides,
   };
+}
+
+function me(overrides = {}) {
+  const {displayName = 'Mark Don', trips, ...tripOverrides} = overrides;
+  if (trips) return {displayName, trips};
+  return {displayName, trips: [trip(tripOverrides)]};
 }
 
 function request(overrides = {}) {
   return {
     reference: 'AF-DEMO000002', bookingReference: 'NZ7K2H', passengerName: 'Mark Don',
-    email: 'mark@example.com', amount: 175.5, currency: 'USD', status: 'pending',
+    email: 'mark@example.com', phone: '', contact: {phone: '', email: 'mark@example.com'},
+    paymentMethod: {type: 'card', brand: 'Visa', last4: '4242'},
+    amount: 175.5, currency: 'USD', status: 'pending',
     decisionNote: '', version: 1, flight: flight(), ...overrides,
   };
 }
@@ -107,6 +120,9 @@ test('signing in routes a passenger to the request screen', async () => {
   assert.equal(h.state.view, 'passenger');
   assert.equal(h.state.displayName, 'Mark Don');
   assert.equal(h.token(), 'tok-passenger');
+  assert.match(h.box.passengerView(), /My trips/);
+  assert.match(h.box.passengerView(), /Kia ora, Mark/);
+  h.box.openTrip('NZ7K2H');
   assert.match(h.box.passengerView(), /Kia ora, Mark/);
 });
 
@@ -242,6 +258,7 @@ test('the request screen shows the flight, route, refund amount and one button',
   const h = harness();
   h.box.fetch = passengerSession();
   await h.box.signIn('Mark.don', 'secret');
+  h.box.openTrip('NZ7K2H');
   const html = h.box.passengerView();
   assert.match(html, /Kia ora, Mark/);
   assert.match(html, /NZ6 on 28 October 2026 was cancelled\. Sorry about that\./);
@@ -265,20 +282,22 @@ test('a quote failure shows a retry and no submit button, and retry reloads the 
     if (url === '/api/auth/login') return json({token: 'tok', role: 'passenger', displayName: 'Mark Don'});
     if (url === '/api/me') {
       meCalls += 1;
-      return json(meCalls === 1
+      return json(meCalls <= 2
         ? me({quote: null, quoteError: {code: 'SAP_UNAVAILABLE', message: 'SAP is unavailable.'}})
         : me());
     }
     throw new Error('Unexpected network call: ' + url);
   };
   await h.box.signIn('Mark.don', 'secret');
+  await h.box.openTrip('NZ7K2H');
   let html = h.box.passengerView();
   assert.match(html, /We couldn't load your refund amount\. Try again\./);
   assert.match(html, /id="retry-quote"/);
   assert.doesNotMatch(html, /Request full refund/);
   assert.doesNotMatch(html, /refund-form/);
   await h.box.retryMe();
-  assert.equal(meCalls, 2);
+  assert.ok(meCalls >= 3);
+  await h.box.openTrip('NZ7K2H');
   html = h.box.passengerView();
   assert.match(html, /Request full refund/);
 });
@@ -292,6 +311,8 @@ test('submitting with a bad email and no confirmation shows inline errors and se
     return json(me());
   };
   await h.box.signIn('Mark.don', 'secret');
+  h.box.openTrip('NZ7K2H');
+  h.state.phone = '';
   h.state.email = 'not-an-email';
   h.state.confirm = false;
   await h.box.submitRefund();
@@ -312,17 +333,20 @@ test('a successful submit switches to the status screen and clears the request k
     throw new Error('Unexpected network call: ' + url);
   };
   await h.box.signIn('Mark.don', 'secret');
+  h.box.openTrip('NZ7K2H');
   const key = h.state.requestKey;
   assert.equal(key, REQUEST_KEY);
+  h.state.phone = '';
   h.state.email = 'mark@example.com';
   h.state.confirm = true;
   await h.box.submitRefund();
   const post = calls.find(call => call.url === '/api/refund-requests');
   const body = JSON.parse(post.options.body);
-  assert.equal(body.email, 'mark@example.com');
+  assert.equal(body.contact.email, 'mark@example.com');
+  assert.equal(body.bookingReference, 'NZ7K2H');
   assert.equal(body.confirmed, true);
   assert.equal(body.requestKey, key);
-  assert.equal(h.state.me.request.reference, 'AF-DEMO000002');
+  assert.equal(h.box.selectedTrip().request.reference, 'AF-DEMO000002');
   assert.equal(h.state.requestKey, null);
   assert.match(h.box.passengerView(), /Request sent/);
 });
@@ -341,11 +365,16 @@ test('the request key is created once and reused when a submission is retried', 
     throw new Error('Unexpected network call: ' + url);
   };
   await h.box.signIn('Mark.don', 'secret');
+  h.box.openTrip('NZ7K2H');
+  h.state.phone = '';
   h.state.email = 'mark@example.com';
   h.state.confirm = true;
   await h.box.submitRefund();
-  assert.equal(h.state.me.request, null);
+  assert.equal(h.box.selectedTrip().request, null);
   assert.equal(h.state.requestKey, REQUEST_KEY);
+  h.state.phone = '';
+  h.state.email = 'mark@example.com';
+  h.state.confirm = true;
   await h.box.submitRefund();
   assert.equal(keys.length, 2);
   assert.equal(keys[0], keys[1]);
@@ -365,11 +394,13 @@ test('a 409 response reloads the booking and shows the status screen', async () 
     throw new Error('Unexpected network call: ' + url);
   };
   await h.box.signIn('Mark.don', 'secret');
+  h.box.openTrip('NZ7K2H');
+  h.state.phone = '';
   h.state.email = 'mark@example.com';
   h.state.confirm = true;
   await h.box.submitRefund();
   assert.equal(h.state.error, null);
-  assert.equal(h.state.me.request.reference, 'AF-DEMO000002');
+  assert.equal(h.box.selectedTrip().request.reference, 'AF-DEMO000002');
   assert.match(h.box.passengerView(), /Request sent/);
 });
 
@@ -377,6 +408,7 @@ test('a pending request shows the awaiting-approval status', async () => {
   const h = harness();
   h.box.fetch = passengerSession(me({request: request()}));
   await h.box.signIn('Mark.don', 'secret');
+  h.box.openTrip('NZ7K2H');
   const html = h.box.passengerView();
   assert.match(html, /Request sent/);
   assert.match(html, /Our refunds team will review it shortly\./);
@@ -390,6 +422,7 @@ test('an approved request shows the approved status and payout sentence', async 
   const h = harness();
   h.box.fetch = passengerSession(me({request: request({status: 'approved'})}));
   await h.box.signIn('Mark.don', 'secret');
+  h.box.openTrip('NZ7K2H');
   const html = h.box.passengerView();
   assert.match(html, /Refund approved/);
   assert.match(html, /USD 175\.50 will go back to your original payment\./);
@@ -400,6 +433,7 @@ test('a declined request shows the decline note', async () => {
   const h = harness();
   h.box.fetch = passengerSession(me({request: request({status: 'declined', decisionNote: 'This fare is not refundable.'})}));
   await h.box.signIn('Mark.don', 'secret');
+  h.box.openTrip('NZ7K2H');
   const html = h.box.passengerView();
   assert.match(html, /Refund declined/);
   assert.match(html, /This fare is not refundable\./);
@@ -413,12 +447,13 @@ test('downloading a receipt fetches with the bearer token', async () => {
     calls.push({url, options});
     if (url === '/api/auth/login') return json({token: 'tok-123', role: 'passenger', displayName: 'Mark Don'});
     if (url === '/api/me') return json(me({request: request()}));
-    if (url === '/api/refund-requests/receipt') return {ok: true, status: 200, blob: async () => ({})};
+    if (url === '/api/refund-requests/receipt?booking=NZ7K2H') return {ok: true, status: 200, blob: async () => ({})};
     throw new Error('Unexpected network call: ' + url);
   };
   await h.box.signIn('Mark.don', 'secret');
+  h.box.openTrip('NZ7K2H');
   await h.box.downloadReceipt();
-  const receipt = calls.find(call => call.url === '/api/refund-requests/receipt');
+  const receipt = calls.find(call => call.url === '/api/refund-requests/receipt?booking=NZ7K2H');
   assert.equal(receipt.options.headers.Authorization, 'Bearer tok-123');
   assert.equal(receipt.options.credentials, 'same-origin');
   assert.equal(h.state.receiptError, null);
@@ -429,8 +464,11 @@ test('the passenger screens contain no inline styles or scripts', async () => {
   h.box.fetch = passengerSession();
   await h.box.signIn('Mark.don', 'secret');
   assert.doesNotMatch(h.box.passengerView(), /style=|onclick=/);
+  h.box.openTrip('NZ7K2H');
+  assert.doesNotMatch(h.box.passengerView(), /style=|onclick=/);
   h.box.fetch = passengerSession(me({request: request()}));
   await h.box.signIn('Mark.don', 'secret');
+  h.box.openTrip('NZ7K2H');
   assert.doesNotMatch(h.box.passengerView(), /style=|onclick=/);
 });
 
@@ -439,7 +477,9 @@ test('the passenger screens contain no inline styles or scripts', async () => {
 function staffRequest(overrides = {}) {
   return {
     reference: 'AF-AAAA1111', bookingReference: 'NZ7K2H', passengerName: 'Mark Don',
-    email: 'mark@example.com', reason: 'flight_disruption', refundType: 'full',
+    email: 'mark@example.com', phone: '+64 21 555 0100', contact: {phone: '+64 21 555 0100', email: 'mark@example.com'},
+    paymentMethod: {type: 'card', brand: 'Visa', last4: '4242'},
+    reason: 'flight_disruption', refundType: 'full',
     amount: 175.5, currency: 'USD', sapDocument: '60000073', sapStatus: 'A',
     route: 'fast_track', status: 'pending', decisionNote: '', version: 1,
     createdAt: '2026-10-14T00:00:00Z', updatedAt: '2026-10-14T00:00:00Z',
@@ -788,6 +828,199 @@ test('a failed reset is reported in plain words', async () => {
   assert.equal(h.state.staff.notice, 'Demo data could not be reset. Please try again.');
   const html = h.box.staffView();
   assert.match(html, /Demo data could not be reset\. Please try again\./);
+});
+
+// --- task 5b: My trips home and contact screens ------------------------------------------
+
+function tripsResponse() {
+  return {
+    displayName: 'Mark Don',
+    trips: [
+      trip({booking: {reference: 'NZ2W6B', paymentMethod: {type: 'card', brand: 'Mastercard', last4: '5555'}},
+        flight: {flight: 'NZ5', fromCode: 'LAX', fromCity: 'Los Angeles', toCode: 'AKL', toCity: 'Auckland', date: '2026-10-09', cabin: 'Economy', flightStatus: 'cancelled'},
+        refundable: true, request: request({reference: 'AF-DEMO000003', bookingReference: 'NZ2W6B', status: 'approved', amount: 60, currency: 'USD'}),
+        paymentMethod: {type: 'card', brand: 'Mastercard', last4: '5555'},
+        quote: null, quoteError: null}),
+      trip({}),
+      trip({booking: {reference: 'NZ5R8M', paymentMethod: {type: 'card', brand: 'Amex', last4: '1005'}},
+        flight: {flight: 'NZ8', fromCode: 'AKL', fromCity: 'Auckland', toCode: 'SFO', toCity: 'San Francisco', date: '2026-11-02', cabin: 'Economy', flightStatus: 'cancelled'},
+        refundable: true, request: request({reference: 'AF-DEMO000002', bookingReference: 'NZ5R8M', status: 'pending'}),
+        paymentMethod: {type: 'card', brand: 'Amex', last4: '1005'},
+        quote: null, quoteError: null}),
+      trip({booking: {reference: 'NZ3Q1T', paymentMethod: {type: 'card', brand: 'Visa', last4: '9876'}},
+        flight: {flight: 'NZ103', fromCode: 'AKL', fromCity: 'Auckland', toCode: 'SYD', toCity: 'Sydney', date: '2026-11-15', cabin: 'Economy', flightStatus: 'on time'},
+        refundable: false, request: null,
+        paymentMethod: {type: 'card', brand: 'Visa', last4: '9876'},
+        quote: null, quoteError: null}),
+    ],
+  };
+}
+
+test('My trips home shows greeting, subtitle, tiles and ordered cards', async () => {
+  const h = harness();
+  h.box.fetch = passengerSession(tripsResponse());
+  await h.box.signIn('Mark.don', 'secret');
+  const html = h.box.passengerView();
+  assert.match(html, /My trips/);
+  assert.match(html, /Kia ora, Mark/);
+  assert.match(html, /Your trips and refunds in one place\./);
+  assert.match(html, /Need action/);
+  assert.match(html, /In review/);
+  assert.match(html, /Refunded/);
+  const order = [...html.matchAll(/data-booking="(.*?)"/g)].map(m => m[1]);
+  assert.deepEqual(order, ['NZ2W6B', 'NZ7K2H', 'NZ5R8M', 'NZ3Q1T']);
+  assert.match(html, /LAX → AKL/);
+  assert.match(html, /9 October 2026 · NZ5 · NZ2W6B · cancelled/);
+  assert.match(html, /pill-approved">Refunded/);
+  assert.match(html, /pill-available">Refund available/);
+  assert.match(html, /pill-pending">Awaiting approval/);
+  assert.match(html, /pill-ontime">On time/);
+  assert.match(html, /USD 60\.00/);
+  assert.match(html, /class="trip-card"/);
+});
+
+test('each trip card opens the right view', async () => {
+  const h = harness();
+  h.box.fetch = passengerSession(tripsResponse());
+  await h.box.signIn('Mark.don', 'secret');
+  await h.box.openTrip('NZ7K2H');
+  assert.match(h.box.passengerView(), /Request full refund/);
+  await h.box.openTrip('NZ5R8M');
+  assert.match(h.box.passengerView(), /Request sent/);
+  await h.box.openTrip('NZ2W6B');
+  assert.match(h.box.passengerView(), /Refund approved/);
+  await h.box.openTrip('NZ3Q1T');
+  assert.match(h.box.passengerView(), /Your flight is on time\. Nothing to do here\./);
+});
+
+test('detail views have back navigation and the header links to My trips', async () => {
+  const h = harness();
+  const account = {innerHTML: ''};
+  h.nodes.set('#account', account);
+  h.box.fetch = passengerSession(tripsResponse());
+  await h.box.signIn('Mark.don', 'secret');
+  assert.match(account.innerHTML, /My trips/);
+  await h.box.openTrip('NZ7K2H');
+  assert.match(h.box.passengerView(), /← My trips/);
+  assert.match(h.box.passengerView(), /id="back-trips"/);
+  await h.box.goHome();
+  assert.equal(h.state.selectedBooking, null);
+  assert.match(h.box.passengerView(), /My trips/);
+});
+
+test('contact validation requires at least one valid detail', async () => {
+  const h = harness();
+  const calls = [];
+  h.box.fetch = async (url, options) => {
+    calls.push({url, options});
+    if (url === '/api/auth/login') return json({token: 'tok', role: 'passenger', displayName: 'Mark Don'});
+    return json(me());
+  };
+  await h.box.signIn('Mark.don', 'secret');
+  await h.box.openTrip('NZ7K2H');
+  h.state.phone = '';
+  h.state.email = '';
+  h.state.confirm = true;
+  await h.box.submitRefund();
+  assert.equal(calls.filter(c => c.url === '/api/refund-requests').length, 0);
+  assert.match(h.box.passengerView(), /How can we reach you\?/);
+  assert.match(h.box.passengerView(), /Enter at least one\./);
+  h.state.phone = 'abc';
+  h.state.email = '';
+  h.state.confirm = true;
+  await h.box.submitRefund();
+  assert.match(h.box.passengerView(), /Enter a valid mobile number\./);
+  h.state.phone = '+64 21 555 0100';
+  h.state.email = '';
+  h.state.confirm = true;
+  assert.equal(h.box.validateRefund(), true);
+});
+
+test('the request screen shows the refund destination with no method choice', async () => {
+  const h = harness();
+  h.box.fetch = passengerSession();
+  await h.box.signIn('Mark.don', 'secret');
+  await h.box.openTrip('NZ7K2H');
+  const html = h.box.passengerView();
+  assert.match(html, /Refund to Visa •••• 4242/);
+  assert.match(html, /The card you used to book this ticket\./);
+  assert.doesNotMatch(html, /bank-transfer|<select|type="radio"/);
+});
+
+test('the status screen shows Refund to and declined contact line', async () => {
+  const h = harness();
+  const declined = request({status: 'declined', decisionNote: 'Fare rules apply.',
+    phone: '+64 21 555 0100', contact: {phone: '+64 21 555 0100', email: 'mark@example.com'}});
+  h.box.fetch = passengerSession(me({request: declined}));
+  await h.box.signIn('Mark.don', 'secret');
+  await h.box.openTrip('NZ7K2H');
+  const html = h.box.passengerView();
+  assert.match(html, /<dt>Refund to<\/dt><dd>Visa •••• 4242<\/dd>/);
+  assert.doesNotMatch(html, /<dd>Refund to Visa/);
+  assert.match(html, /Fare rules apply\./);
+  assert.match(html, /Our customer service team will contact you at \+64 21 555 0100\./);
+  const emailOnly = request({status: 'declined', decisionNote: 'Fare rules apply.',
+    phone: '', contact: {phone: '', email: 'mark@example.com'}});
+  const h2 = harness();
+  h2.box.fetch = passengerSession(me({request: emailOnly}));
+  await h2.box.signIn('Mark.don', 'secret');
+  await h2.box.openTrip('NZ7K2H');
+  assert.match(h2.box.passengerView(), /Our customer service team will contact you at mark@example\.com\./);
+});
+
+test('staff expanded rows show mobile, email and refund destination', async () => {
+  const h = await staffSuccessfulSignIn();
+  h.state.staff.expanded = 'AF-DEMO000002';
+  const html = h.box.staffView();
+  assert.match(html, /Mobile \+64 21 555 0100/);
+  assert.match(html, /Email mark@example\.com/);
+  assert.match(html, /Refund to Visa •••• 4242/);
+});
+
+test('opening a trip reloads the latest status from the service', async () => {
+  const h = harness();
+  let meCalls = 0;
+  h.box.fetch = async url => {
+    if (url === '/api/auth/login') return json({token: 'tok', role: 'passenger', displayName: 'Mark Don'});
+    if (url === '/api/me') {
+      meCalls += 1;
+      return json(meCalls === 1 ? me() : me({request: request({status: 'approved'})}));
+    }
+    throw new Error('Unexpected network call: ' + url);
+  };
+  await h.box.signIn('Mark.don', 'secret');
+  assert.match(h.box.passengerView(), /Refund available/);
+  await h.box.openTrip('NZ7K2H');
+  assert.ok(meCalls >= 2);
+  assert.match(h.box.passengerView(), /Refund approved/);
+  h.state.refreshing = true;
+  assert.match(h.box.passengerView(), /Updating your trips/);
+  h.state.refreshing = false;
+});
+
+test('going home reloads trips and a failed reload keeps the view with an error', async () => {
+  const h = harness();
+  let meCalls = 0;
+  let failNext = false;
+  h.box.fetch = async url => {
+    if (url === '/api/auth/login') return json({token: 'tok', role: 'passenger', displayName: 'Mark Don'});
+    if (url === '/api/me') {
+      meCalls += 1;
+      if (failNext) throw new Error('offline');
+      return json(me());
+    }
+    throw new Error('Unexpected network call: ' + url);
+  };
+  await h.box.signIn('Mark.don', 'secret');
+  const before = meCalls;
+  await h.box.openTrip('NZ7K2H');
+  assert.ok(meCalls > before);
+  assert.match(h.box.passengerView(), /Request full refund/);
+  failNext = true;
+  await h.box.goHome();
+  assert.equal(h.state.selectedBooking, null);
+  assert.match(h.box.passengerView(), /My trips/);
+  assert.match(h.box.passengerView(), /We could not reach the service/);
 });
 
 (async () => {

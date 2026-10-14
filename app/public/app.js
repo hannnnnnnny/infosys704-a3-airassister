@@ -5,9 +5,9 @@
 let token = null;
 const state = {
   view: 'signin', role: null, displayName: null, username: '', error: null, busy: false,
-  me: null, loading: false, loadError: null,
-  email: '', confirm: false, fieldErrors: {email: null, confirm: null},
-  submitting: false, requestKey: null, retryBusy: false,
+  me: null, loading: false, loadError: null, selectedBooking: null, refreshing: false,
+  email: '', phone: '', confirm: false, fieldErrors: {phone: null, email: null, contact: null, confirm: null},
+  submitting: false, requestKey: null, requestKeys: {}, retryBusy: false,
   receiptBusy: false, receiptError: null,
   staff: {
     requests: [],
@@ -91,6 +91,14 @@ async function signIn(username, password) {
     state.error = null;
     if (state.role === 'passenger') {
       state.me = null;
+      state.selectedBooking = null;
+      state.refreshing = false;
+      state.email = '';
+      state.phone = '';
+      state.confirm = false;
+      state.fieldErrors = {phone: null, email: null, contact: null, confirm: null};
+      state.requestKey = null;
+      state.requestKeys = {};
       await loadMe();
     } else {
       state.staff = {
@@ -128,11 +136,15 @@ function endSession(message) {
   state.me = null;
   state.loading = false;
   state.loadError = null;
+  state.selectedBooking = null;
+  state.refreshing = false;
   state.email = '';
+  state.phone = '';
   state.confirm = false;
-  state.fieldErrors = {email: null, confirm: null};
+  state.fieldErrors = {phone: null, email: null, contact: null, confirm: null};
   state.submitting = false;
   state.requestKey = null;
+  state.requestKeys = {};
   state.retryBusy = false;
   state.receiptBusy = false;
   state.receiptError = null;
@@ -205,14 +217,111 @@ function formatDate(value) {
   return month ? `${Number(match[3])} ${month} ${match[1]}` : String(value || '');
 }
 
-/* The request key is created once when the request screen is shown and reused for retries of the
-   same submission, so a repeated send stays idempotent. It is cleared only after a successful send. */
+/* The request key is created once per booking when its request screen is shown and reused
+   for retries of the same submission, so a repeated send stays idempotent. */
+function tripList() {
+  const trips = state.me && Array.isArray(state.me.trips) ? state.me.trips : [];
+  return [...trips].sort((a, b) => String(a?.flight?.date || '') < String(b?.flight?.date || '') ? -1 : 1);
+}
+
+function selectedTrip() {
+  const trips = tripList();
+  return trips.find(trip => String(trip?.booking?.reference || '') === String(state.selectedBooking || '')) || null;
+}
+
+function tripRequestStatus(trip) {
+  if (trip?.request) return String(trip.request.status || 'pending');
+  if (trip?.refundable) return 'available';
+  return 'ontime';
+}
+
+function tripPill(trip) {
+  const status = tripRequestStatus(trip);
+  if (status === 'pending') return {text: 'Awaiting approval', cls: 'pill-pending'};
+  if (status === 'approved') return {text: 'Refunded', cls: 'pill-approved'};
+  if (status === 'declined') return {text: 'Declined', cls: 'pill-declined'};
+  if (status === 'available') return {text: 'Refund available', cls: 'pill-available'};
+  return {text: 'On time', cls: 'pill-ontime'};
+}
+
+function tripAmount(trip) {
+  if (trip?.request && typeof trip.request.amount === 'number') {
+    return formatAmount(trip.request.amount, trip.request.currency);
+  }
+  if (trip?.quote && typeof trip.quote.amount === 'number') {
+    return formatAmount(trip.quote.amount, trip.quote.currency);
+  }
+  return '';
+}
+
+function paymentLine(method) {
+  if (!method || !method.brand || !method.last4) return '';
+  return `${esc(method.brand)} •••• ${esc(method.last4)}`;
+}
+
+function tripPaymentMethod(trip) {
+  return trip?.paymentMethod || trip?.booking?.paymentMethod || null;
+}
+
+function requestPaymentMethod(request) {
+  return request?.paymentMethod || null;
+}
+
+function requestContact(request) {
+  const contact = request?.contact || {};
+  return {
+    phone: String(contact.phone || request?.phone || ''),
+    email: String(contact.email || request?.email || ''),
+  };
+}
+
+function openTrip(bookingReference) {
+  state.selectedBooking = String(bookingReference || '');
+  state.error = null;
+  state.receiptError = null;
+  prepareRequestKey();
+  render();
+  return refreshMe();
+}
+
+function goHome() {
+  state.selectedBooking = null;
+  state.error = null;
+  state.receiptError = null;
+  render();
+  return refreshMe();
+}
+
 function prepareRequestKey() {
-  if (!state.me || state.me.request) {
+  const trip = selectedTrip();
+  if (!trip || !trip.refundable || trip.request) {
     state.requestKey = null;
     return;
   }
-  if (!state.requestKey) state.requestKey = crypto.randomUUID();
+  const ref = String(trip.booking.reference || '');
+  if (!state.requestKeys[ref]) state.requestKeys[ref] = crypto.randomUUID();
+  state.requestKey = state.requestKeys[ref];
+}
+
+async function refreshMe() {
+  if (state.view !== 'passenger') return;
+  state.refreshing = true;
+  state.loadError = null;
+  render();
+  try {
+    const fresh = await api('/api/me');
+    state.me = fresh;
+    state.refreshing = false;
+    if (state.selectedBooking && !selectedTrip()) state.selectedBooking = null;
+    prepareRequestKey();
+    render();
+  } catch (error) {
+    state.refreshing = false;
+    if (state.view !== 'passenger') return;
+    if (error && error.code === 'SESSION_ENDED') return;
+    state.error = (error && error.message) || 'We could not update your trips. Please try again.';
+    render();
+  }
 }
 
 async function loadMe() {
@@ -222,6 +331,7 @@ async function loadMe() {
   try {
     state.me = await api('/api/me');
     state.loading = false;
+    if (state.selectedBooking && !selectedTrip()) state.selectedBooking = null;
     prepareRequestKey();
     render();
   } catch (error) {
@@ -242,19 +352,37 @@ async function retryMe() {
   render();
 }
 
+function validPhone(value) {
+  const text = String(value || '').trim();
+  if (!text) return false;
+  if (text.length < 7 || text.length > 20) return false;
+  if (!/^[0-9+\-() ]+$/.test(text)) return false;
+  return (text.match(/[0-9]/g) || []).length >= 7;
+}
+
 function validateRefund() {
+  const phone = String(state.phone || '').trim();
   const email = String(state.email || '').trim();
-  const errors = {email: null, confirm: null};
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Enter a valid email address.';
+  const errors = {phone: null, email: null, contact: null, confirm: null};
+  if (phone && !validPhone(phone)) errors.phone = 'Enter a valid mobile number.';
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Enter a valid email address.';
+  if (!phone && !email) errors.contact = 'Enter at least one contact detail.';
   if (!state.confirm) errors.confirm = 'Tick the box to confirm your details are correct.';
   state.fieldErrors = errors;
-  return !errors.email && !errors.confirm;
+  return !errors.phone && !errors.email && !errors.contact && !errors.confirm;
 }
 
 async function submitRefund() {
   if (state.submitting) return;
   state.error = null;
   if (!validateRefund()) {
+    render();
+    return;
+  }
+  const trip = selectedTrip();
+  const bookingReference = trip ? String(trip.booking.reference || '') : '';
+  if (!bookingReference) {
+    state.error = 'Choose a trip before requesting a refund.';
     render();
     return;
   }
@@ -269,17 +397,31 @@ async function submitRefund() {
   try {
     const data = await api('/api/refund-requests', {
       method: 'POST',
-      body: {email: String(state.email || '').trim(), confirmed: true, requestKey: state.requestKey},
+      body: {
+        bookingReference,
+        contact: {phone: String(state.phone || '').trim(), email: String(state.email || '').trim()},
+        confirmed: true, requestKey: state.requestKey,
+      },
     });
     state.submitting = false;
+    delete state.requestKeys[bookingReference];
     state.requestKey = null;
-    if (state.me) state.me.request = data.request;
     state.error = null;
+    await loadMe();
+    state.selectedBooking = bookingReference;
+    const current = selectedTrip();
+    if (current && !current.request && data && data.request) current.request = data.request;
+    prepareRequestKey();
     render();
   } catch (error) {
     state.submitting = false;
     if (error.status === 409) {
       await loadMe();
+      const trips = tripList();
+      if (trips.some(t => String(t?.booking?.reference || '') === bookingReference)) {
+        state.selectedBooking = bookingReference;
+      }
+      render();
       return;
     }
     if (state.view !== 'passenger') { render(); return; }
@@ -289,12 +431,19 @@ async function submitRefund() {
 }
 
 async function downloadReceipt() {
+  const trip = selectedTrip();
+  const bookingReference = trip ? String(trip.booking.reference || trip?.request?.bookingReference || '') : '';
+  if (!bookingReference) {
+    state.receiptError = 'Choose a trip before downloading a receipt.';
+    render();
+    return;
+  }
   if (state.receiptBusy) return;
   state.receiptBusy = true;
   state.receiptError = null;
   render();
   try {
-    const response = await fetch('/api/refund-requests/receipt', {
+    const response = await fetch('/api/refund-requests/receipt?booking=' + encodeURIComponent(bookingReference), {
       cache: 'no-store', credentials: 'same-origin',
       headers: token ? {Authorization: 'Bearer ' + token} : {},
     });
@@ -307,7 +456,7 @@ async function downloadReceipt() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'airassist-receipt-' + ((state.me?.request?.reference) || 'refund') + '.json';
+    link.download = 'airassist-receipt-' + ((trip?.request?.reference) || 'refund') + '.json';
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -322,13 +471,23 @@ async function downloadReceipt() {
   }
 }
 
-function emailField() {
-  const error = state.fieldErrors.email;
-  return `<div class="field">
-    <label for="refund-email">Email</label>
-    <input id="refund-email" name="email" type="email" value="${esc(state.email)}" autocomplete="email" spellcheck="false"${state.submitting ? ' disabled' : ''}${error ? ' aria-invalid="true" aria-describedby="refund-email-error"' : ''}>
-    ${error ? `<p class="field-error" id="refund-email-error">${esc(error)}</p>` : ''}
-  </div>`;
+function contactFields() {
+  const errors = state.fieldErrors || {};
+  return `<fieldset class="contact-group">
+    <legend>How can we reach you?</legend>
+    <p class="field-hint" id="contact-hint">Enter at least one.</p>
+    ${errors.contact ? `<p class="field-error" id="contact-error" role="alert">${esc(errors.contact)}</p>` : ''}
+    <div class="field">
+      <label for="refund-phone">Mobile</label>
+      <input id="refund-phone" name="phone" type="tel" value="${esc(state.phone)}" autocomplete="tel" spellcheck="false"${state.submitting ? ' disabled' : ''}${errors.phone ? ' aria-invalid="true" aria-describedby="refund-phone-error"' : ''}>
+      ${errors.phone ? `<p class="field-error" id="refund-phone-error">${esc(errors.phone)}</p>` : ''}
+    </div>
+    <div class="field">
+      <label for="refund-email">Email</label>
+      <input id="refund-email" name="email" type="email" value="${esc(state.email)}" autocomplete="email" spellcheck="false"${state.submitting ? ' disabled' : ''}${errors.email ? ' aria-invalid="true" aria-describedby="refund-email-error"' : ''}>
+      ${errors.email ? `<p class="field-error" id="refund-email-error">${esc(errors.email)}</p>` : ''}
+    </div>
+  </fieldset>`;
 }
 
 function confirmField() {
@@ -342,18 +501,63 @@ function confirmField() {
   </div>`;
 }
 
-function requestView() {
-  const flight = state.me.flight || {};
-  const quote = state.me.quote;
+function backLink() {
+  return `<button class="back-link" type="button" id="back-trips">← My trips</button>`;
+}
+
+function refreshNote() {
+  return state.refreshing ? '<p class="area-copy" role="status">Updating your trips…</p>' : '';
+}
+
+function homeView() {
+  const trips = tripList();
+  const needAction = trips.filter(trip => trip?.refundable && !trip?.request).length;
+  const inReview = trips.filter(trip => String(trip?.request?.status || '') === 'pending').length;
+  const refunded = trips.filter(trip => String(trip?.request?.status || '') === 'approved').length;
+  const cards = trips.map(trip => {
+    const booking = trip.booking || {};
+    const flight = trip.flight || booking || {};
+    const pill = tripPill(trip);
+    const amount = tripAmount(trip);
+    const ref = String(booking.reference || '');
+    return `<button type="button" class="trip-card" data-booking="${esc(ref)}" aria-label="${esc((flight.fromCode || '') + ' to ' + (flight.toCode || '') + ', ' + pill.text)}">
+      <span class="trip-route">${esc(flight.fromCode || '')} → ${esc(flight.toCode || '')}</span>
+      <span class="trip-line">${esc(formatDate(flight.date))} · ${esc(flight.flight || '')} · ${esc(ref)} · ${esc(flight.flightStatus || '')}</span>
+      <span class="trip-meta"><span class="pill ${esc(pill.cls)}">${esc(pill.text)}</span>${amount ? `<span class="trip-amount">${esc(amount)}</span>` : ''}</span>
+    </button>`;
+  }).join('');
+  return `<section class="panel home-panel">
+    <p class="eyebrow">My trips</p>
+    <h1>Kia ora, ${esc(firstName(state.me.displayName))}</h1>
+    <p class="lead">Your trips and refunds in one place.</p>
+    ${refreshNote()}
+    <div class="tiles">
+      <div class="tile"><span class="tile-count">${esc(String(needAction))}</span><span class="tile-label">Need action</span></div>
+      <div class="tile"><span class="tile-count">${esc(String(inReview))}</span><span class="tile-label">In review</span></div>
+      <div class="tile"><span class="tile-count">${esc(String(refunded))}</span><span class="tile-label">Refunded</span></div>
+    </div>
+    ${trips.length ? `<div class="trips-list">${cards}</div>` : '<p class="area-copy">No trips yet.</p>'}
+    ${messageBlock()}
+  </section>`;
+}
+
+function requestView(trip) {
+  const flight = trip.flight || trip.booking || {};
+  const booking = trip.booking || {};
+  const quote = trip.quote;
+  const method = tripPaymentMethod(trip);
+  const destination = paymentLine(method);
   const route = `<div class="route">
     <div class="route-end"><span class="route-code">${esc(flight.fromCode)}</span><span class="route-city">${esc(flight.fromCity)}</span></div>
     <span class="route-plane" aria-hidden="true">✈</span>
     <div class="route-end"><span class="route-code">${esc(flight.toCode)}</span><span class="route-city">${esc(flight.toCity)}</span></div>
   </div>`;
-  const head = `<h1>Kia ora, ${esc(firstName(state.me.displayName))}</h1>
+  const head = `${backLink()}
+    ${refreshNote()}
+    <h1>Kia ora, ${esc(firstName(state.me.displayName))}</h1>
     <p class="lead">${esc(flight.flight)} on ${esc(formatDate(flight.date))} was cancelled. Sorry about that.</p>
     ${route}`;
-  if (state.me.quoteError || !quote || typeof quote.amount !== 'number') {
+  if (trip.quoteError || !quote || typeof quote.amount !== 'number') {
     return `<section class="panel">${head}
       <div class="notice">
         <p>We couldn't load your refund amount. Try again.</p>
@@ -366,9 +570,11 @@ function requestView() {
     <div class="refund-box">
       <span class="refund-label">Full refund to your original payment</span>
       <span class="refund-amount">${esc(formatAmount(quote.amount, quote.currency))}</span>
+      ${destination ? `<span class="refund-destination">Refund to ${destination}</span>
+      <span class="refund-note">The card you used to book this ticket.</span>` : ''}
     </div>
     <form id="refund-form" novalidate>
-      ${emailField()}
+      ${contactFields()}
       ${confirmField()}
       ${messageBlock()}
       <button class="btn" type="submit"${state.submitting ? ' disabled' : ''}>${state.submitting ? 'Sending…' : 'Request full refund'}</button>
@@ -396,25 +602,59 @@ function statusCopy(request) {
   };
 }
 
-function statusView() {
-  const request = state.me.request;
+function statusView(trip) {
+  const request = trip.request;
   const copy = statusCopy(request);
+  const destination = paymentLine(requestPaymentMethod(request));
+  const contact = requestContact(request);
+  const followUp = contact.phone || contact.email;
+  const declinedExtra = String(request.status || '') === 'declined' && followUp
+    ? `<p class="contact-note">Our customer service team will contact you at ${esc(followUp)}.</p>` : '';
   return `<section class="panel">
+    ${backLink()}
+    ${refreshNote()}
     <p class="status-icon status-${copy.status}" aria-hidden="true">${esc(copy.icon)}</p>
     <h1>${esc(copy.headline)}</h1>
     <p class="lead">${esc(copy.sentence)}</p>
+    ${declinedExtra}
     <dl class="details">
       <div class="detail-row"><dt>Status</dt><dd><span class="pill ${copy.pillClass}">${esc(copy.pill)}</span></dd></div>
       <div class="detail-row"><dt>Amount</dt><dd>${esc(formatAmount(request.amount, request.currency))}</dd></div>
+      ${destination ? `<div class="detail-row"><dt>Refund to</dt><dd>${destination}</dd></div>` : ''}
       <div class="detail-row"><dt>Reference</dt><dd>${esc(request.reference)}</dd></div>
     </dl>
+    ${messageBlock()}
     <p class="receipt-row"><a class="receipt-link" href="#receipt" id="download-receipt">${state.receiptBusy ? 'Preparing receipt…' : 'Download receipt'}</a></p>
     ${state.receiptError ? `<p class="form-error" role="alert">${esc(state.receiptError)}</p>` : ''}
   </section>`;
 }
 
+function onTimeView(trip) {
+  const flight = trip.flight || trip.booking || {};
+  return `<section class="panel">
+    ${backLink()}
+    ${refreshNote()}
+    <h1>${esc(flight.fromCode || '')} → ${esc(flight.toCode || '')}</h1>
+    <p class="lead">Your flight is on time. Nothing to do here.</p>
+    <dl class="details">
+      <div class="detail-row"><dt>Flight</dt><dd>${esc(flight.flight || '')}</dd></div>
+      <div class="detail-row"><dt>Date</dt><dd>${esc(formatDate(flight.date))}</dd></div>
+      <div class="detail-row"><dt>Booking</dt><dd>${esc(trip?.booking?.reference || '')}</dd></div>
+    </dl>
+    ${messageBlock()}
+  </section>`;
+}
+
 function passengerView() {
-  if (state.me) return state.me.request ? statusView() : requestView();
+  if (state.me && Array.isArray(state.me.trips)) {
+    if (!state.selectedBooking) return homeView();
+    const trip = selectedTrip();
+    if (!trip) return homeView();
+    if (trip.request) return statusView(trip);
+    if (trip.refundable) return requestView(trip);
+    return onTimeView(trip);
+  }
+  if (state.me) return homeView();
   if (state.loading) return `<section class="panel"><p class="area-copy">Loading your booking…</p></section>`;
   return `<section class="panel">
     <h1>Kia ora</h1>
@@ -527,8 +767,24 @@ function expandPanel(request, id, expanded) {
     <p class="staff-flight">${flightLine}</p>
     <span class="staff-route-pill ${esc(routeClass)}">${esc(routeLabel)}</span>
     <p class="staff-sap">${esc(sapLine)}</p>
+    ${contactLines(request)}
+    ${refundLine(request)}
     ${controls}
   </div>`;
+}
+
+function contactLines(request) {
+  const contact = requestContact(request);
+  const parts = [];
+  if (contact.phone) parts.push(`<p class="staff-contact">Mobile ${esc(contact.phone)}</p>`);
+  if (contact.email) parts.push(`<p class="staff-contact">Email ${esc(contact.email)}</p>`);
+  if (!parts.length) parts.push('<p class="staff-contact">No contact details</p>');
+  return parts.join('');
+}
+
+function refundLine(request) {
+  const line = paymentLine(requestPaymentMethod(request));
+  return line ? `<p class="staff-contact">Refund to ${line}</p>` : '';
 }
 
 async function loadStaffRequests(showError = true) {
@@ -628,7 +884,9 @@ function staffView() {
 }
 
 function accountMarkup() {
-  return `<span class="account-name">${esc(state.displayName)}</span><a class="signout" href="#sign-out" id="sign-out">Sign out</a>`;
+  const home = state.role === 'passenger' && state.view === 'passenger'
+    ? '<a class="signout" href="#my-trips" id="my-trips">My trips</a>' : '';
+  return `<span class="account-name">${esc(state.displayName)}</span>${home}<a class="signout" href="#sign-out" id="sign-out">Sign out</a>`;
 }
 
 function bindForms() {
@@ -642,11 +900,30 @@ function bindForms() {
     event.preventDefault();
     signOut();
   });
+  const home = document.querySelector('#my-trips');
+  if (home) home.addEventListener('click', event => {
+    event.preventDefault();
+    goHome();
+  });
   bindPassenger();
   bindStaff();
 }
 
 function bindPassenger() {
+  const tripsList = document.querySelector('.trips-list');
+  if (tripsList) tripsList.addEventListener('click', event => {
+    const target = event.target;
+    if (!target || typeof target.closest !== 'function') return;
+    const card = target.closest('[data-booking]');
+    if (!card || !card.dataset) return;
+    event.preventDefault();
+    openTrip(card.dataset.booking);
+  });
+  const back = document.querySelector('#back-trips');
+  if (back) back.addEventListener('click', event => {
+    event.preventDefault();
+    goHome();
+  });
   const form = document.querySelector('#refund-form');
   if (form) {
     form.addEventListener('submit', event => {
@@ -657,13 +934,20 @@ function bindPassenger() {
       const target = event.target;
       if (!target || !target.name) return;
       if (target.name === 'email') state.email = target.value;
+      if (target.name === 'phone') state.phone = target.value;
       if (target.name === 'confirm') state.confirm = target.checked;
-      const key = target.name === 'email' ? 'email' : target.name === 'confirm' ? 'confirm' : null;
+      const key = target.name === 'phone' ? 'phone' : target.name === 'email' ? 'email' : target.name === 'confirm' ? 'confirm' : null;
       if (key && state.fieldErrors[key]) {
         state.fieldErrors[key] = null;
-        const note = document.querySelector(key === 'email' ? '#refund-email-error' : '#refund-confirm-error');
+        const selector = key === 'phone' ? '#refund-phone-error' : key === 'email' ? '#refund-email-error' : '#refund-confirm-error';
+        const note = document.querySelector(selector);
         if (note && note.remove) note.remove();
         if (target.removeAttribute) target.removeAttribute('aria-invalid');
+      }
+      if ((target.name === 'phone' || target.name === 'email') && state.fieldErrors.contact) {
+        state.fieldErrors.contact = null;
+        const note = document.querySelector('#contact-error');
+        if (note && note.remove) note.remove();
       }
     });
   }
