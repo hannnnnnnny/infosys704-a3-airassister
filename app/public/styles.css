@@ -51,6 +51,48 @@ h1{font-size:34px;line-height:1.2;font-weight:800;letter-spacing:-.02em;margin-b
 .demo-accounts{margin:28px 0 0;color:var(--muted);font-size:15px}
 .area-copy{margin:0;max-width:520px;color:var(--muted)}
 
+/* Passenger refund screens */
+
+.lead{margin:0 0 24px;font-size:17px}
+
+.route{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 28px;padding:20px 24px;border:2px solid var(--line);border-radius:14px;background:#f7faf9}
+.route-end{display:flex;flex-direction:column;min-width:0}
+.route-end:last-child{align-items:flex-end;text-align:right}
+.route-code{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.route-city{color:var(--muted);font-size:14px}
+.route-plane{color:var(--brand);font-size:24px}
+
+.refund-box{display:flex;flex-direction:column;gap:4px;margin:0 0 28px;padding:20px 24px;border:2px solid #b6dedf;border-radius:14px;background:#e6f4f4}
+.refund-label{font-weight:600}
+.refund-amount{font-size:30px;font-weight:800;letter-spacing:-.02em;color:var(--brand-dark)}
+
+.notice{margin:0 0 24px;padding:18px 20px;border:2px solid #e0b400;border-radius:14px;background:#fdf6e3}
+.notice p{margin:0 0 14px;font-weight:600}
+
+.field-error{margin:8px 0 0;color:#7a1c16;font-size:15px;font-weight:600}
+.field-check{margin-bottom:20px}
+.check-row{display:flex;align-items:flex-start;gap:12px}
+.check-row input{width:22px;height:22px;flex:none;margin:2px 0 0;accent-color:var(--brand)}
+.check-row label{font-weight:600}
+
+.status-icon{display:inline-flex;align-items:center;justify-content:center;width:56px;height:56px;margin:0 0 16px;border-radius:50%;font-size:28px;font-weight:700}
+.status-pending{background:#e3efff;color:#1d4ed8}
+.status-approved{background:#e3f6e9;color:#177a3a}
+.status-declined{background:#fdeaea;color:#b3261e}
+
+.details{margin:0 0 24px;border-top:1px solid var(--line)}
+.detail-row{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.detail-row dt{color:var(--muted)}
+.detail-row dd{margin:0;font-weight:600;text-align:right}
+
+.pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:14px;font-weight:700}
+.pill-pending{background:#e3efff;color:#1d4ed8}
+.pill-approved{background:#e3f6e9;color:#177a3a}
+.pill-declined{background:#fdeaea;color:#b3261e}
+
+.receipt-row{margin:0}
+.receipt-link{color:var(--brand-dark);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
 .page-footer{border-top:1px solid var(--line);padding:22px 24px;color:var(--muted);font-size:14px;text-align:center}
 
 @media(max-width:480px){
@@ -58,6 +100,9 @@ h1{font-size:34px;line-height:1.2;font-weight:800;letter-spacing:-.02em;margin-b
   .account{font-size:14px;gap:12px}
   main{padding:36px 20px}
   h1{font-size:28px}
+  .route{padding:16px 18px}
+  .route-code{font-size:28px}
+  .refund-amount{font-size:26px}
 }
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
