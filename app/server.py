@@ -735,8 +735,7 @@ class SAPClient:
         }
 
 
-def make_server(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = BASE_DIR / "public",
-                host: str = "127.0.0.1", port: int = 8789) -> ThreadingHTTPServer:
+def make_handler(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = BASE_DIR / "public"):
     public_dir = public_dir.resolve()
 
     class Handler(BaseHTTPRequestHandler):
@@ -909,10 +908,15 @@ def make_server(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = B
             self.end_headers()
             self.wfile.write(body)
 
+    return Handler
+
+
+def make_server(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = BASE_DIR / "public",
+                host: str = "127.0.0.1", port: int = 8789) -> ThreadingHTTPServer:
     class Server(ThreadingHTTPServer):
         daemon_threads = True
 
-    return Server((host, port), Handler)
+    return Server((host, port), make_handler(store, sap, public_dir=public_dir))
 
 
 def main():
