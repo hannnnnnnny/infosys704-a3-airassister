@@ -1,13 +1,15 @@
 # AirAssist A3 — instructions for the coding agent
 
-AirAssist is an INFOSYS 704 A3 prototype: an Air New Zealand direct-booking refund case app.
-Passengers look up a sample booking, submit a refund request and track it; staff review the case,
-attach a read-only SAP Credit Memo Request reference and hand it off to a queue.
+AirAssist is an INFOSYS 704 A3 prototype: an Air New Zealand refund app for disrupted flights.
+Target flow: a passenger signs in and requests a full refund in one step (amount read live from the
+SAP Credit Memo Request API); staff sign in, see every request and approve or decline it.
+No payment is made and nothing is written to SAP.
 
 ## Layout
-- `app/server.py` — Python standard-library HTTP server, SQLite storage, SAP read-only client.
+- `app/server.py` — Python standard-library HTTP server, SQLite storage, SAP read-only client, `make_handler()` shared by both runtimes.
+- `app/cloud_handler.py`, `app/cloud_access.py`, `app/cloud_store.py`, `api/index.py`, `vercel.json` — Vercel deployment (signed anonymous session cookie, SQLite snapshots in private Vercel Blob). Keep these working.
 - `app/public/` — HTML, CSS and JavaScript frontend (no build step, no npm dependencies).
-- `app/tests/` — backend unittest suite and `frontend-state.cjs` checks.
+- `app/tests/` — backend unittest suite (including cloud tests) and `frontend-state.cjs` checks.
 - `A3_Presentation/`, `A3_App_V1/` — presentation files and the accepted V1.4 baseline. Do not edit unless asked.
 
 ## Rules
@@ -32,4 +34,4 @@ Both must pass before a change is considered done.
 cd app
 python -B server.py --port 8789
 ```
-Then open http://127.0.0.1:8789/?view=journey. Sample booking: NZ7K2H / Taylor.
+Then open http://127.0.0.1:8789/. The terminal shows the local sign-in details for the demo accounts.

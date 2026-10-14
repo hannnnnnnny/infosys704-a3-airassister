@@ -7,6 +7,7 @@
       "*": "allow",
       "*.env": "deny",
       "*.env.*": "deny",
+      "*.env.example": "allow",
       "**/.data/**": "deny",
       "*.pptx": "deny",
       "*.pdf": "deny"
@@ -20,6 +21,8 @@
       "rm -rf*": "ask",
       "Remove-Item*-Recurse*": "ask",
       "*.env*": "deny",
+      "git add *.env.example": "allow",
+      "git diff *.env.example": "allow",
       "env": "deny",
       "printenv*": "deny",
       "set": "deny",
