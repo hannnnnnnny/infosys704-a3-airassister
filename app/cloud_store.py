@@ -90,7 +90,7 @@ class CloudStore:
     def __init__(self, snapshots=None):
         self.snapshots = snapshots if snapshots is not None else BlobSnapshots()
 
-    def run(self, method, *args, write=False):
+    def run(self, method, *args, write=False, **kwargs):
         for attempt in range(3):
             body, etag = self.snapshots.read()
             with tempfile.TemporaryDirectory(prefix="airassist-") as directory:
@@ -98,8 +98,9 @@ class CloudStore:
                 if body is not None:
                     path.write_bytes(body)
                 store = ApplicationStore(path)
-                result = getattr(store, method)(*args)
-                if not write:
+                result = getattr(store, method)(*args, **kwargs)
+                # A cold snapshot is seeded on first touch, so even reads persist the demo request.
+                if not write and body is not None:
                     return result
                 with store.connect() as connection:
                     updated = connection.serialize()
@@ -111,20 +112,20 @@ class CloudStore:
                         raise APIError(409, "STORAGE_CONFLICT", "Another demo request changed storage. Please retry.") from None
         raise unavailable()
 
-    def submit(self, application):
-        return self.run("submit", application, write=True)
+    def find_submission(self, request_key, fingerprint):
+        return self.run("find_submission", request_key, fingerprint)
 
-    def find(self, reference, email):
-        return self.run("find", reference, email)
+    def request_for_booking(self, booking_reference):
+        return self.run("request_for_booking", booking_reference)
 
-    def get_case(self, reference, email):
-        return self.run("get_case", reference, email)
+    def staff_requests(self):
+        return self.run("staff_requests")
 
-    def update_review(self, review_input):
-        return self.run("update_review", review_input, write=True)
+    def submit_request(self, **kwargs):
+        return self.run("submit_request", write=True, **kwargs)
 
-    def precheck_financial_reference(self, request_input):
-        return self.run("precheck_financial_reference", request_input)
+    def decide(self, reference, **kwargs):
+        return self.run("decide", reference, write=True, **kwargs)
 
-    def capture_financial_reference(self, request_input, record):
-        return self.run("capture_financial_reference", request_input, record, write=True)
+    def reset_demo(self):
+        return self.run("reset_demo", write=True)

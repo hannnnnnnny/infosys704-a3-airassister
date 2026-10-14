@@ -1,13 +1,22 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode/big-pickle",
   "share": "disabled",
   "permission": {
-    "read": { "*": "deny", "server.py": "allow", "**/server.py": "allow", "tests/test_server.py": "allow", "**/tests/test_server.py": "allow", "tests/test_receipt.py": "allow", "**/tests/test_receipt.py": "allow", "*.env": "deny", "*.env.*": "deny", "**/.data/**": "deny" },
-    "edit": { "*": "deny", "server.py": "allow", "tests/test_receipt.py": "allow", "**/server.py": "allow", "**/tests/test_receipt.py": "allow" },
-    "bash": "deny",
+    "read": { "*": "allow", "*.env": "deny", "*.env.*": "deny", "*.env.example": "allow", "**/.data/**": "deny" },
+    "edit": { "*": "allow", "*.env": "deny", "*.env.*": "deny", "**/.data/**": "deny", "evidence/**": "ask" },
+    "bash": {
+      "*": "ask",
+      "python -B -m unittest*": "allow",
+      "node tests/*": "allow",
+      "git status*": "allow",
+      "git diff*": "allow",
+      "*.env*": "deny",
+      "env": "deny",
+      "printenv*": "deny",
+      "set": "deny"
+    },
     "external_directory": "deny",
-    "webfetch": "deny",
-    "websearch": "deny"
+    "webfetch": "ask",
+    "websearch": "ask"
   }
 }

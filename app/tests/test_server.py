@@ -1,97 +1,13 @@
-"""Behavior checks for persistent applications and truthful, read-only SAP access."""
-import concurrent.futures
+"""Behavior checks for the read-only SAP boundary and the HTTP access contract."""
 import gzip
-import importlib.util
 import io
 import json
-import sys
 import tempfile
-import threading
 import unittest
-import uuid
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
 
-
-SPEC = importlib.util.spec_from_file_location("airassist_server", Path(__file__).resolve().parents[1] / "server.py")
-server = importlib.util.module_from_spec(SPEC)
-sys.modules[SPEC.name] = server
-SPEC.loader.exec_module(server)
-TEST_TEMP_DIR = Path(__file__).resolve().parent
-
-
-def payload(**changes):
-    result = {"bookingReference": "NZ7K2H", "lastName": "Taylor", "email": "alex@example.com",
-              "reason": "flight_cancelled", "details": "Cancelled sample flight.",
-              "acknowledged": True, "requestKey": str(uuid.uuid4())}
-    result.update(changes)
-    return result
-
-
-class ApplicationBehaviorTests(unittest.TestCase):
-    def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(prefix="runtime-", dir=TEST_TEMP_DIR)
-        self.path = Path(self.temp.name) / "applications.sqlite3"
-        self.store = server.ApplicationStore(self.path)
-
-    def tearDown(self):
-        self.temp.cleanup()
-
-    def test_saved_request_survives_new_store_and_never_claims_sap_creation(self):
-        record, created = self.store.submit(server.validate_application(payload()))
-        self.assertTrue(created)
-        stored = server.ApplicationStore(self.path).find(record["publicReference"], "ALEX@example.com")
-        self.assertEqual(record, stored)
-        self.assertRegex(record["publicReference"], r"^AF-[0-9A-F]{12}$")
-        self.assertEqual(record["status"], "submitted")
-        self.assertIsNone(record["sapCreditMemoRequestId"])
-        self.assertEqual(record["source"]["mode"], "local")
-        self.assertEqual((record["ticketValue"], record["currency"]), (248.0, "NZD"))
-
-    def test_retry_and_new_key_deduplicate_but_key_reuse_conflicts(self):
-        original = payload()
-        application = server.validate_application(original)
-        first, _ = self.store.submit(application)
-        retry, created = self.store.submit(application)
-        self.assertFalse(created)
-        self.assertEqual(first, retry)
-        duplicate = server.validate_application(payload(details="Changed details."))
-        another, created = self.store.submit(duplicate)
-        self.assertFalse(created)
-        self.assertEqual(first, another)
-        for key in (original["requestKey"], duplicate["requestKey"]):
-            with self.assertRaises(server.APIError) as error:
-                self.store.submit(server.validate_application(payload(requestKey=key, email="another@example.com")))
-            self.assertEqual(error.exception.status, 409)
-
-    def test_concurrent_submissions_create_one_application(self):
-        applications = [server.validate_application(payload()) for _ in range(8)]
-        with concurrent.futures.ThreadPoolExecutor(max_workers=8) as pool:
-            results = list(pool.map(self.store.submit, applications))
-        self.assertEqual(sum(created for _, created in results), 1)
-        self.assertEqual(len({record["publicReference"] for record, _ in results}), 1)
-
-    def test_wrong_owner_and_missing_reference_do_not_disclose_an_application(self):
-        record, _ = self.store.submit(server.validate_application(payload()))
-        for reference, email in ((record["publicReference"], "wrong@example.com"), ("AF-NOTEXIST", "alex@example.com")):
-            with self.assertRaises(server.APIError) as error:
-                self.store.find(reference, email)
-            self.assertEqual((error.exception.status, error.exception.code), (404, "REQUEST_NOT_FOUND"))
-            self.assertEqual(error.exception.message, "No application matches these details.")
-
-    def test_application_validation_blocks_agent_booking_and_bad_input(self):
-        cases = [(payload(bookingReference="NZ8T3H"), 403), (payload(lastName="Someone"), 404),
-                 (payload(acknowledged=False), 400), (payload(acknowledged=1), 400),
-                 (payload(email="not-an-email"), 400), (payload(reason="automatically_approve"), 400),
-                 (payload(details="x" * 2001), 400), (payload(requestKey="not-a-uuid"), 400)]
-        for case, status in cases:
-            with self.subTest(case=case):
-                with self.assertRaises(server.APIError) as error:
-                    server.validate_application(case)
-                self.assertEqual(error.exception.status, status)
-
+from refund_support import APIServer, FakeSAP, make_auth, public_dir, server
 
 SAP_RAW = {"CreditMemoRequest": "60000002", "TotalNetAmount": "1000.00", "TransactionCurrency": "USD",
            "ReferenceSDDocument": "60000001", "ReferenceSDDocumentCategory": "H",
@@ -204,84 +120,36 @@ class SAPBoundaryTests(unittest.TestCase):
 
 class HTTPContractTests(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(prefix="runtime-", dir=TEST_TEMP_DIR)
+        self.temp = tempfile.TemporaryDirectory(prefix="runtime-", dir=Path(__file__).resolve().parent)
+        self.addCleanup(self.temp.cleanup)
         folder = Path(self.temp.name)
-        public = folder / "public"
-        public.mkdir()
-        (public / "index.html").write_text("test-public-page", encoding="utf-8")
+        public = public_dir(folder)
         (folder / ".env").write_text("private-value", encoding="utf-8")
-        self.httpd = server.make_server(server.ApplicationStore(folder / "data.sqlite3"), server.SAPClient(server.SAPConfig()), public_dir=public, port=0)
-        self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
-        self.thread.start()
-        self.base = f"http://127.0.0.1:{self.httpd.server_port}"
+        self.api = APIServer(server.ApplicationStore(folder / "data.sqlite3"), FakeSAP(), public, make_auth())
+        self.addCleanup(self.api.close)
 
-    def tearDown(self):
-        self.httpd.shutdown()
-        self.httpd.server_close()
-        self.thread.join(timeout=2)
-        self.temp.cleanup()
-
-    def call(self, path, body=None, headers=None):
-        request_headers = {"Content-Type": "application/json"} if body is not None else {}
-        request_headers.update(headers or {})
-        request = Request(self.base + path, data=json.dumps(body).encode() if body is not None else None,
-                          headers=request_headers)
-        try:
-            response = urlopen(request, timeout=5)
-        except HTTPError as error:
-            response = error
-        with response:
-            return response.status, response.headers, response.read()
-
-    def test_http_submission_tracking_and_unconfigured_sap(self):
-        status, headers, raw = self.call("/api/health")
+    def test_health_static_and_private_paths(self):
+        status, headers, raw = self.api.call("/api/health")
         self.assertEqual(status, 200)
         self.assertEqual(json.loads(raw)["sap"], {"mode": "unconfigured", "configured": False, "accountPolicy": "personal-only"})
         self.assertIn("frame-ancestors 'none'", headers["Content-Security-Policy"])
-        status, _, raw = self.call("/api/bookings?reference=NZ7K2H&lastname=Taylor")
+        status, _, body = self.api.call("/")
         self.assertEqual(status, 200)
-        self.assertEqual(json.loads(raw)["booking"]["source"]["mode"], "synthetic")
-        status, _, raw = self.call("/api/refund-requests", payload())
-        self.assertEqual(status, 201)
-        self.assertTrue(json.loads(raw)["created"])
-        reference = json.loads(raw)["request"]["publicReference"]
-        status, _, raw = self.call("/api/refund-requests?" + urlencode({"reference": reference, "email": "alex@example.com"}))
-        self.assertEqual(status, 200)
-        self.assertEqual(json.loads(raw)["request"]["publicReference"], reference)
-        status, _, _ = self.call("/api/refund-requests?" + urlencode({"reference": reference, "email": "wrong@example.com"}))
-        self.assertEqual(status, 404)
-        status, _, raw = self.call("/api/sap/credit-memo-requests?id=60000002")
-        self.assertEqual(status, 503)
-        self.assertEqual(json.loads(raw)["error"]["code"], "SAP_UNCONFIGURED")
-        self.assertNotIn("record", json.loads(raw))
-
-    def test_changed_duplicate_submission_explicitly_returns_original_unchanged(self):
-        original = payload()
-        status, _, raw = self.call("/api/refund-requests", original)
-        original_record = json.loads(raw)["request"]
-        self.assertEqual(status, 201)
-        changed = payload(reason="schedule_changed", details="New details should not overwrite the original.")
-        status, _, raw = self.call("/api/refund-requests", changed)
-        result = json.loads(raw)
-        self.assertEqual(status, 200)
-        self.assertFalse(result["created"])
-        self.assertEqual(result["request"], original_record)
-        self.assertIn("returned unchanged", result["message"])
-        status, _, raw = self.call("/api/refund-requests", original)
-        self.assertEqual(status, 200)
-        self.assertFalse(json.loads(raw)["created"])
-
-    def test_private_paths_query_pollution_and_sap_post_are_blocked(self):
+        self.assertEqual(body, b"test-public-page")
         for path in ("/../.env", "/%2e%2e/.env", "/..%5c.env", "/%00", "/.env", "/server.py", "/data.sqlite3"):
-            self.assertEqual(self.call(path)[0], 404)
-        self.assertEqual(self.call("/api/bookings?reference=NZ7K2H&reference=NZ8T3H&lastname=Taylor")[0], 400)
-        self.assertEqual(self.call("/api/sap/credit-memo-requests", {"id": "60000002"})[0], 405)
+            self.assertEqual(self.api.call(path)[0], 404, path)
 
     def test_local_host_and_origin_block_other_websites(self):
-        self.assertEqual(self.call("/api/health", headers={"Host": "attacker.example"})[0], 400)
-        self.assertEqual(self.call("/api/health", headers={"Origin": "https://attacker.example"})[0], 403)
-        self.assertEqual(self.call("/api/refund-requests", payload(), {"Origin": "null"})[0], 403)
-        self.assertEqual(self.call("/api/refund-requests", payload(), {"Origin": self.base})[0], 201)
+        self.assertEqual(self.api.call("/api/health", headers={"Host": "attacker.example"})[0], 400)
+        self.assertEqual(self.api.call("/api/health", headers={"Origin": "https://attacker.example"})[0], 403)
+        self.assertEqual(self.api.json_call("/api/auth/login", {"username": "admin", "password": "x"},
+                                            headers={"Origin": "null"})[0], 403)
+
+    def test_query_pollution_and_unknown_endpoints_are_rejected(self):
+        self.assertEqual(self.api.call("/api/health?x=1&x=2")[0], 400)
+        self.assertEqual(self.api.call("/api/does-not-exist")[0], 404)
+        self.assertEqual(self.api.call("/api/me", method="POST")[0], 405)
+        self.assertEqual(self.api.call("/api/staff/requests", method="DELETE")[0], 405)
 
 
 if __name__ == "__main__":

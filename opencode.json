@@ -1,0 +1,36 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "disabled",
+  "permission": {
+    "read": { "*": "allow", "*.env": "deny", "*.env.*": "deny", "*.env.example": "allow", "**/.data/**": "deny" },
+    "edit": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow",
+      "**/.data/**": "deny",
+      "*.pptx": "deny",
+      "*.pdf": "deny"
+    },
+    "bash": {
+      "*": "allow",
+      "git push*": "ask",
+      "git reset --hard*": "ask",
+      "git clean*": "ask",
+      "git checkout -- *": "ask",
+      "rm -rf*": "ask",
+      "Remove-Item*-Recurse*": "ask",
+      "*.env*": "deny",
+      "git add *.env.example": "allow",
+      "git diff *.env.example": "allow",
+      "env": "deny",
+      "printenv*": "deny",
+      "set": "deny",
+      "Get-ChildItem Env:*": "deny",
+      "gci env:*": "deny"
+    },
+    "external_directory": "deny",
+    "webfetch": "allow",
+    "websearch": "allow"
+  }
+}

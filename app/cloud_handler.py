@@ -12,7 +12,7 @@ except ImportError:
     from cloud_access import new_session, validate_access
     from cloud_store import CloudStore
 
-ASSETS = {"/": "index.html", **{f"/{name}": name for name in ("index.html", "styles.css", "app.js", "workflow-state.js")}}
+ASSETS = {"/": "index.html", **{f"/{name}": name for name in ("index.html", "styles.css", "app.js")}}
 COPY_REPLACEMENTS = {
     "local prototype": "course prototype", "Local prototype": "Course prototype",
     "saved locally": "saved in this demo", "stored locally": "stored in this demo",
@@ -35,10 +35,13 @@ def cloud_copy(value):
     return value
 
 
-def make_cloud_handler(store=None, sap=None):
+def make_cloud_handler(store=None, sap=None, auth=None):
+    if auth is None:
+        auth, _ = server.build_auth(deployed=True)
     return type("CloudHandler", (CloudHandlerMixin, server.make_handler(
         store if store is not None else CloudStore(),
         sap if sap is not None else server.SAPClient(server.SAPConfig.from_environment()),
+        auth=auth,
     )), {})
 
 

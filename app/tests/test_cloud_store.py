@@ -1,4 +1,4 @@
-"""Serverless copies must preserve records and reject concurrent overwrites."""
+"""Serverless snapshots must preserve records and reject concurrent overwrites."""
 import sys
 import threading
 import unittest
@@ -10,6 +10,8 @@ import server
 
 
 class MemorySnapshots:
+    """An in-memory stand-in for the private Blob snapshot store."""
+
     def __init__(self):
         self.body, self.version = None, 0
         self.lock = threading.Lock()
@@ -31,12 +33,13 @@ class MemorySnapshots:
             self.body, self.version = body, self.version + 1
 
 
-def application(email="demo@example.com"):
-    return server.validate_application({
-        "bookingReference": "NZ7K2H", "lastName": "Taylor", "email": email,
-        "reason": "flight_cancelled", "details": "", "acknowledged": True,
-        "requestKey": str(uuid.uuid4()),
-    })
+def submission(email="mark.don@example.com", booking="NZ7K2H", request_key=None):
+    return {
+        "booking_reference": booking, "passenger_name": "Mark Don", "email": email,
+        "quote": {"sapDocument": "60000073", "amount": 250.0, "currency": "NZD",
+                  "processStatus": "A", "fetchedAt": "2026-10-14T00:00:00Z"},
+        "request_key": request_key or str(uuid.uuid4()), "quote_source": "live",
+    }
 
 
 class CloudStoreTests(unittest.TestCase):
@@ -48,35 +51,47 @@ class CloudStoreTests(unittest.TestCase):
         import importlib.util
         self.assertIsNotNone(importlib.util.find_spec("cloud_store"))
 
-    def test_cold_start_retains_record_and_rejects_wrong_owner(self):
+    def test_cold_start_seeds_and_retains_submitted_requests(self):
         snapshots = MemorySnapshots()
-        record, created = self.store(snapshots).submit(application())
+        seeded = self.store(snapshots).staff_requests()
+        self.assertEqual({record["reference"] for record in seeded},
+                         {"AF-DEMO000001", "AF-DEMO000002", "AF-DEMO000003"})
+        record, created = self.store(snapshots).submit_request(**submission())
         self.assertTrue(created)
-        restored = self.store(snapshots).find(record["publicReference"], record["email"])
+        restored = self.store(snapshots).request_for_booking("NZ7K2H")
         self.assertEqual(restored, record)
-        with self.assertRaises(server.APIError) as error:
-            self.store(snapshots).find(record["publicReference"], "wrong@example.com")
-        self.assertEqual(error.exception.status, 404)
+        self.assertEqual(len(self.store(snapshots).staff_requests()), 4)
 
-    def test_duplicate_and_conflict_retry_preserve_original_application(self):
+    def test_duplicate_and_conflict_retry_preserve_the_original_request(self):
         snapshots = MemorySnapshots()
         snapshots.conflict_once = True
-        original, _ = self.store(snapshots).submit(application())
-        duplicate, created = self.store(snapshots).submit(application())
-        self.assertFalse(created)
+        payload = submission(request_key="44444444-4444-4444-4444-444444444444")
+        original, created = self.store(snapshots).submit_request(**payload)
+        self.assertTrue(created)
+        duplicate, created_again = self.store(snapshots).submit_request(**payload)
+        self.assertFalse(created_again)
         self.assertEqual(duplicate, original)
 
-    def test_parallel_submissions_do_not_lose_an_application(self):
+    def test_decisions_survive_a_new_store(self):
+        snapshots = MemorySnapshots()
+        record, _ = self.store(snapshots).submit_request(**submission(request_key=str(uuid.uuid4())))
+        decided = self.store(snapshots).decide(record["reference"], decision="approve", note="",
+                                               version=record["version"], staff_name="Refunds team")
+        self.assertEqual(decided["status"], "approved")
+        persisted = self.store(snapshots).request_for_booking("NZ7K2H")
+        self.assertEqual(persisted["status"], "approved")
+        self.assertEqual(persisted["events"][-1]["staff"], "Refunds team")
+
+    def test_parallel_submissions_for_one_booking_agree_on_one_request(self):
         from concurrent.futures import ThreadPoolExecutor
         snapshots = MemorySnapshots()
         with ThreadPoolExecutor(max_workers=2) as executor:
             records = list(executor.map(
-                lambda email: self.store(snapshots).submit(application(email))[0],
+                lambda email: self.store(snapshots).submit_request(**submission(email=email))[0],
                 ["one@example.com", "two@example.com"],
             ))
-        for record in records:
-            found = self.store(snapshots).find(record["publicReference"], record["email"])
-            self.assertEqual(found, record)
+        self.assertEqual(len({record["reference"] for record in records}), 1)
+        self.assertEqual(len(self.store(snapshots).staff_requests()), 4)
 
     def test_blob_upload_uses_put_instead_of_post(self):
         from cloud_store import BlobSnapshots
@@ -86,6 +101,20 @@ class CloudStoreTests(unittest.TestCase):
         snapshots.request("https://vercel.com/api/blob/", body=b"snapshot")
         request = opener.open.call_args.args[0]
         self.assertEqual(request.get_method(), "PUT")
+
+    def test_reset_persists_across_new_store(self):
+        from cloud_store import CloudStore
+        snapshots = MemorySnapshots()
+        store = CloudStore(snapshots)
+        # add a request
+        self.store(snapshots).submit_request(**submission(request_key=str(uuid.uuid4())))
+        store.reset_demo()
+        # new store instance sees reset state
+        store2 = CloudStore(snapshots)
+        requests = store2.staff_requests()
+        seeded = [r for r in requests if r["reference"] == "AF-DEMO000001"]
+        self.assertEqual(len(seeded), 1)
+        self.assertEqual(seeded[0]["status"], "pending")
 
 
 if __name__ == "__main__":
