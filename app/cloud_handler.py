@@ -12,7 +12,7 @@ except ImportError:
     from cloud_access import new_session, validate_access
     from cloud_store import CloudStore
 
-ASSETS = {"/": "index.html", **{f"/{name}": name for name in ("index.html", "styles.css", "app.js", "workflow-state.js")}}
+ASSETS = {"/": "index.html", **{f"/{name}": name for name in ("index.html", "styles.css", "app.js")}}
 COPY_REPLACEMENTS = {
     "local prototype": "course prototype", "Local prototype": "Course prototype",
     "saved locally": "saved in this demo", "stored locally": "stored in this demo",

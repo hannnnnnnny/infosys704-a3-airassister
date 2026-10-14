@@ -90,6 +90,9 @@ class CloudHTTPTests(unittest.TestCase):
         for path in ("/server.py", "/.env", "/README.md", "/%2e%2e/server.py"):
             self.assertEqual(self.call(path)[0], 404)
 
+    def test_removed_frontend_helper_is_not_served(self):
+        self.assertEqual(self.call("/workflow-state.js")[0], 404)
+
     def test_passenger_to_staff_flow_survives_new_store(self):
         passenger = self.sign_in(PASSENGER, PASSENGER_PASSWORD)
         status, _, body = self.call("/api/me", headers=passenger)
