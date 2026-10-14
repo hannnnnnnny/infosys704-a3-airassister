@@ -140,6 +140,22 @@ class StaffAPITests(unittest.TestCase):
         self.assertEqual(created["route"], "specialist")
         self.assertEqual(created["amount"], 400.0)
 
+    def test_demo_reset_staff_only_deletes_all_and_reseeds(self):
+        self.submit()
+        status, _, body = self.api.json_call("/api/staff/demo-reset", body={}, headers=self.auth(self.staff_token))
+        self.assertEqual(status, 200)
+        self.assertIn("requests", body)
+        seeded = [r for r in body["requests"] if r["reference"] == "AF-DEMO000001"]
+        self.assertEqual(len(seeded), 1)
+        self.assertEqual(seeded[0]["status"], "pending")
+        # Mark.don should have no request
+        status, _, me = self.api.json_call("/api/me", headers=self.auth(self.passenger_token))
+        self.assertEqual(status, 200)
+        self.assertIsNone(me["request"])
+        # Passenger cannot reset
+        status, _, _ = self.api.json_call("/api/staff/demo-reset", body={}, headers=self.auth(self.passenger_token))
+        self.assertEqual(status, 403)
+
 
 if __name__ == "__main__":
     unittest.main()

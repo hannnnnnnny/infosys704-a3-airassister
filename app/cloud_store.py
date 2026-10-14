@@ -126,3 +126,6 @@ class CloudStore:
 
     def decide(self, reference, **kwargs):
         return self.run("decide", reference, write=True, **kwargs)
+
+    def reset_demo(self):
+        return self.run("reset_demo", write=True)

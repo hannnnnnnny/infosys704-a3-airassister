@@ -627,6 +627,24 @@ class ApplicationStore:
             ).fetchone()
             return self._record(row)
 
+    def reset_demo(self) -> list:
+        with self.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            tables = {row["name"] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            if "submission_keys" in tables:
+                connection.execute("DELETE FROM submission_keys")
+            if "review_state" in tables:
+                connection.execute("DELETE FROM review_state")
+            if "review_financial_references" in tables:
+                connection.execute("DELETE FROM review_financial_references")
+            if "refund_requests" in tables:
+                connection.execute("DELETE FROM refund_requests")
+            self._seed(connection)
+            rows = connection.execute(
+                "SELECT * FROM refund_requests ORDER BY created_at DESC, public_reference DESC"
+            ).fetchall()
+            return [self._record(row) for row in rows]
+
 
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, request, fp, code, message, headers, new_url):
@@ -886,6 +904,10 @@ def make_handler(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = 
             self.require_role("staff")
             self.json_response(200, {"requests": store.staff_requests()})
 
+        def handle_staff_demo_reset(self):
+            self.require_role("staff")
+            self.json_response(200, {"requests": store.reset_demo()})
+
         def handle_decision(self, reference: str, payload):
             claims = self.require_role("staff")
             if not REFERENCE_PATTERN.fullmatch(reference):
@@ -947,7 +969,7 @@ def make_handler(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = 
                 self.validate_local_access()
                 path, _ = self.query()
                 decision_match = DECISION_PATH.fullmatch(path)
-                if path not in {"/api/auth/login", "/api/refund-requests"} and decision_match is None:
+                if path not in {"/api/auth/login", "/api/refund-requests", "/api/staff/demo-reset"} and decision_match is None:
                     raise APIError(405, "METHOD_NOT_ALLOWED", "This endpoint does not accept submissions.")
                 if self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower() != "application/json":
                     raise APIError(415, "UNSUPPORTED_MEDIA_TYPE", "Submit this request as JSON.")
@@ -967,6 +989,8 @@ def make_handler(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = 
                     self.handle_login(payload)
                 elif path == "/api/refund-requests":
                     self.handle_submit(payload)
+                elif path == "/api/staff/demo-reset":
+                    self.handle_staff_demo_reset()
                 else:
                     self.handle_decision(decision_match.group(1).upper(), payload)
             except APIError as error:

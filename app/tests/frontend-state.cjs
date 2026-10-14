@@ -697,6 +697,99 @@ test('values containing an ampersand are escaped exactly once', async () => {
   assert.match(html, /SAP credit memo 600&amp;073 · USD 175\.50/);
 });
 
+// --- staff demo reset ------------------------------------------------------------------------
+
+// Runs the real staff click handler by giving the VM a panel that captures its listener.
+function clickStaffAction(h, action, ref) {
+  const listeners = [];
+  h.nodes.set('.staff-panel', {addEventListener: (type, fn) => { if (type === 'click') listeners.push(fn); }});
+  h.box.HTMLElement = h.box.HTMLElement || class HTMLElement {};
+  h.box.render();
+  const button = {dataset: ref ? {action, ref} : {action}};
+  const target = Object.create(h.box.HTMLElement.prototype);
+  target.closest = selector => (selector === 'button[data-action]' ? button : null);
+  const event = {target, preventDefault() {}};
+  for (const listener of listeners.slice()) listener(event);
+}
+
+test('the reset button asks for confirmation before anything is sent', async () => {
+  const h = await staffSuccessfulSignIn();
+  let calls = 0;
+  h.box.fetch = async () => { calls += 1; throw new Error('Unexpected network call'); };
+  let html = h.box.staffView();
+  assert.match(html, /id="staff-reset-btn"/);
+  assert.match(html, /data-action="reset-start"/);
+  assert.match(html, /Reset demo data/);
+  assert.doesNotMatch(html, /data-action="reset-confirm"/);
+  clickStaffAction(h, 'reset-start');
+  assert.equal(h.state.staff.resetConfirm, true);
+  html = h.box.staffView();
+  assert.match(html, /This deletes all refund requests and restores the starting demo data\./);
+  assert.match(html, /data-action="reset-confirm"/);
+  assert.match(html, /Yes, reset/);
+  assert.match(html, /data-action="reset-cancel"/);
+  assert.match(html, /Cancel/);
+  assert.doesNotMatch(html, /id="staff-reset-btn"/);
+  assert.equal(calls, 0);
+});
+
+test('cancelling the reset closes the confirmation without calling the API', async () => {
+  const h = await staffSuccessfulSignIn();
+  const calls = [];
+  h.box.fetch = async (url, options) => { calls.push({url, options}); throw new Error('Unexpected network call: ' + url); };
+  clickStaffAction(h, 'reset-start');
+  assert.equal(h.state.staff.resetConfirm, true);
+  clickStaffAction(h, 'reset-cancel');
+  assert.equal(h.state.staff.resetConfirm, false);
+  const html = h.box.staffView();
+  assert.equal(calls.length, 0);
+  assert.match(html, /id="staff-reset-btn"/);
+  assert.doesNotMatch(html, /data-action="reset-confirm"/);
+});
+
+test('confirming the reset posts to the demo reset endpoint and shows the new list', async () => {
+  const h = await staffSuccessfulSignIn();
+  const calls = [];
+  h.box.fetch = async (url, options) => {
+    calls.push({url, options});
+    if (url === '/api/staff/demo-reset') {
+      return json({requests: [staffRequest({reference: 'AF-DEMO000001', passengerName: 'Minh Nguyen', amount: 400, route: 'specialist'})]});
+    }
+    throw new Error('Unexpected network call: ' + url);
+  };
+  h.state.staff.expanded = 'AF-DEMO000002';
+  h.state.staff.deciding = {reference: 'AF-DEMO000002', decision: 'approve'};
+  clickStaffAction(h, 'reset-start');
+  clickStaffAction(h, 'reset-confirm');
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, '/api/staff/demo-reset');
+  assert.equal(calls[0].options.method, 'POST');
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer tok-staff');
+  assert.equal(h.state.staff.notice, 'Demo data reset.');
+  assert.equal(h.state.staff.resetConfirm, false);
+  assert.equal(h.state.staff.expanded, null);
+  assert.equal(h.state.staff.deciding, null);
+  assert.equal(h.state.staff.requests.length, 1);
+  assert.equal(h.state.staff.pendingCount, 1);
+  const html = h.box.staffView();
+  assert.match(html, /Demo data reset\./);
+  assert.match(html, /Minh Nguyen/);
+  assert.doesNotMatch(html, /Mark Don/);
+});
+
+test('a failed reset is reported in plain words', async () => {
+  const h = await staffSuccessfulSignIn();
+  h.box.fetch = fail(500, 'Demo data could not be reset. Please try again.');
+  clickStaffAction(h, 'reset-start');
+  clickStaffAction(h, 'reset-confirm');
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(h.state.staff.resetting, false);
+  assert.equal(h.state.staff.notice, 'Demo data could not be reset. Please try again.');
+  const html = h.box.staffView();
+  assert.match(html, /Demo data could not be reset\. Please try again\./);
+});
+
 (async () => {
   for (const {name, fn} of tests) { await fn(); console.log(`PASS ${name}`); }
   console.log(`${tests.length} frontend regression checks passed.`);

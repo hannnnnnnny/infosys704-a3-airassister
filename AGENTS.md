@@ -22,6 +22,16 @@ No payment is made and nothing is written to SAP.
 - If a permission rule denies or blocks a command, stop and tell the user. Never work around it with another command, a temporary file or a different tool.
 - Do not write `.env` in commit messages or command text; say "local config" instead.
 
+## Editing files safely (Windows)
+- All files are UTF-8 and may contain characters such as ✈ → · ⏳. Read and change files only with the built-in read/edit/write tools. Never use PowerShell or other shell commands (Get-Content, Set-Content, Out-File, echo >, sed) to read or write file contents — they can corrupt these characters.
+- If text looks garbled, assume a display problem, not a broken file. Do not "fix" encoding or characters you did not intend to change.
+- Never rewrite or reformat a whole existing file, especially tests. Add new tests by appending; change existing code with small, targeted edits.
+
+## Reporting
+- Report results only from commands you actually ran in this task. Paste the last lines of both check outputs exactly as printed.
+- Never say something is committed unless `git log -1 --oneline` shows it; include that line in the report.
+- If the number of tests went down, stop and say so.
+
 ## Checks (run from the repository root after every change)
 ```
 python -B -m unittest discover -s app/tests -t app/tests

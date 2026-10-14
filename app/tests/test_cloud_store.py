@@ -101,6 +101,20 @@ class CloudStoreTests(unittest.TestCase):
         request = opener.open.call_args.args[0]
         self.assertEqual(request.get_method(), "PUT")
 
+    def test_reset_persists_across_new_store(self):
+        from cloud_store import CloudStore
+        snapshots = MemorySnapshots()
+        store = CloudStore(snapshots)
+        # add a request
+        self.store(snapshots).submit_request(**submission(request_key=str(uuid.uuid4())))
+        store.reset_demo()
+        # new store instance sees reset state
+        store2 = CloudStore(snapshots)
+        requests = store2.staff_requests()
+        seeded = [r for r in requests if r["reference"] == "AF-DEMO000001"]
+        self.assertEqual(len(seeded), 1)
+        self.assertEqual(seeded[0]["status"], "pending")
+
 
 if __name__ == "__main__":
     unittest.main()

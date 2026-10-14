@@ -104,6 +104,8 @@ async function signIn(username, password) {
         decisionError: {},
         decisionNote: {},
         decisionBusy: {},
+        resetting: false,
+        resetConfirm: false,
       };
       await loadStaffRequests();
     }
@@ -145,6 +147,8 @@ function endSession(message) {
     decisionError: {},
     decisionNote: {},
     decisionBusy: {},
+    resetting: false,
+    resetConfirm: false,
   };
   state.error = message || null;
   render();
@@ -554,6 +558,29 @@ async function retryStaffRequests() {
   await loadStaffRequests(true);
 }
 
+async function resetDemoData() {
+  state.staff.resetting = true;
+  state.staff.notice = null;
+  render();
+  try {
+    const data = await api('/api/staff/demo-reset', {method: 'POST', body: {}});
+    const requests = Array.isArray(data.requests) ? data.requests : [];
+    const pending = requests.filter(r => String(r.status || '') === 'pending');
+    state.staff.requests = requests;
+    state.staff.pendingCount = pending.length;
+    state.staff.expanded = null;
+    state.staff.deciding = null;
+    state.staff.resetting = false;
+    state.staff.resetConfirm = false;
+    state.staff.notice = 'Demo data reset.';
+    render();
+  } catch (error) {
+    state.staff.resetting = false;
+    state.staff.notice = error.message || 'Could not reset demo data. Please try again.';
+    render();
+  }
+}
+
 function staffView() {
   const s = state.staff;
   let content = '';
@@ -577,11 +604,26 @@ function staffView() {
     content = `<div class="staff-list">${items.join('')}</div>`;
   }
   const notice = s.notice ? `<p class="form-error" role="alert">${esc(s.notice)}</p>` : '';
+  let resetMarkup = '';
+  if (!s.resetConfirm) {
+    resetMarkup = `<div class="staff-reset">
+      <button type="button" class="btn btn-secondary" id="staff-reset-btn" data-action="reset-start">${s.resetting ? 'Resetting…' : 'Reset demo data'}</button>
+    </div>`;
+  } else {
+    resetMarkup = `<div class="staff-reset-confirm" role="group" aria-label="Confirm demo data reset">
+      <p class="staff-reset-text">This deletes all refund requests and restores the starting demo data. This can't be undone.</p>
+      <div class="staff-inline-actions">
+        <button type="button" class="btn btn-secondary" id="staff-reset-yes" data-action="reset-confirm" ${s.resetting ? ' disabled' : ''}>${s.resetting ? 'Resetting…' : 'Yes, reset'}</button>
+        <button type="button" class="btn btn-secondary" id="staff-reset-cancel" data-action="reset-cancel" ${s.resetting ? ' disabled' : ''}>Cancel</button>
+      </div>
+    </div>`;
+  }
   return `<section class="panel staff-panel">
     <h1>Refund requests</h1>
     <p class="staff-count">${esc(String(s.pendingCount))} to process</p>
     ${notice}
     ${content}
+    ${resetMarkup}
   </section>`;
 }
 
@@ -724,8 +766,23 @@ function bindStaff() {
     if (actionBtn) {
       const action = actionBtn.dataset.action;
       const ref = actionBtn.dataset.ref;
-      if (!ref) return;
       event.preventDefault();
+      if (action === 'reset-start') {
+        state.staff.resetConfirm = true;
+        state.staff.notice = null;
+        render();
+        return;
+      }
+      if (action === 'reset-cancel') {
+        state.staff.resetConfirm = false;
+        render();
+        return;
+      }
+      if (action === 'reset-confirm') {
+        resetDemoData();
+        return;
+      }
+      if (!ref) return;
       if (action === 'start-approve') {
         state.staff.notice = null;
         state.staff.deciding = {reference: ref, decision: 'approve'};

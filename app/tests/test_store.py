@@ -110,6 +110,46 @@ class StoreTests(unittest.TestCase):
             store.decide("AF-000000000000", decision="approve", note="", version=1, staff_name="Refunds team")
         self.assertEqual((missing.exception.status, missing.exception.code), (404, "REQUEST_NOT_FOUND"))
 
+    def test_demo_reset_empties_legacy_tables_and_reseeds_on_an_old_schema(self):
+        legacy = self.folder / "old-schema.sqlite3"
+        connection = sqlite3.connect(legacy)
+        connection.execute("PRAGMA foreign_keys=ON")
+        connection.executescript("""
+            CREATE TABLE refund_requests (
+                public_reference TEXT PRIMARY KEY, booking_reference TEXT NOT NULL, last_name TEXT NOT NULL,
+                email TEXT NOT NULL, reason TEXT NOT NULL, details TEXT NOT NULL, created_at TEXT NOT NULL,
+                ticket_value REAL NOT NULL, currency TEXT NOT NULL, UNIQUE(booking_reference, email));
+            CREATE TABLE submission_keys (
+                request_key TEXT PRIMARY KEY, payload_hash TEXT NOT NULL,
+                public_reference TEXT NOT NULL REFERENCES refund_requests(public_reference));
+            CREATE TABLE review_state (
+                booking_reference TEXT PRIMARY KEY, review_status TEXT NOT NULL, updated_at TEXT NOT NULL);
+            CREATE TABLE review_financial_references (
+                public_reference TEXT PRIMARY KEY, sap_document TEXT NOT NULL,
+                FOREIGN KEY (public_reference) REFERENCES refund_requests(public_reference));
+            INSERT INTO refund_requests VALUES
+                ('AF-OLD00000001', 'NZ7K2H', 'Don', 'mark.don@example.com', 'flight_cancelled', '',
+                 '2026-01-05T10:00:00Z', 1234.0, 'NZD');
+            INSERT INTO submission_keys VALUES ('44444444-4444-4444-4444-444444444444', 'hash', 'AF-OLD00000001');
+            INSERT INTO review_state VALUES ('NZ7K2H', 'queued', '2026-01-05T10:00:00Z');
+            INSERT INTO review_financial_references VALUES ('AF-OLD00000001', '60000073');
+        """)
+        connection.commit()
+        connection.close()
+        store = server.ApplicationStore(legacy)
+        records = store.reset_demo()
+        connection = sqlite3.connect(legacy)
+        try:
+            remaining = {table: connection.execute("SELECT COUNT(*) FROM " + table).fetchone()[0]
+                         for table in ("submission_keys", "review_state", "review_financial_references")}
+        finally:
+            connection.close()
+        self.assertEqual(remaining, {"submission_keys": 0, "review_state": 0, "review_financial_references": 0})
+        self.assertNotIn("AF-OLD00000001", [record["reference"] for record in records])
+        seeded = [record for record in records if record["reference"] == "AF-DEMO000001"]
+        self.assertEqual(len(seeded), 1)
+        self.assertEqual((seeded[0]["passengerName"], seeded[0]["status"]), ("Minh Nguyen", "pending"))
+
 
 if __name__ == "__main__":
     unittest.main()
