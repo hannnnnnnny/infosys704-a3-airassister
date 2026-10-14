@@ -54,12 +54,13 @@ class CloudStoreTests(unittest.TestCase):
     def test_cold_start_seeds_and_retains_submitted_requests(self):
         snapshots = MemorySnapshots()
         seeded = self.store(snapshots).staff_requests()
-        self.assertEqual([record["reference"] for record in seeded], ["AF-DEMO000001"])
+        self.assertEqual({record["reference"] for record in seeded},
+                         {"AF-DEMO000001", "AF-DEMO000002", "AF-DEMO000003"})
         record, created = self.store(snapshots).submit_request(**submission())
         self.assertTrue(created)
         restored = self.store(snapshots).request_for_booking("NZ7K2H")
         self.assertEqual(restored, record)
-        self.assertEqual(len(self.store(snapshots).staff_requests()), 2)
+        self.assertEqual(len(self.store(snapshots).staff_requests()), 4)
 
     def test_duplicate_and_conflict_retry_preserve_the_original_request(self):
         snapshots = MemorySnapshots()
@@ -90,7 +91,7 @@ class CloudStoreTests(unittest.TestCase):
                 ["one@example.com", "two@example.com"],
             ))
         self.assertEqual(len({record["reference"] for record in records}), 1)
-        self.assertEqual(len(self.store(snapshots).staff_requests()), 2)
+        self.assertEqual(len(self.store(snapshots).staff_requests()), 4)
 
     def test_blob_upload_uses_put_instead_of_post(self):
         from cloud_store import BlobSnapshots

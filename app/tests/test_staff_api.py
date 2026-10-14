@@ -8,8 +8,9 @@ from refund_support import (PASSENGER, PASSENGER_PASSWORD, STAFF, STAFF_PASSWORD
                             APIServer, FakeSAP, make_auth, public_dir, server)
 
 
-def submission(email="mark.don@example.com", request_key=None):
-    return {"email": email, "confirmed": True, "requestKey": request_key or str(uuid.uuid4())}
+def submission(email="mark.don@example.com", request_key=None, booking="NZ7K2H"):
+    return {"email": email, "confirmed": True, "requestKey": request_key or str(uuid.uuid4()),
+            "bookingReference": booking}
 
 
 class StaffAPITests(unittest.TestCase):
@@ -148,13 +149,56 @@ class StaffAPITests(unittest.TestCase):
         seeded = [r for r in body["requests"] if r["reference"] == "AF-DEMO000001"]
         self.assertEqual(len(seeded), 1)
         self.assertEqual(seeded[0]["status"], "pending")
-        # Mark.don should have no request
+        # Mark.don should have no request for the live demo booking
         status, _, me = self.api.json_call("/api/me", headers=self.auth(self.passenger_token))
         self.assertEqual(status, 200)
-        self.assertIsNone(me["request"])
+        live = next(trip for trip in me["trips"] if trip["booking"]["reference"] == "NZ7K2H")
+        self.assertIsNone(live["request"])
         # Passenger cannot reset
         status, _, _ = self.api.json_call("/api/staff/demo-reset", body={}, headers=self.auth(self.passenger_token))
         self.assertEqual(status, 403)
+
+
+class SeededMultiTripStaffTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="runtime-", dir=Path(__file__).resolve().parent)
+        self.addCleanup(self.temp.cleanup)
+        self.folder = Path(self.temp.name)
+        self.sap = FakeSAP()
+        self.store = server.ApplicationStore(self.folder / "data.sqlite3")
+        self.api = APIServer(self.store, self.sap, public_dir(self.folder), make_auth())
+        self.addCleanup(self.api.close)
+        self.staff_token = self.api.login(STAFF, STAFF_PASSWORD)["token"]
+        self.passenger_token = self.api.login(PASSENGER, PASSENGER_PASSWORD)["token"]
+
+    def auth(self, token):
+        return {"Authorization": "Bearer " + token}
+
+    def test_staff_list_includes_seeded_pending_and_approved_requests(self):
+        _, _, body = self.api.json_call("/api/staff/requests", headers=self.auth(self.staff_token))
+        records = {record["reference"]: record for record in body["requests"]}
+        for reference in ("AF-DEMO000001", "AF-DEMO000002", "AF-DEMO000003"):
+            self.assertIn(reference, records)
+        pending = records["AF-DEMO000002"]
+        self.assertEqual((pending["bookingReference"], pending["passengerName"]), ("NZ5R8M", "Mark Don"))
+        self.assertEqual((pending["sapDocument"], pending["amount"], pending["currency"]),
+                         ("60000062", 175.50, "USD"))
+        self.assertEqual((pending["sapStatus"], pending["route"], pending["status"]),
+                         ("C", "specialist", "pending"))
+        approved = records["AF-DEMO000003"]
+        self.assertEqual((approved["bookingReference"], approved["passengerName"]), ("NZ2W6B", "Mark Don"))
+        self.assertEqual((approved["sapDocument"], approved["amount"]), ("60000026", 60.00))
+        self.assertEqual((approved["sapStatus"], approved["route"], approved["status"]),
+                         ("C", "specialist", "approved"))
+
+    def test_demo_reset_restores_pending_and_approved_seeds(self):
+        self.api.json_call("/api/refund-requests", submission(), headers=self.auth(self.passenger_token))
+        _, _, body = self.api.json_call("/api/staff/demo-reset", body={}, headers=self.auth(self.staff_token))
+        records = {record["reference"]: record for record in body["requests"]}
+        self.assertEqual(records["AF-DEMO000002"]["status"], "pending")
+        self.assertEqual(records["AF-DEMO000003"]["status"], "approved")
+        self.assertEqual(records["AF-DEMO000002"]["bookingReference"], "NZ5R8M")
+        self.assertEqual(records["AF-DEMO000003"]["bookingReference"], "NZ2W6B")
 
 
 if __name__ == "__main__":

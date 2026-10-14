@@ -123,15 +123,37 @@ class SAPConfig:
         )
 
 
-# Sample bookings. Every journey is a synthetic, airline-cancelled direct booking with a linked
-# SAP credit memo request document. No real traveller data is used.
+# Sample bookings. Every journey is a synthetic direct Economy booking with a synthetic
+# passenger name. Cancelled direct bookings with a linked SAP credit memo request document
+# are refundable. No real traveller data is used.
 BOOKINGS = {
+    "NZ2W6B": {
+        "reference": "NZ2W6B", "lastName": "Don", "passengerName": "Mark Don",
+        "flight": "NZ5", "fromCode": "LAX", "fromCity": "Los Angeles",
+        "toCode": "AKL", "toCity": "Auckland", "date": "2026-10-09",
+        "cabin": "Economy", "flightStatus": "cancelled", "channel": "direct",
+        "sapCreditMemoRequest": "60000026",
+    },
     "NZ7K2H": {
         "reference": "NZ7K2H", "lastName": "Don", "passengerName": "Mark Don",
         "flight": "NZ6", "fromCode": "AKL", "fromCity": "Auckland",
         "toCode": "LAX", "toCity": "Los Angeles", "date": "2026-10-28",
         "cabin": "Economy", "flightStatus": "cancelled", "channel": "direct",
         "sapCreditMemoRequest": "60000073",
+    },
+    "NZ5R8M": {
+        "reference": "NZ5R8M", "lastName": "Don", "passengerName": "Mark Don",
+        "flight": "NZ8", "fromCode": "AKL", "fromCity": "Auckland",
+        "toCode": "SFO", "toCity": "San Francisco", "date": "2026-11-02",
+        "cabin": "Economy", "flightStatus": "cancelled", "channel": "direct",
+        "sapCreditMemoRequest": "60000062",
+    },
+    "NZ3Q1T": {
+        "reference": "NZ3Q1T", "lastName": "Don", "passengerName": "Mark Don",
+        "flight": "NZ103", "fromCode": "AKL", "fromCity": "Auckland",
+        "toCode": "SYD", "toCity": "Sydney", "date": "2026-11-15",
+        "cabin": "Economy", "flightStatus": "on time", "channel": "direct",
+        "sapCreditMemoRequest": None,
     },
     "NZ9P4K": {
         "reference": "NZ9P4K", "lastName": "Nguyen", "passengerName": "Minh Nguyen",
@@ -146,7 +168,8 @@ BOOKINGS = {
 # configuration variable that supplies its password.
 ACCOUNTS = {
     "mark.don": {
-        "role": "passenger", "displayName": "Mark Don", "booking": "NZ7K2H",
+        "role": "passenger", "displayName": "Mark Don",
+        "bookings": ["NZ7K2H", "NZ5R8M", "NZ3Q1T", "NZ2W6B"],
         "passwordEnv": "AIRASSIST_PASSENGER_PASSWORD",
     },
     "admin": {
@@ -166,6 +189,38 @@ SEED_QUOTE = {
     "fetchedAt": "2026-10-14T00:00:00Z",
     "source": "SAP snapshot captured 2026-10-14",
 }
+SEED2_REFERENCE = "AF-DEMO000002"
+SEED2_EMAIL = "mark.don@example.com"
+SEED2_QUOTE = {
+    "sapDocument": "60000062",
+    "amount": 175.50,
+    "currency": "USD",
+    "processStatus": "C",
+    "fetchedAt": "2026-10-14T00:00:00Z",
+    "source": "SAP snapshot captured 2026-10-14",
+}
+SEED3_REFERENCE = "AF-DEMO000003"
+SEED3_EMAIL = "mark.don@example.com"
+SEED3_QUOTE = {
+    "sapDocument": "60000026",
+    "amount": 60.00,
+    "currency": "USD",
+    "processStatus": "C",
+    "fetchedAt": "2026-10-14T00:00:00Z",
+    "source": "SAP snapshot captured 2026-10-14",
+}
+
+
+def is_refundable(booking: dict) -> bool:
+    return bool(
+        booking and booking.get("channel") == "direct"
+        and booking.get("flightStatus") == "cancelled"
+        and booking.get("sapCreditMemoRequest")
+    )
+
+
+def owned_bookings(account: dict) -> list:
+    return [BOOKINGS[reference] for reference in account.get("bookings", []) if reference in BOOKINGS]
 
 
 def text_field(value, name: str, maximum: int, *, required: bool = True) -> str:
@@ -211,7 +266,10 @@ def validate_submission(payload) -> dict:
         request_key = str(uuid.UUID(request_key))
     except ValueError:
         raise APIError(400, "INVALID_INPUT", "Provide a valid request key.") from None
-    return {"email": email, "requestKey": request_key}
+    booking_reference = text_field(payload.get("bookingReference"), "booking reference", 10).upper()
+    if not re.fullmatch(r"[A-Z0-9]{4,10}", booking_reference):
+        raise APIError(400, "INVALID_INPUT", "Provide a valid booking reference.")
+    return {"email": email, "requestKey": request_key, "bookingReference": booking_reference}
 
 
 def validate_decision(payload) -> dict:
@@ -477,21 +535,29 @@ class ApplicationStore:
                 connection.execute(f"ALTER TABLE refund_requests ADD COLUMN {name} {kind}")
 
     def _seed(self, connection) -> None:
-        booking = BOOKINGS["NZ9P4K"]
-        created_at = SEED_QUOTE["fetchedAt"]
-        events = [{"type": "submitted", "at": created_at, "note": "Seeded demo request."}]
-        route = decide_route(booking, SEED_QUOTE["processStatus"], SEED_QUOTE["amount"])
-        connection.execute(
-            "INSERT OR IGNORE INTO refund_requests ("
-            " public_reference, booking_reference, last_name, email, reason, details, created_at,"
-            " ticket_value, currency, passenger_name, refund_type, sap_document, amount,"
-            " sap_process_status, quote_fetched_at, quote_source, route, request_status, decision_note,"
-            " version, events, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (SEED_REFERENCE, booking["reference"], booking["lastName"], SEED_EMAIL, "flight_disruption", "",
-             created_at, 0.0, SEED_QUOTE["currency"], booking["passengerName"], "full", SEED_QUOTE["sapDocument"],
-             SEED_QUOTE["amount"], SEED_QUOTE["processStatus"], SEED_QUOTE["fetchedAt"], SEED_QUOTE["source"],
-             route, "pending", "", 1, json.dumps(events, ensure_ascii=False), created_at),
-        )
+        seeds = [
+            (SEED_REFERENCE, BOOKINGS["NZ9P4K"], SEED_EMAIL, SEED_QUOTE, "pending", "", 1,
+             [{"type": "submitted", "at": SEED_QUOTE["fetchedAt"], "note": "Seeded demo request."}]),
+            (SEED2_REFERENCE, BOOKINGS["NZ5R8M"], SEED2_EMAIL, SEED2_QUOTE, "pending", "", 1,
+             [{"type": "submitted", "at": SEED2_QUOTE["fetchedAt"], "note": "Seeded demo request."}]),
+            (SEED3_REFERENCE, BOOKINGS["NZ2W6B"], SEED3_EMAIL, SEED3_QUOTE, "approved", "", 2,
+             [{"type": "submitted", "at": SEED3_QUOTE["fetchedAt"], "note": "Seeded demo request."},
+              {"type": "approved", "at": SEED3_QUOTE["fetchedAt"], "staff": "Refunds team", "note": ""}]),
+        ]
+        for reference, booking, email, quote, status, note, version, events in seeds:
+            created_at = quote["fetchedAt"]
+            route = decide_route(booking, quote["processStatus"], quote["amount"])
+            connection.execute(
+                "INSERT OR IGNORE INTO refund_requests ("
+                " public_reference, booking_reference, last_name, email, reason, details, created_at,"
+                " ticket_value, currency, passenger_name, refund_type, sap_document, amount,"
+                " sap_process_status, quote_fetched_at, quote_source, route, request_status, decision_note,"
+                " version, events, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (reference, booking["reference"], booking["lastName"], email, "flight_disruption", "",
+                 created_at, 0.0, quote["currency"], booking["passengerName"], "full", quote["sapDocument"],
+                 quote["amount"], quote["processStatus"], quote["fetchedAt"], quote["source"],
+                 route, status, note, version, json.dumps(events, ensure_ascii=False), created_at),
+            )
 
     @staticmethod
     def _record(row: sqlite3.Row) -> dict:
@@ -858,23 +924,37 @@ def make_handler(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = 
         def handle_me(self):
             claims = self.require_role("passenger")
             account = auth.accounts[claims["subject"]]
-            booking = BOOKINGS[account["booking"]]
-            quote, quote_error = None, None
-            try:
-                quote = build_quote(sap.get_credit_memo(booking["sapCreditMemoRequest"]))
-            except APIError as error:
-                quote_error = {"code": error.code, "message": error.message}
-            self.json_response(200, {
-                "displayName": account["displayName"], "booking": booking_view(booking),
-                "flight": flight_view(booking), "quote": quote, "quoteError": quote_error,
-                "request": store.request_for_booking(booking["reference"]),
-            })
+            trips = []
+            for booking in sorted(owned_bookings(account), key=lambda item: item["date"]):
+                refundable = is_refundable(booking)
+                existing = store.request_for_booking(booking["reference"])
+                trip = {
+                    "booking": booking_view(booking),
+                    "flight": flight_view(booking),
+                    "refundable": refundable,
+                    "request": existing,
+                }
+                if refundable and existing is None:
+                    try:
+                        trip["quote"] = build_quote(sap.get_credit_memo(booking["sapCreditMemoRequest"]))
+                        trip["quoteError"] = None
+                    except APIError as error:
+                        trip["quote"] = None
+                        trip["quoteError"] = {"code": error.code, "message": error.message}
+                trips.append(trip)
+            self.json_response(200, {"displayName": account["displayName"], "trips": trips})
 
         def handle_submit(self, payload):
             claims = self.require_role("passenger")
             submission = validate_submission(payload)
             account = auth.accounts[claims["subject"]]
-            booking = BOOKINGS[account["booking"]]
+            owned = set(account.get("bookings", []))
+            booking_reference = submission["bookingReference"]
+            if booking_reference not in owned or booking_reference not in BOOKINGS:
+                raise APIError(404, "REQUEST_NOT_FOUND", "This booking was not found for this passenger.")
+            booking = BOOKINGS[booking_reference]
+            if not is_refundable(booking):
+                raise APIError(400, "NOT_REFUNDABLE", "This booking is not refundable.")
             fingerprint = submission_fingerprint(booking["reference"], submission["email"])
             previous = store.find_submission(submission["requestKey"], fingerprint)
             if previous is None:
@@ -918,10 +998,16 @@ def make_handler(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = 
                                   version=decision["version"], staff_name=account["displayName"])
             self.json_response(200, {"request": record})
 
-        def handle_receipt(self):
+        def handle_receipt(self, query):
             claims = self.require_role("passenger")
             account = auth.accounts[claims["subject"]]
-            record = store.request_for_booking(account["booking"])
+            booking_reference = (query.get("booking") or "").strip().upper()
+            if not booking_reference:
+                raise APIError(400, "INVALID_INPUT", "Provide a booking reference.")
+            owned = set(account.get("bookings", []))
+            if booking_reference not in owned or booking_reference not in BOOKINGS:
+                raise APIError(404, "REQUEST_NOT_FOUND", "No refund request matches this booking.")
+            record = store.request_for_booking(booking_reference)
             if record is None:
                 raise APIError(404, "REQUEST_NOT_FOUND", "No refund request exists for this booking yet.")
             self.json_download(record)
@@ -941,7 +1027,7 @@ def make_handler(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = 
         def do_GET(self):
             try:
                 self.validate_local_access()
-                path, _ = self.query()
+                path, query = self.query()
                 if path == "/api/health":
                     self.json_response(200, {"status": "ok", "appMode": "prototype", "sap": {
                         "mode": sap.config.mode, "configured": sap.config.configured, "accountPolicy": "personal-only",
@@ -951,7 +1037,7 @@ def make_handler(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = 
                 elif path == "/api/staff/requests":
                     self.handle_staff_list()
                 elif path == "/api/refund-requests/receipt":
-                    self.handle_receipt()
+                    self.handle_receipt(query)
                 elif path.startswith("/api/"):
                     raise APIError(404, "NOT_FOUND", "This endpoint is not available.")
                 else:

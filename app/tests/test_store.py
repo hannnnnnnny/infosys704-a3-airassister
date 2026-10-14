@@ -151,5 +151,44 @@ class StoreTests(unittest.TestCase):
         self.assertEqual((seeded[0]["passengerName"], seeded[0]["status"]), ("Minh Nguyen", "pending"))
 
 
+class MultiTripSeedTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="runtime-", dir=Path(__file__).resolve().parent)
+        self.addCleanup(self.temp.cleanup)
+        self.folder = Path(self.temp.name)
+
+    def store(self, name="data.sqlite3"):
+        return server.ApplicationStore(self.folder / name)
+
+    def test_new_seeds_are_idempotent_with_fixed_references(self):
+        store = self.store()
+        self.store()
+        records = {record["reference"]: record for record in store.staff_requests()}
+        for reference in ("AF-DEMO000001", "AF-DEMO000002", "AF-DEMO000003"):
+            self.assertIn(reference, records)
+        pending = records["AF-DEMO000002"]
+        self.assertEqual((pending["bookingReference"], pending["passengerName"]), ("NZ5R8M", "Mark Don"))
+        self.assertEqual((pending["sapDocument"], pending["amount"], pending["currency"]),
+                         ("60000062", 175.50, "USD"))
+        self.assertEqual((pending["sapStatus"], pending["route"], pending["status"]),
+                         ("C", "specialist", "pending"))
+        self.assertEqual(pending["quoteSource"], "SAP snapshot captured 2026-10-14")
+        approved = records["AF-DEMO000003"]
+        self.assertEqual((approved["bookingReference"], approved["passengerName"]), ("NZ2W6B", "Mark Don"))
+        self.assertEqual((approved["sapDocument"], approved["amount"]), ("60000026", 60.00))
+        self.assertEqual((approved["sapStatus"], approved["route"], approved["status"]),
+                         ("C", "specialist", "approved"))
+
+    def test_demo_reset_restores_pending_and_approved_seeds(self):
+        store = self.store()
+        store.submit_request(booking_reference="NZ7K2H", passenger_name="Mark Don",
+                             email="mark.don@example.com", quote=QUOTE,
+                             request_key="55555555-5555-5555-5555-555555555555", quote_source="live")
+        records = {record["reference"]: record for record in store.reset_demo()}
+        self.assertEqual(records["AF-DEMO000002"]["status"], "pending")
+        self.assertEqual(records["AF-DEMO000003"]["status"], "approved")
+        self.assertIsNone(store.request_for_booking("NZ7K2H"))
+
+
 if __name__ == "__main__":
     unittest.main()

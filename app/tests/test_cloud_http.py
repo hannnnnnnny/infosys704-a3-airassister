@@ -15,8 +15,9 @@ from refund_support import (PASSENGER, PASSENGER_PASSWORD, STAFF, STAFF_PASSWORD
 from test_cloud_store import MemorySnapshots
 
 
-def submission(email="mark.don@example.com"):
-    return {"email": email, "confirmed": True, "requestKey": str(uuid.uuid4())}
+def submission(email="mark.don@example.com", booking="NZ7K2H"):
+    return {"email": email, "confirmed": True, "requestKey": str(uuid.uuid4()),
+            "bookingReference": booking}
 
 
 class CloudHTTPTests(unittest.TestCase):
@@ -97,7 +98,8 @@ class CloudHTTPTests(unittest.TestCase):
         passenger = self.sign_in(PASSENGER, PASSENGER_PASSWORD)
         status, _, body = self.call("/api/me", headers=passenger)
         self.assertEqual(status, 200)
-        self.assertEqual(json.loads(body)["booking"]["reference"], "NZ7K2H")
+        references = [trip["booking"]["reference"] for trip in json.loads(body)["trips"]]
+        self.assertEqual(references, ["NZ2W6B", "NZ7K2H", "NZ5R8M", "NZ3Q1T"])
         status, _, body = self.call("/api/refund-requests", submission(), headers=passenger)
         self.assertEqual(status, 201)
         reference = json.loads(body)["request"]["reference"]
