@@ -35,7 +35,7 @@ function harness(store=storage(), view='journey') {
   return {box,state,store,nodes,renders,focus};
 }
 function sampleCase(version=1, ref='AF-123456789ABC', email='review@example.com') {
-  return {request:{publicReference:ref,bookingReference:'NZ7K2H',email,lastName:'Taylor',reason:'flight_cancelled',details:'',createdAt:'2026-10-08T01:00:00Z',updatedAt:'2026-10-08T01:00:00Z',status:'submitted',statusLabel:'Received - awaiting local review'},booking:{traveller:'Alex Taylor',fromCode:'AKL',toCode:'WLG',flight:'NZ423',date:'2026-10-15',flightStatus:'cancelled',channel:'direct',ticketValue:248,currency:'NZD',source:{label:'Sample journey'}},version,checks:{paymentEvidenceReviewed:false,refundRulesReviewed:false,supportingDetailsReviewed:false},paymentReference:'',specialistRequired:false,reviewNote:'',reviewState:'not_started',checklist:[],triage:{route:'information_needed',label:'Needs information',queue:'Information follow-up',ownerRole:'Local reviewer',reasons:['Payment review missing'],readyForHandoff:false,ruleVersion:'prototype-v1'},events:[],financialReference:null};
+  return {request:{publicReference:ref,bookingReference:'NZ7K2H',email,lastName:'Don',reason:'flight_cancelled',details:'',createdAt:'2026-10-08T01:00:00Z',updatedAt:'2026-10-08T01:00:00Z',status:'submitted',statusLabel:'Received - awaiting local review'},booking:{traveller:'Mark Don',fromCode:'AKL',toCode:'WLG',flight:'NZ423',date:'2026-10-15',flightStatus:'cancelled',channel:'direct',ticketValue:248,currency:'NZD',source:{label:'Sample journey'}},version,checks:{paymentEvidenceReviewed:false,refundRulesReviewed:false,supportingDetailsReviewed:false},paymentReference:'',specialistRequired:false,reviewNote:'',reviewState:'not_started',checklist:[],triage:{route:'information_needed',label:'Needs information',queue:'Information follow-up',ownerRole:'Local reviewer',reasons:['Payment review missing'],readyForHandoff:false,ruleVersion:'prototype-v1'},events:[],financialReference:null};
 }
 function select(h,c=sampleCase()) {h.state.caseData=c;h.state.caseLookup={reference:c.request.publicReference,email:c.request.email};h.box.restoreReviewDraft(c);return c;}
 const tests=[];
@@ -43,7 +43,7 @@ const test=(name,fn)=>tests.push({name,fn});
 test('booking out-of-order response never replaces newer booking; inputs lock',async()=>{
   const h=harness(), old=deferred(), recent=deferred();const calls=[];
   h.box.api=(url,opts)=>{calls.push({url,opts});return calls.length===1?old.promise:recent.promise};
-  h.state.lookup={reference:'NZ7K2H',lastName:'Taylor'};const first=h.box.loadBooking();
+  h.state.lookup={reference:'NZ7K2H',lastName:'Don'};const first=h.box.loadBooking();
   assert.match(h.box.bookingForm(),/value="NZ7K2H" disabled/);
   h.state.lookup={reference:'NZ8T3H',lastName:'Taylor'};const second=h.box.loadBooking();
   assert.equal(calls[0].opts.signal.aborted,true);assert.match(calls[0].url,/reference=NZ7K2H/);
@@ -75,7 +75,7 @@ test('navigation cancels pending reads without rendering old results',async()=>{
   for(const [view,fn,input,key,result] of [['journey','loadBooking','lookup','booking',{booking:{reference:'OLD'}}],['track','lookupRequest','track','trackRecord',{request:{publicReference:'OLD',email:'old@example.com'}}],['financial','lookupFinancialDocument','sapId','sapRecord',{record:{id:'OLD'}}]]){
     const h=harness(storage(),view), wait=deferred();let signal;
     h.box.api=(url,opts)=>{signal=opts.signal;return wait.promise};
-    h.state[input]=input==='sapId'?'60000002':input==='lookup'?{reference:'NZ7K2H',lastName:'Taylor'}:{reference:'AF-OLD',email:'old@example.com'};
+    h.state[input]=input==='sapId'?'60000002':input==='lookup'?{reference:'NZ7K2H',lastName:'Don'}:{reference:'AF-OLD',email:'old@example.com'};
     const pending=h.box[fn]();h.box.cancelReadViews('help');h.box.location.search='?view=help';const count=h.renders.length;
     wait.resolve(result);await pending;assert.equal(signal.aborted,true);assert.equal(h.state[key],null);assert.equal(h.renders.length,count);
   }

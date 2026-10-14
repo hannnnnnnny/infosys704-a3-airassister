@@ -35,10 +35,13 @@ def cloud_copy(value):
     return value
 
 
-def make_cloud_handler(store=None, sap=None):
+def make_cloud_handler(store=None, sap=None, auth=None):
+    if auth is None:
+        auth, _ = server.build_auth(deployed=True)
     return type("CloudHandler", (CloudHandlerMixin, server.make_handler(
         store if store is not None else CloudStore(),
         sap if sap is not None else server.SAPClient(server.SAPConfig.from_environment()),
+        auth=auth,
     )), {})
 
 

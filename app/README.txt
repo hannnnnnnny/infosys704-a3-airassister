@@ -15,8 +15,13 @@ Mac 启动
 没有 npm 依赖，也不需要为了这个本地版本发布到互联网。
 Windows：在文件夹运行 powershell -File start.ps1；也可 python server.py --port 8789。
 
+Demo accounts
+Passenger: Mark.don / password123! — requests a full refund.
+Staff: admin / admin123! — approves or declines refunds.
+Public demo credentials for synthetic data only. Locally they come from AIRASSIST_PASSENGER_PASSWORD and AIRASSIST_STAFF_PASSWORD in local config; the deployed demo uses the same values as Vercel environment variables.
+
 演示顺序
-Booking reference：NZ7K2H；Family name：Taylor。
+Booking reference：NZ7K2H；Family name：Don。
 点 Request a refund，选择原因，使用示例邮箱（例如 demo@example.com），填写可选说明。
 点 Review request，勾选确认框，再点 Submit request。
 复制生成的 AF- 开头编号。Track request 中输入该编号和提交时的同一邮箱。

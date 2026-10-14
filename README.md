@@ -8,7 +8,7 @@ AirAssist 是 INFOSYS 704 A3 四人小组的退款申请与案件审核原型。
 
 ## 在线演示
 
-1. 使用订票号 **NZ7K2H**、姓氏 **Taylor** 查询示例直订旅程。
+1. 使用订票号 **NZ7K2H**、姓氏 **Don** 查询示例直订旅程。
 2. 选择 `Request a refund`，使用 **demo@example.com 等示例邮箱**提交申请。
 3. 保存生成的 `AF-` 编号；在 `Track request` 或 `Staff review` 中使用同一编号和邮箱查询。
 4. 在 `Staff review` 中记录人工检查并保存，再交接到标准或专家队列；乘客端可查询状态并下载申请记录。
@@ -18,6 +18,13 @@ AirAssist 是 INFOSYS 704 A3 四人小组的退款申请与案件审核原型。
 线上申请保存在 **私有 Vercel Blob 的 SQLite 快照**中，可以在云端实例重启后继续查询；与本机 SQLite 完全分开。浏览器取得有效的签名会话后才能调用业务 API，案件访问仍需申请编号与邮箱匹配。`Staff review` 是公开课程演示，没有真实员工登录或角色授权，**只使用合成信息，不输入真实旅客或付款数据**。原型不会取消机票、批准退款或付款；SAP 默认未配置。
 
 私有快照适合小规模课堂演示：读取绕过缓存，写入使用 ETag 条件更新，避免多个云端实例覆盖彼此的修改；单个快照限制为 5 MiB。繁忙、存储故障或版本冲突会明确报错，不能将它视为正式航空业务数据库。
+
+## Demo accounts
+
+- Passenger: **Mark.don** / `password123!` — requests a full refund.
+- Staff: **admin** / `admin123!` — approves or declines refunds.
+
+Public demo credentials for synthetic data only. Locally they come from `AIRASSIST_PASSENGER_PASSWORD` and `AIRASSIST_STAFF_PASSWORD` in local config; the deployed demo uses the same values as Vercel environment variables.
 
 ## 从哪里开始
 
@@ -58,7 +65,7 @@ python3 -B server.py --port 8789
 
 ## 快速演示与 SAP 配置
 
-示例订票号 **NZ7K2H**，姓氏 **Taylor**。使用自己的演示邮箱提交申请，记录生成的 `AF-` 编号，然后在 `Case review` 中使用同一编号和邮箱查询。完整操作顺序见 [`app/README.txt`](app/README.txt)。
+示例订票号 **NZ7K2H**，姓氏 **Don**。使用自己的演示邮箱提交申请，记录生成的 `AF-` 编号，然后在 `Case review` 中使用同一编号和邮箱查询。完整操作顺序见 [`app/README.txt`](app/README.txt)。
 
 原型的闭环为：查询示例预订 → 保存申请 → 人工资料审核 → 标准/专家队列交接 → 查询同步状态 → 下载申请记录。旅程和申请为合成演示数据；本地运行使用本机 SQLite，线上演示使用私有云快照。它不会取消真实机票、批准退款或付款。
 
@@ -152,6 +159,6 @@ REVIEW_MANIFEST.json  原交付包文件校验记录
 
 ## English quick start
 
-Try the **[AirAssist online demo](https://infosys704-a3-airassist.vercel.app/?view=journey)** with booking **NZ7K2H / Taylor** and an example email. It supports refund applications, case review, queue handoff, tracking and receipt downloads. The Vercel preview stores demo records in private Blob-backed SQLite snapshots and uses signed anonymous browser sessions. Staff review is a public simulation, not a staff-authenticated airline service; use synthetic data only. SAP is unconfigured unless personal-account environment variables are supplied.
+Try the **[AirAssist online demo](https://infosys704-a3-airassist.vercel.app/?view=journey)** with booking **NZ7K2H / Don** and an example email. It supports refund applications, case review, queue handoff, tracking and receipt downloads. The Vercel preview stores demo records in private Blob-backed SQLite snapshots and uses signed anonymous browser sessions. Staff review is a public simulation, not a staff-authenticated airline service; use synthetic data only. SAP is unconfigured unless personal-account environment variables are supplied.
 
 For local development, run `cd app` and `sh start.command` on macOS with Python 3.10+, then open `http://127.0.0.1:8789/`. Local SQLite records and cloud demo records are separate. Never commit credentials or databases. Keep the accepted V1.4 archives and evidence as the historical baseline. Deployment currently uses the Vercel CLI; GitHub automatic deployment is not connected.
