@@ -9,6 +9,18 @@ const state = {
   email: '', confirm: false, fieldErrors: {email: null, confirm: null},
   submitting: false, requestKey: null, retryBusy: false,
   receiptBusy: false, receiptError: null,
+  staff: {
+    requests: [],
+    loading: false,
+    error: null,
+    notice: null,
+    pendingCount: 0,
+    expanded: null,
+    deciding: null,
+    decisionError: {},
+    decisionNote: {},
+    decisionBusy: {},
+  },
 };
 const main = document.querySelector('main');
 
@@ -81,7 +93,19 @@ async function signIn(username, password) {
       state.me = null;
       await loadMe();
     } else {
-      render();
+      state.staff = {
+        requests: [],
+        loading: false,
+        error: null,
+        notice: null,
+        pendingCount: 0,
+        expanded: null,
+        deciding: null,
+        decisionError: {},
+        decisionNote: {},
+        decisionBusy: {},
+      };
+      await loadStaffRequests();
     }
     return true;
   } catch (error) {
@@ -110,6 +134,18 @@ function endSession(message) {
   state.retryBusy = false;
   state.receiptBusy = false;
   state.receiptError = null;
+  state.staff = {
+    requests: [],
+    loading: false,
+    error: null,
+    notice: null,
+    pendingCount: 0,
+    expanded: null,
+    deciding: null,
+    decisionError: {},
+    decisionNote: {},
+    decisionBusy: {},
+  };
   state.error = message || null;
   render();
 }
@@ -139,10 +175,6 @@ function signInView() {
     </form>
     <p class="demo-accounts">Demo accounts: Mark.don (passenger) · admin (staff)</p>
   </section>`;
-}
-
-function areaView(title, copy) {
-  return `<section class="panel"><h1>${esc(title)}</h1><p class="area-copy">${esc(copy)}</p></section>`;
 }
 
 /* --- passenger refund screens ------------------------------------------------------------ */
@@ -246,7 +278,7 @@ async function submitRefund() {
       await loadMe();
       return;
     }
-    if (state.view !== 'passenger') return;
+    if (state.view !== 'passenger') { render(); return; }
     state.error = error.message || 'We could not send your request. Please try again.';
     render();
   }
@@ -388,8 +420,169 @@ function passengerView() {
   </section>`;
 }
 
+function isNewRequest(createdAt) {
+  if (!createdAt) return false;
+  const created = Date.parse(createdAt);
+  if (!Number.isFinite(created)) return false;
+  const now = Date.now();
+  const oneHour = 60 * 60 * 1000;
+  return now - created <= oneHour;
+}
+
+function routePillLabel(route) {
+  if (String(route || '').toLowerCase() === 'fast_track') return 'Fast track';
+  return 'Specialist';
+}
+
+function routePillClass(route) {
+  if (String(route || '').toLowerCase() === 'fast_track') return 'staff-route-fast';
+  return 'staff-route-specialist';
+}
+
+function statusPillMarkup(status) {
+  const s = String(status || '');
+  if (s === 'approved') return `<span class="pill pill-approved">Approved</span>`;
+  if (s === 'declined') return `<span class="pill pill-declined">Declined</span>`;
+  return '';
+}
+
+function staffHeaderButton(request, id, expanded) {
+  const name = esc(request.passengerName || '');
+  const newPill = isNewRequest(request.createdAt) ? ' <span class="staff-pill-new">New</span>' : '';
+  const amountText = formatAmount(request.amount, request.currency);
+  const line = `Flight disruption · ${esc(amountText)}`;
+  const status = String(request.status || '');
+  if (status !== 'pending') {
+    const pill = statusPillMarkup(status);
+    return `<button type="button" class="staff-row-header staff-row-header--processed" disabled aria-disabled="true">
+      <span class="staff-row-main">
+        <span class="staff-row-name">${name}${newPill}</span>
+        <span class="staff-row-sub">${line}</span>
+      </span>
+      <span class="staff-row-end">${pill}</span>
+    </button>`;
+  }
+  const chevron = `<span class="staff-chevron" aria-hidden="true">›</span>`;
+  return `<button type="button" class="staff-row-header" data-ref="${esc(request.reference)}" aria-expanded="${expanded ? 'true' : 'false'}" aria-controls="${esc(id)}" id="${esc(id)}-btn">
+      <span class="staff-row-main">
+        <span class="staff-row-name">${name}${newPill}</span>
+        <span class="staff-row-sub">${line}</span>
+      </span>
+      <span class="staff-row-end">${chevron}</span>
+    </button>`;
+}
+
+function expandPanel(request, id, expanded) {
+  const status = String(request.status || '');
+  if (status !== 'pending') return '';
+  const flight = request.flight || {};
+  const routePart = `${esc(flight.flight || '')} ${esc(flight.fromCode || '')} → ${esc(flight.toCode || '')}`.trim();
+  const datePart = flight.date ? `, ${esc(formatDate(flight.date))}` : '';
+  const statusText = flight.flightStatus ? esc(flight.flightStatus) : '';
+  const flightStatusPart = statusText ? ` · ${statusText}` : '';
+  const fullRefundPart = request.refundType === 'full' ? ' · full refund' : '';
+  const flightLine = routePart + datePart + flightStatusPart + fullRefundPart;
+  const routeLabel = routePillLabel(request.route);
+  const routeClass = routePillClass(request.route);
+  const sapLine = `SAP credit memo ${request.sapDocument || ''} · ${formatAmount(request.amount, request.currency)}`;
+  const ref = request.reference;
+  const busy = state.staff.decisionBusy && state.staff.decisionBusy[ref];
+  const deciding = (state.staff.deciding && state.staff.deciding.reference === ref)
+    ? state.staff.deciding.decision : null;
+  const decisionError = (state.staff.decisionError && state.staff.decisionError[ref]) || '';
+  const note = (state.staff.decisionNote && state.staff.decisionNote[ref]) || '';
+  let controls = '';
+  if (deciding === 'approve') {
+    controls = `<div class="staff-decision staff-decision--approve" role="group" aria-label="Approve request">
+      <p class="staff-confirm">Approve ${esc(formatAmount(request.amount, request.currency))} for ${esc(request.passengerName || '')}?</p>
+      ${decisionError ? `<p class="staff-field-error" role="alert">${esc(decisionError)}</p>` : ''}
+      <div class="staff-inline-actions">
+        <button type="button" class="btn staff-btn-approve-confirm" data-action="approve-confirm" data-ref="${esc(ref)}"${busy ? ' disabled' : ''}>${busy ? 'Approving…' : 'Yes, approve'}</button>
+        <button type="button" class="btn btn-secondary staff-btn-cancel" data-action="cancel-decision" data-ref="${esc(ref)}"${busy ? ' disabled' : ''}>Cancel</button>
+      </div>
+    </div>`;
+  } else if (deciding === 'decline') {
+    controls = `<div class="staff-decision staff-decision--decline" role="group" aria-label="Decline request">
+      <div class="staff-field">
+        <label for="${esc(id)}-note">Reason (shown to the passenger)</label>
+        <textarea id="${esc(id)}-note" class="staff-textarea" data-ref="${esc(ref)}" maxlength="500"${busy ? ' disabled' : ''}>${esc(note)}</textarea>
+        ${decisionError ? `<p class="staff-field-error" role="alert">${esc(decisionError)}</p>` : ''}
+      </div>
+      <div class="staff-inline-actions">
+        <button type="button" class="btn staff-btn-decline-confirm" data-action="decline-confirm" data-ref="${esc(ref)}"${busy ? ' disabled' : ''}>${busy ? 'Declining…' : 'Decline'}</button>
+        <button type="button" class="btn btn-secondary staff-btn-cancel" data-action="cancel-decision" data-ref="${esc(ref)}"${busy ? ' disabled' : ''}>Cancel</button>
+      </div>
+    </div>`;
+  } else {
+    controls = `<div class="staff-inline-actions">
+      <button type="button" class="btn" data-action="start-approve" data-ref="${esc(ref)}">Approve</button>
+      <button type="button" class="btn btn-secondary" data-action="start-decline" data-ref="${esc(ref)}">Decline</button>
+    </div>`;
+  }
+  return `<div class="staff-row-panel" id="${esc(id)}" role="region" aria-labelledby="${esc(id)}-btn"${expanded ? '' : ' hidden'}>
+    <p class="staff-flight">${flightLine}</p>
+    <span class="staff-route-pill ${esc(routeClass)}">${esc(routeLabel)}</span>
+    <p class="staff-sap">${esc(sapLine)}</p>
+    ${controls}
+  </div>`;
+}
+
+async function loadStaffRequests(showError = true) {
+  state.staff.loading = true;
+  state.staff.error = null;
+  render();
+  try {
+    const data = await api('/api/staff/requests');
+    const requests = Array.isArray(data.requests) ? data.requests : [];
+    const pending = requests.filter(r => String(r.status || '') === 'pending');
+    state.staff.requests = requests;
+    state.staff.pendingCount = pending.length;
+    state.staff.loading = false;
+    state.staff.error = null;
+    state.staff.notice = null;
+    render();
+  } catch (error) {
+    state.staff.loading = false;
+    if (showError) {
+      state.staff.error = error.message || 'We could not load requests. Please try again.';
+    }
+    render();
+  }
+}
+
+async function retryStaffRequests() {
+  await loadStaffRequests(true);
+}
+
 function staffView() {
-  return areaView('Staff area', 'Refund requests to review will appear here.');
+  const s = state.staff;
+  let content = '';
+  if (s.loading) {
+    content = '<p class="area-copy">Loading refund requests…</p>';
+  } else if (s.error) {
+    content = `<div class="notice"><p>${esc(s.error)}</p><button class="btn" type="button" id="staff-retry">Retry</button></div>`;
+  } else if (!s.requests.length) {
+    content = '<p class="area-copy">No refund requests yet</p>';
+  } else {
+    const items = [];
+    for (let i = 0; i < s.requests.length; i++) {
+      const req = s.requests[i];
+      const ref = req.reference || ('r' + i);
+      const id = 'staff-row-' + String(ref).replace(/[^a-zA-Z0-9_-]/g, '');
+      const expanded = s.expanded === ref;
+      const header = staffHeaderButton(req, id, expanded);
+      const panel = expandPanel(req, id, expanded);
+      items.push(`<div class="staff-row">${header}${panel}</div>`);
+    }
+    content = `<div class="staff-list">${items.join('')}</div>`;
+  }
+  const notice = s.notice ? `<p class="form-error" role="alert">${esc(s.notice)}</p>` : '';
+  return `<section class="panel staff-panel">
+    <h1>Refund requests</h1>
+    <p class="staff-count">${esc(String(s.pendingCount))} to process</p>
+    ${notice}
+    ${content}
+  </section>`;
 }
 
 function accountMarkup() {
@@ -408,6 +601,7 @@ function bindForms() {
     signOut();
   });
   bindPassenger();
+  bindStaff();
 }
 
 function bindPassenger() {
@@ -441,6 +635,167 @@ function bindPassenger() {
     event.preventDefault();
     downloadReceipt();
   });
+}
+
+async function handleStaffDecision(reference, decision, note) {
+  const req = state.staff.requests.find(r => r.reference === reference);
+  if (!req) return;
+  const version = req.version;
+  const key = reference;
+  if (decision === 'decline') {
+    const trimmed = String(note || '').trim();
+    if (!trimmed) {
+      state.staff.decisionError = Object.assign({}, state.staff.decisionError, {[key]: 'Reason is required.'});
+      render();
+      return;
+    }
+    if (trimmed.length > 500) {
+      state.staff.decisionError = Object.assign({}, state.staff.decisionError, {[key]: 'Reason must be 500 characters or less.'});
+      render();
+      return;
+    }
+    state.staff.decisionError = Object.assign({}, state.staff.decisionError, {[key]: ''});
+    state.staff.decisionNote = Object.assign({}, state.staff.decisionNote, {[key]: trimmed});
+    note = trimmed;
+  } else {
+    state.staff.decisionError = Object.assign({}, state.staff.decisionError, {[key]: ''});
+  }
+  state.staff.decisionBusy = Object.assign({}, state.staff.decisionBusy, {[key]: true});
+  render();
+  try {
+    const updated = await api(`/api/staff/requests/${reference}/decision`, {
+      method: 'POST',
+      body: {decision, note, version},
+    });
+    state.staff.decisionBusy = Object.assign({}, state.staff.decisionBusy, {[key]: false});
+    const updatedReq = updated.request || {};
+    const idx = state.staff.requests.findIndex(r => r.reference === reference);
+    if (idx >= 0) {
+      state.staff.requests[idx] = Object.assign({}, state.staff.requests[idx], updatedReq);
+    }
+    const pending = state.staff.requests.filter(r => String(r.status || '') === 'pending');
+    state.staff.pendingCount = pending.length;
+    state.staff.expanded = null;
+    state.staff.deciding = null;
+    state.staff.notice = null;
+    state.staff.decisionError = Object.assign({}, state.staff.decisionError);
+    state.staff.decisionError[key] = null;
+    state.staff.decisionNote = Object.assign({}, state.staff.decisionNote);
+    state.staff.decisionNote[key] = '';
+    render();
+  } catch (error) {
+    state.staff.decisionBusy = Object.assign({}, state.staff.decisionBusy, {[key]: false});
+    if (error.status === 409) {
+      state.staff.expanded = null;
+      state.staff.deciding = null;
+      await loadStaffRequests(false);
+      state.staff.notice = 'This request was already updated. The list has been refreshed.';
+      render();
+      return;
+    }
+    state.staff.decisionError = Object.assign({}, state.staff.decisionError, {[key]: error.message || 'Decision failed. Please try again.'});
+    render();
+  }
+}
+
+function bindStaff() {
+  const root = document.querySelector('.staff-panel');
+  if (!root) return;
+  root.addEventListener('click', event => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    const header = target.closest('.staff-row-header');
+    if (header && !header.disabled && header.dataset.ref) {
+      event.preventDefault();
+      const ref = header.dataset.ref;
+      if (state.staff.expanded === ref) {
+        state.staff.expanded = null;
+        state.staff.deciding = null;
+      } else {
+        state.staff.expanded = ref;
+        state.staff.deciding = null;
+        state.staff.decisionError = Object.assign({}, state.staff.decisionError, {[ref]: ''});
+        state.staff.decisionNote = Object.assign({}, state.staff.decisionNote, {[ref]: ''});
+      }
+      render();
+      return;
+    }
+    const actionBtn = target.closest('button[data-action]');
+    if (actionBtn) {
+      const action = actionBtn.dataset.action;
+      const ref = actionBtn.dataset.ref;
+      if (!ref) return;
+      event.preventDefault();
+      if (action === 'start-approve') {
+        state.staff.notice = null;
+        state.staff.deciding = {reference: ref, decision: 'approve'};
+        state.staff.decisionError = Object.assign({}, state.staff.decisionError, {[ref]: ''});
+        render();
+        return;
+      }
+      if (action === 'start-decline') {
+        state.staff.notice = null;
+        state.staff.deciding = {reference: ref, decision: 'decline'};
+        state.staff.decisionError = Object.assign({}, state.staff.decisionError, {[ref]: ''});
+        render();
+        return;
+      }
+      if (action === 'cancel-decision') {
+        state.staff.deciding = null;
+        state.staff.decisionError = Object.assign({}, state.staff.decisionError, {[ref]: ''});
+        render();
+        return;
+      }
+      if (action === 'approve-confirm') {
+        handleStaffDecision(ref, 'approve', '');
+        return;
+      }
+      if (action === 'decline-confirm') {
+        const noteValue = (state.staff.decisionNote && state.staff.decisionNote[ref]) || '';
+        handleStaffDecision(ref, 'decline', noteValue);
+        return;
+      }
+    }
+  });
+  root.addEventListener('keydown', event => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    const header = target.closest('.staff-row-header');
+    if (header && !header.disabled && header.dataset.ref) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        const ref = header.dataset.ref;
+        if (state.staff.expanded === ref) {
+          state.staff.expanded = null;
+          state.staff.deciding = null;
+        } else {
+          state.staff.expanded = ref;
+          state.staff.deciding = null;
+          state.staff.decisionError = Object.assign({}, state.staff.decisionError, {[ref]: ''});
+          state.staff.decisionNote = Object.assign({}, state.staff.decisionNote, {[ref]: ''});
+        }
+        render();
+        return;
+      }
+    }
+  });
+  root.addEventListener('input', event => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    if (target.tagName === 'TEXTAREA' && target.classList && target.classList.contains('staff-textarea')) {
+      const ref = target.dataset.ref;
+      if (ref) {
+        state.staff.decisionNote = Object.assign({}, state.staff.decisionNote, {[ref]: target.value});
+      }
+    }
+  });
+  const retryBtn = document.querySelector('#staff-retry');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', event => {
+      event.preventDefault();
+      retryStaffRequests();
+    });
+  }
 }
 
 function render() {

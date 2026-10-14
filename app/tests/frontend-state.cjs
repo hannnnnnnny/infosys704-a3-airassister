@@ -116,7 +116,7 @@ test('signing in routes staff to the staff area', async () => {
   assert.equal(await h.box.signIn('admin', 'secret'), true);
   assert.equal(h.state.view, 'staff');
   assert.equal(h.state.role, 'staff');
-  assert.match(h.box.staffView(), /Staff area/);
+  assert.match(h.box.staffView(), /Refund requests/);
 });
 
 test('the header shows the display name and a sign out link after sign-in', async () => {
@@ -432,6 +432,269 @@ test('the passenger screens contain no inline styles or scripts', async () => {
   h.box.fetch = passengerSession(me({request: request()}));
   await h.box.signIn('Mark.don', 'secret');
   assert.doesNotMatch(h.box.passengerView(), /style=|onclick=/);
+});
+
+// --- staff refund screens -------------------------------------------------------------------
+
+function staffRequest(overrides = {}) {
+  return {
+    reference: 'AF-AAAA1111', bookingReference: 'NZ7K2H', passengerName: 'Mark Don',
+    email: 'mark@example.com', reason: 'flight_disruption', refundType: 'full',
+    amount: 175.5, currency: 'USD', sapDocument: '60000073', sapStatus: 'A',
+    route: 'fast_track', status: 'pending', decisionNote: '', version: 1,
+    createdAt: '2026-10-14T00:00:00Z', updatedAt: '2026-10-14T00:00:00Z',
+    flight: flight(), ...overrides,
+  };
+}
+
+async function staffSuccessfulSignIn(requests = [
+  staffRequest({reference: 'AF-DEMO000002'}),
+  staffRequest({reference: 'AF-DEMO000003', passengerName: 'Minh Nguyen', status: 'approved', amount: 400, route: 'specialist'}),
+]) {
+  const h = harness();
+  h.box.fetch = routes({
+    '/api/auth/login': json({token: 'tok-staff', role: 'staff', displayName: 'Refunds team'}),
+    '/api/staff/requests': json({requests}),
+  });
+  await h.box.signIn('admin', 'secret');
+  return h;
+}
+
+test('the staff list renders newest first with names, amounts and the pending count', async () => {
+  const h = await staffSuccessfulSignIn();
+  const html = h.box.staffView();
+  assert.match(html, /Refund requests/);
+  assert.match(html, /1 to process/);
+  assert.match(html, /Mark Don/);
+  assert.match(html, /Flight disruption · USD 175\.50/);
+  assert.match(html, /Minh Nguyen/);
+  assert.match(html, /pill-approved">Approved/);
+  assert.equal(h.state.staff.requests.length, 2);
+  assert.equal(h.state.staff.pendingCount, 1);
+});
+
+test('a newly created request shows a New pill and pending rows show a chevron', async () => {
+  const h = await staffSuccessfulSignIn([staffRequest({createdAt: new Date().toISOString(), amount: 175.5})]);
+  const html = h.box.staffView();
+  assert.match(html, /staff-pill-new">New/);
+  assert.match(html, /staff-chevron/);
+  assert.match(html, /aria-expanded="false"/);
+});
+
+test('expanding a pending row shows flight, route, SAP line and the decision buttons', async () => {
+  const h = await staffSuccessfulSignIn();
+  h.state.staff.expanded = 'AF-DEMO000002';
+  const html = h.box.staffView();
+  assert.match(html, /aria-expanded="true"/);
+  assert.match(html, /aria-controls="staff-row-AF-DEMO000002"/);
+  assert.match(html, /role="region"/);
+  assert.match(html, /NZ6 AKL → LAX, 28 October 2026 · cancelled · full refund/);
+  assert.match(html, /staff-route-fast">Fast track/);
+  assert.match(html, /SAP credit memo 60000073 · USD 175\.50/);
+  assert.match(html, /data-action="start-approve"/);
+  assert.match(html, /data-action="start-decline"/);
+  assert.doesNotMatch(html, /<button[^>]*>[^<]*<button/);
+});
+
+test('only one row is open at a time', async () => {
+  const h = await staffSuccessfulSignIn([
+    staffRequest({reference: 'AF-AAAA000001'}),
+    staffRequest({reference: 'AF-DEMO000002', passengerName: 'Minh Nguyen'}),
+  ]);
+  h.state.staff.expanded = 'AF-DEMO000002';
+  let html = h.box.staffView();
+  assert.equal((html.match(/aria-expanded="true"/g) || []).length, 1);
+  h.state.staff.expanded = 'AF-AAAA000001';
+  html = h.box.staffView();
+  const openRows = html.match(/aria-expanded="true"/g) || [];
+  assert.equal(openRows.length, 1);
+  assert.match(html, /aria-expanded="true"[^>]*id="staff-row-AF-AAAA000001-btn"/);
+  assert.match(html, /aria-expanded="false"[^>]*id="staff-row-AF-DEMO000002-btn"/);
+});
+
+test('approving requires the inline confirmation before anything is sent', async () => {
+  const h = await staffSuccessfulSignIn();
+  const calls = [];
+  h.box.fetch = async (url, options) => { calls.push({url, options}); throw new Error('Unexpected network call: ' + url); };
+  h.state.staff.expanded = 'AF-DEMO000002';
+  h.state.staff.deciding = {reference: 'AF-DEMO000002', decision: 'approve'};
+  const html = h.box.staffView();
+  assert.match(html, /Approve USD 175\.50 for Mark Don\?/);
+  assert.match(html, /data-action="approve-confirm"/);
+  assert.match(html, /data-action="cancel-decision"/);
+  assert.equal(calls.length, 0);
+});
+
+test('declining with an empty reason shows an inline error and sends nothing', async () => {
+  const h = await staffSuccessfulSignIn();
+  const calls = [];
+  h.box.fetch = async (url, options) => { calls.push({url, options}); throw new Error('Unexpected network call: ' + url); };
+  h.state.staff.expanded = 'AF-DEMO000002';
+  h.state.staff.deciding = {reference: 'AF-DEMO000002', decision: 'decline'};
+  await h.box.handleStaffDecision('AF-DEMO000002', 'decline', '   ');
+  assert.equal(calls.length, 0);
+  assert.equal(h.state.staff.decisionError['AF-DEMO000002'], 'Reason is required.');
+  const html = h.box.staffView();
+  assert.match(html, /Reason \(shown to the passenger\)/);
+  assert.match(html, /maxlength="500"/);
+  assert.match(html, /Reason is required\./);
+});
+
+test('a successful decision updates the row and the pending count without reloading', async () => {
+  const h = await staffSuccessfulSignIn();
+  const calls = [];
+  h.box.fetch = async (url, options) => {
+    calls.push({url, options});
+    if (url === '/api/staff/requests/AF-DEMO000002/decision') {
+      return json({request: staffRequest({reference: 'AF-DEMO000002', status: 'approved', version: 2})});
+    }
+    throw new Error('Unexpected network call: ' + url);
+  };
+  h.state.staff.expanded = 'AF-DEMO000002';
+  h.state.staff.deciding = {reference: 'AF-DEMO000002', decision: 'approve'};
+  await h.box.handleStaffDecision('AF-DEMO000002', 'approve', '');
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].options.method, 'POST');
+  assert.equal(JSON.parse(calls[0].options.body).version, 1);
+  assert.equal(h.state.staff.pendingCount, 0);
+  assert.equal(h.state.staff.expanded, null);
+  const html = h.box.staffView();
+  assert.match(html, /0 to process/);
+  assert.match(html, /pill-approved">Approved/);
+});
+
+test('a 409 decision reloads the list and shows the refresh message', async () => {
+  const h = await staffSuccessfulSignIn();
+  const calls = [];
+  h.box.fetch = async (url, options) => {
+    calls.push({url, options});
+    if (url === '/api/staff/requests/AF-DEMO000002/decision') {
+      return json({error: {code: 'REQUEST_ALREADY_DECIDED', message: 'This request has already been decided.'}}, 409);
+    }
+    if (url === '/api/staff/requests') {
+      return json({requests: [staffRequest({reference: 'AF-DEMO000002', status: 'declined', decisionNote: 'Not refundable', version: 2})]});
+    }
+    throw new Error('Unexpected network call: ' + url);
+  };
+  h.state.staff.expanded = 'AF-DEMO000002';
+  await h.box.handleStaffDecision('AF-DEMO000002', 'approve', '');
+  assert.equal(calls.filter(call => call.url === '/api/staff/requests').length, 1);
+  assert.equal(h.state.staff.notice, 'This request was already updated. The list has been refreshed.');
+  assert.equal(h.state.staff.pendingCount, 0);
+  const html = h.box.staffView();
+  assert.match(html, /This request was already updated\. The list has been refreshed\./);
+  assert.match(html, /pill-declined">Declined/);
+});
+
+test('an empty staff list shows the empty state', async () => {
+  const h = await staffSuccessfulSignIn([]);
+  const html = h.box.staffView();
+  assert.match(html, /No refund requests yet/);
+  assert.match(html, /0 to process/);
+});
+
+test('a failed staff load shows an error state with Retry that reloads the list', async () => {
+  const h = harness();
+  let attempt = 0;
+  h.box.fetch = async url => {
+    if (url === '/api/auth/login') return json({token: 'tok-staff', role: 'staff', displayName: 'Refunds team'});
+    if (url === '/api/staff/requests') {
+      attempt += 1;
+      if (attempt === 1) throw new Error('offline');
+      return json({requests: [staffRequest()]});
+    }
+    throw new Error('Unexpected network call: ' + url);
+  };
+  await h.box.signIn('admin', 'secret');
+  let html = h.box.staffView();
+  assert.match(html, /id="staff-retry"/);
+  assert.match(html, /Retry/);
+  await h.box.retryStaffRequests();
+  assert.equal(attempt, 2);
+  html = h.box.staffView();
+  assert.match(html, /Mark Don/);
+  assert.match(html, /1 to process/);
+});
+
+test('the staff screen contains no inline styles or scripts and nests no controls in the toggle', async () => {
+  const h = await staffSuccessfulSignIn();
+  h.state.staff.expanded = 'AF-DEMO000002';
+  const html = h.box.staffView();
+  assert.doesNotMatch(html, /style=|onclick=/);
+  const header = /<button[^>]*class="staff-row-header[^"]*"[^>]*>([\s\S]*?)<\/button>/.exec(html);
+  assert.ok(header, 'the pending row has a toggle button');
+  assert.doesNotMatch(header[1], /<(button|input|textarea|select)\b/);
+  assert.match(html, /data-action="start-approve"/);
+});
+
+test('a collapsed pending row keeps its panel hidden until it is expanded', async () => {
+  const h = await staffSuccessfulSignIn([staffRequest({reference: 'AF-DEMO000002'})]);
+  let html = h.box.staffView();
+  assert.match(html, /aria-expanded="false"/);
+  const panel = /<div class="staff-row-panel"[^>]*>/.exec(html);
+  assert.ok(panel, 'the pending row has a panel');
+  assert.match(panel[0], / hidden>/);
+  h.state.staff.expanded = 'AF-DEMO000002';
+  html = h.box.staffView();
+  assert.match(html, /aria-expanded="true"/);
+  assert.doesNotMatch(html, /<div class="staff-row-panel"[^>]* hidden>/);
+});
+
+test('only the expanded pending row exposes visible decision controls', async () => {
+  const h = await staffSuccessfulSignIn([
+    staffRequest({reference: 'AF-DEMO000002'}),
+    staffRequest({reference: 'AF-DEMO000004', passengerName: 'Ana Torres'}),
+  ]);
+  let html = h.box.staffView();
+  const allPanels = html.match(/<div class="staff-row-panel"[^>]*>/g) || [];
+  assert.equal(allPanels.length, 2);
+  allPanels.forEach(tag => assert.match(tag, / hidden>/));
+  h.state.staff.expanded = 'AF-DEMO000004';
+  html = h.box.staffView();
+  const openPanels = (html.match(/<div class="staff-row-panel"[^>]*>/g) || []).filter(tag => !/ hidden>/.test(tag));
+  assert.equal(openPanels.length, 1);
+  assert.match(openPanels[0], /id="staff-row-AF-DEMO000004"/);
+  const openPanel = new RegExp('id="staff-row-AF-DEMO000004"[\\s\\S]*?<\\/div>\\s*<\\/div>').exec(html);
+  assert.ok(openPanel, 'the expanded panel is found');
+  assert.match(openPanel[0], /data-action="start-approve"/);
+  assert.match(openPanel[0], /data-action="start-decline"/);
+});
+
+test('processed rows render no panel and no approve or decline controls', async () => {
+  const h = await staffSuccessfulSignIn([
+    staffRequest({reference: 'AF-DEMO000003', status: 'approved', amount: 400}),
+    staffRequest({reference: 'AF-DEMO000005', passengerName: 'Ana Torres', status: 'declined', decisionNote: 'Not refundable'}),
+  ]);
+  const html = h.box.staffView();
+  assert.match(html, /0 to process/);
+  assert.match(html, /pill-approved">Approved/);
+  assert.match(html, /pill-declined">Declined/);
+  assert.doesNotMatch(html, /staff-row-panel/);
+  assert.doesNotMatch(html, /data-action="start-approve"/);
+  assert.doesNotMatch(html, /data-action="start-decline"/);
+  assert.doesNotMatch(html, /<button[^>]*>\s*(Approve|Decline)\s*<\/button>/);
+});
+
+test('a mixed list only offers decision controls on its pending rows', async () => {
+  const h = await staffSuccessfulSignIn();
+  const html = h.box.staffView();
+  assert.equal((html.match(/data-action="start-approve"/g) || []).length, 1);
+  assert.equal((html.match(/data-action="start-decline"/g) || []).length, 1);
+  assert.equal((html.match(/staff-row-panel/g) || []).length, 1);
+  assert.match(html, /1 to process/);
+});
+
+test('values containing an ampersand are escaped exactly once', async () => {
+  const h = await staffSuccessfulSignIn([
+    staffRequest({reference: 'AF-DEMO000002', passengerName: 'A & B', sapDocument: '600&073'}),
+  ]);
+  h.state.staff.expanded = 'AF-DEMO000002';
+  h.state.staff.deciding = {reference: 'AF-DEMO000002', decision: 'approve'};
+  const html = h.box.staffView();
+  assert.doesNotMatch(html, /&amp;amp;/);
+  assert.match(html, /A &amp; B/);
+  assert.match(html, /Approve USD 175\.50 for A &amp; B\?/);
+  assert.match(html, /SAP credit memo 600&amp;073 · USD 175\.50/);
 });
 
 (async () => {
