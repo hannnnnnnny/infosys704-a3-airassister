@@ -36,7 +36,8 @@ class BlobSnapshots:
         if not self.store_id:
             raise unavailable()
         auth = {"Authorization": "Bearer " + self.token, **(headers or {})}
-        return self.opener.open(Request(url, data=body, headers=auth), timeout=8)
+        method = "PUT" if body is not None else "GET"
+        return self.opener.open(Request(url, data=body, headers=auth, method=method), timeout=8)
 
     def read(self):
         url = f"https://{self.store_id}.private.blob.vercel-storage.com/{self.pathname}?cache=0"

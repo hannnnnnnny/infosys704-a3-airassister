@@ -78,6 +78,15 @@ class CloudStoreTests(unittest.TestCase):
             found = self.store(snapshots).find(record["publicReference"], record["email"])
             self.assertEqual(found, record)
 
+    def test_blob_upload_uses_put_instead_of_post(self):
+        from cloud_store import BlobSnapshots
+        from unittest.mock import Mock
+        opener = Mock()
+        snapshots = BlobSnapshots("vercel_blob_rw_teststore_testtoken", opener)
+        snapshots.request("https://vercel.com/api/blob/", body=b"snapshot")
+        request = opener.open.call_args.args[0]
+        self.assertEqual(request.get_method(), "PUT")
+
 
 if __name__ == "__main__":
     unittest.main()
