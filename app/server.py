@@ -164,6 +164,22 @@ BOOKINGS = {
     },
 }
 
+# Synthetic original payment methods. Only brand + last4 are stored; no full
+# card numbers or bank details are accepted or kept anywhere.
+PAYMENT_METHODS = {
+    "NZ2W6B": {"type": "card", "brand": "Mastercard", "last4": "5555"},
+    "NZ7K2H": {"type": "card", "brand": "Visa", "last4": "4242"},
+    "NZ5R8M": {"type": "card", "brand": "Amex", "last4": "1005"},
+    "NZ3Q1T": {"type": "card", "brand": "Visa", "last4": "9876"},
+    "NZ9P4K": {"type": "card", "brand": "Mastercard", "last4": "8888"},
+}
+
+
+def payment_method_for(booking_reference: str) -> dict | None:
+    method = PAYMENT_METHODS.get(booking_reference)
+    return dict(method) if method else None
+
+
 # Demo accounts. Passwords are never stored in the repository; each account names the local
 # configuration variable that supplies its password.
 ACCOUNTS = {
@@ -180,6 +196,7 @@ ACCOUNTS = {
 
 SEED_REFERENCE = "AF-DEMO000001"
 SEED_EMAIL = "minh.nguyen@example.com"
+SEED_PHONE = "+64 9 555 0148"
 # Recorded SAP snapshot for the seeded demo request. It is not a live read and is labelled as such.
 SEED_QUOTE = {
     "sapDocument": "60000049",
@@ -191,6 +208,7 @@ SEED_QUOTE = {
 }
 SEED2_REFERENCE = "AF-DEMO000002"
 SEED2_EMAIL = "mark.don@example.com"
+SEED2_PHONE = "+64 21 555 0193"
 SEED2_QUOTE = {
     "sapDocument": "60000062",
     "amount": 175.50,
@@ -201,6 +219,7 @@ SEED2_QUOTE = {
 }
 SEED3_REFERENCE = "AF-DEMO000003"
 SEED3_EMAIL = "mark.don@example.com"
+SEED3_PHONE = "+64 21 555 0193"
 SEED3_QUOTE = {
     "sapDocument": "60000026",
     "amount": 60.00,
@@ -241,6 +260,17 @@ def normalized_email(value) -> str:
     return value
 
 
+def normalized_phone(value) -> str:
+    if not isinstance(value, str):
+        raise APIError(400, "INVALID_INPUT", "Provide valid contact details.")
+    value = value.strip()
+    if not (7 <= len(value) <= 20) or not re.fullmatch(r"[0-9+\-() ]+", value):
+        raise APIError(400, "INVALID_INPUT", "Provide valid contact details.")
+    if sum(char.isdigit() for char in value) < 7:
+        raise APIError(400, "INVALID_INPUT", "Provide valid contact details.")
+    return value
+
+
 def validate_login(payload) -> dict:
     if not isinstance(payload, dict):
         raise APIError(400, "INVALID_INPUT", "Provide a JSON object with username and password.")
@@ -258,7 +288,25 @@ def validate_login(payload) -> dict:
 def validate_submission(payload) -> dict:
     if not isinstance(payload, dict):
         raise APIError(400, "INVALID_INPUT", "Provide a JSON object for the refund request.")
-    email = normalized_email(payload.get("email"))
+    contact = payload.get("contact")
+    if isinstance(contact, dict):
+        email_raw = contact.get("email", "")
+        phone_raw = contact.get("phone", "")
+    else:
+        # Legacy client payload without a contact object; the top-level email
+        # is treated as the contact email. Client-supplied payment details are ignored.
+        email_raw = payload.get("email", "")
+        phone_raw = ""
+    email = ""
+    if isinstance(email_raw, str) and email_raw.strip():
+        email = normalized_email(email_raw)
+    phone = ""
+    if isinstance(phone_raw, str) and phone_raw.strip():
+        phone = normalized_phone(phone_raw)
+    elif phone_raw not in ("", None):
+        raise APIError(400, "INVALID_INPUT", "Provide valid contact details.")
+    if not email and not phone:
+        raise APIError(400, "INVALID_INPUT", "Provide at least one contact detail.")
     if payload.get("confirmed") is not True:
         raise APIError(400, "CONFIRMATION_REQUIRED", "Confirm the full refund request before submitting.")
     request_key = text_field(payload.get("requestKey"), "request key", 36)
@@ -269,7 +317,7 @@ def validate_submission(payload) -> dict:
     booking_reference = text_field(payload.get("bookingReference"), "booking reference", 10).upper()
     if not re.fullmatch(r"[A-Z0-9]{4,10}", booking_reference):
         raise APIError(400, "INVALID_INPUT", "Provide a valid booking reference.")
-    return {"email": email, "requestKey": request_key, "bookingReference": booking_reference}
+    return {"email": email, "phone": phone, "requestKey": request_key, "bookingReference": booking_reference}
 
 
 def validate_decision(payload) -> dict:
@@ -292,9 +340,9 @@ def validate_decision(payload) -> dict:
     return {"decision": decision, "note": note, "version": version}
 
 
-def submission_fingerprint(booking_reference: str, email: str) -> str:
+def submission_fingerprint(booking_reference: str, email: str, phone: str = "") -> str:
     payload = json.dumps(
-        {"bookingReference": booking_reference, "email": email},
+        {"bookingReference": booking_reference, "email": email, "phone": phone or ""},
         sort_keys=True, separators=(",", ":"), ensure_ascii=False,
     )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
@@ -330,6 +378,7 @@ def booking_view(booking: dict) -> dict:
         "toCode": booking["toCode"], "toCity": booking["toCity"], "date": booking["date"],
         "cabin": booking["cabin"], "flightStatus": booking["flightStatus"],
         "channel": booking["channel"], "sapCreditMemoRequest": booking["sapCreditMemoRequest"],
+        "paymentMethod": payment_method_for(booking["reference"]),
     }
 
 
@@ -475,8 +524,7 @@ def build_auth(*, deployed: bool = False, passwords: dict | None = None,
 class ApplicationStore:
     # Columns added after the original prototype schema. Migration is additive only.
     ADDED_COLUMNS = (
-        ("passenger_name", "TEXT"),
-        ("refund_type", "TEXT"),
+        ("passenger_name", "TEXT"),        ("refund_type", "TEXT"),
         ("sap_document", "TEXT"),
         ("amount", "REAL"),
         ("sap_process_status", "TEXT"),
@@ -488,6 +536,7 @@ class ApplicationStore:
         ("version", "INTEGER"),
         ("events", "TEXT"),
         ("updated_at", "TEXT"),
+        ("phone", "TEXT"),
     )
 
     def __init__(self, path: Path):
@@ -536,15 +585,15 @@ class ApplicationStore:
 
     def _seed(self, connection) -> None:
         seeds = [
-            (SEED_REFERENCE, BOOKINGS["NZ9P4K"], SEED_EMAIL, SEED_QUOTE, "pending", "", 1,
+            (SEED_REFERENCE, BOOKINGS["NZ9P4K"], SEED_EMAIL, SEED_PHONE, SEED_QUOTE, "pending", "", 1,
              [{"type": "submitted", "at": SEED_QUOTE["fetchedAt"], "note": "Seeded demo request."}]),
-            (SEED2_REFERENCE, BOOKINGS["NZ5R8M"], SEED2_EMAIL, SEED2_QUOTE, "pending", "", 1,
+            (SEED2_REFERENCE, BOOKINGS["NZ5R8M"], SEED2_EMAIL, SEED2_PHONE, SEED2_QUOTE, "pending", "", 1,
              [{"type": "submitted", "at": SEED2_QUOTE["fetchedAt"], "note": "Seeded demo request."}]),
-            (SEED3_REFERENCE, BOOKINGS["NZ2W6B"], SEED3_EMAIL, SEED3_QUOTE, "approved", "", 2,
+            (SEED3_REFERENCE, BOOKINGS["NZ2W6B"], SEED3_EMAIL, SEED3_PHONE, SEED3_QUOTE, "approved", "", 2,
              [{"type": "submitted", "at": SEED3_QUOTE["fetchedAt"], "note": "Seeded demo request."},
               {"type": "approved", "at": SEED3_QUOTE["fetchedAt"], "staff": "Refunds team", "note": ""}]),
         ]
-        for reference, booking, email, quote, status, note, version, events in seeds:
+        for reference, booking, email, phone, quote, status, note, version, events in seeds:
             created_at = quote["fetchedAt"]
             route = decide_route(booking, quote["processStatus"], quote["amount"])
             connection.execute(
@@ -552,22 +601,32 @@ class ApplicationStore:
                 " public_reference, booking_reference, last_name, email, reason, details, created_at,"
                 " ticket_value, currency, passenger_name, refund_type, sap_document, amount,"
                 " sap_process_status, quote_fetched_at, quote_source, route, request_status, decision_note,"
-                " version, events, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                " version, events, updated_at, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (reference, booking["reference"], booking["lastName"], email, "flight_disruption", "",
                  created_at, 0.0, quote["currency"], booking["passengerName"], "full", quote["sapDocument"],
                  quote["amount"], quote["processStatus"], quote["fetchedAt"], quote["source"],
-                 route, status, note, version, json.dumps(events, ensure_ascii=False), created_at),
+                 route, status, note, version, json.dumps(events, ensure_ascii=False), created_at, phone),
+            )
+            connection.execute(
+                "UPDATE refund_requests SET email=?, phone=? WHERE public_reference=?",
+                (email, phone, reference),
             )
 
     @staticmethod
     def _record(row: sqlite3.Row) -> dict:
         booking = BOOKINGS.get(row["booking_reference"], {})
         version = row["version"] if row["version"] is not None else 1
+        names = row.keys()
+        phone = row["phone"] if "phone" in names and row["phone"] else ""
+        email = row["email"] or ""
         return {
             "reference": row["public_reference"],
             "bookingReference": row["booking_reference"],
             "passengerName": row["passenger_name"] or row["last_name"] or "Passenger",
-            "email": row["email"],
+            "email": email,
+            "phone": phone,
+            "contact": {"phone": phone, "email": email},
+            "paymentMethod": payment_method_for(row["booking_reference"]),
             "reason": row["reason"],
             "refundType": row["refund_type"] or "full",
             "sapDocument": row["sap_document"],
@@ -619,11 +678,11 @@ class ApplicationStore:
             return [self._record(row) for row in rows]
 
     def submit_request(self, *, booking_reference: str, passenger_name: str, email: str, quote: dict,
-                       request_key: str, quote_source: str) -> tuple[dict, bool]:
+                       request_key: str, quote_source: str, phone: str = "") -> tuple[dict, bool]:
         booking = BOOKINGS.get(booking_reference)
         if booking is None:
             raise APIError(400, "INVALID_INPUT", "This booking is not available for a refund request.")
-        fingerprint = submission_fingerprint(booking_reference, email)
+        fingerprint = submission_fingerprint(booking_reference, email, phone)
         with self.connect() as connection:
             connection.execute("BEGIN IMMEDIATE")
             key_row = connection.execute(
@@ -653,11 +712,11 @@ class ApplicationStore:
                 " public_reference, booking_reference, last_name, email, reason, details, created_at,"
                 " ticket_value, currency, passenger_name, refund_type, sap_document, amount,"
                 " sap_process_status, quote_fetched_at, quote_source, route, request_status, decision_note,"
-                " version, events, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                " version, events, updated_at, phone) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (reference, booking_reference, booking["lastName"], email, "flight_disruption", "", created_at,
                  0.0, quote["currency"] or "", passenger_name, "full", quote["sapDocument"], quote["amount"],
                  quote["processStatus"], quote["fetchedAt"], quote_source, route, "pending", "", 1,
-                 json.dumps(events, ensure_ascii=False), created_at),
+                 json.dumps(events, ensure_ascii=False), created_at, phone),
             )
             connection.execute("INSERT INTO submission_keys VALUES (?, ?, ?)", (request_key, fingerprint, reference))
             row = connection.execute(
@@ -933,6 +992,7 @@ def make_handler(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = 
                     "flight": flight_view(booking),
                     "refundable": refundable,
                     "request": existing,
+                    "paymentMethod": payment_method_for(booking["reference"]),
                 }
                 if refundable and existing is None:
                     try:
@@ -955,7 +1015,7 @@ def make_handler(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = 
             booking = BOOKINGS[booking_reference]
             if not is_refundable(booking):
                 raise APIError(400, "NOT_REFUNDABLE", "This booking is not refundable.")
-            fingerprint = submission_fingerprint(booking["reference"], submission["email"])
+            fingerprint = submission_fingerprint(booking["reference"], submission["email"], submission["phone"])
             previous = store.find_submission(submission["requestKey"], fingerprint)
             if previous is None:
                 previous = store.request_for_booking(booking["reference"])
@@ -972,7 +1032,8 @@ def make_handler(store: ApplicationStore, sap: SAPClient, *, public_dir: Path = 
                                "SAP did not return a refund amount for this booking, so a request cannot be created.")
             request_record, created = store.submit_request(
                 booking_reference=booking["reference"], passenger_name=booking["passengerName"],
-                email=submission["email"], quote=quote, request_key=submission["requestKey"], quote_source="live",
+                email=submission["email"], phone=submission["phone"], quote=quote,
+                request_key=submission["requestKey"], quote_source="live",
             )
             self.json_response(201 if created else 200, {
                 "request": request_record, "created": created,
